@@ -172,7 +172,19 @@ backend/
 
 ### 4.3 配置管理
 
-#### 4.3.1 环境变量配置（.env）
+#### 4.3.1 提示词配置管理
+- **禁止硬编码提示词**：所有Copilot提示词必须从配置文件读取
+- **提示词文件位置**：`backend/config/prompts/`
+- **文件格式**：使用`.txt`或`.md`文件存储提示词
+- **配置加载**：在启动时加载所有提示词到内存
+- **提示词版本管理**：提示词文件纳入版本控制
+- **提示词命名规范**：
+  - `copilot_multi_agent.txt`：多智能体copilot核心指令
+  - `copilot_edit_agent.txt`：agent编辑指令
+  - `copilot_examples.txt`：示例
+  - `current_workflow.txt`：当前工作流提示模板
+
+#### 4.3.2 环境变量配置（.env）
 ```bash
 # 应用配置
 APP_NAME=质信智购
@@ -203,13 +215,13 @@ USE_RAG=true
 USE_COMPOSIO_TOOLS=true
 ```
 
-#### 4.3.2 配置加载规范
+#### 4.3.3 配置加载规范
 - 使用`pydantic-settings`管理配置
 - 配置类定义在`app/core/config.py`
 - 所有配置项必须有默认值或明确标记为必需
 - 启动时验证配置完整性
 
-#### 4.3.3 配置类示例
+#### 4.3.4 配置类示例
 ```python
 from pydantic_settings import BaseSettings
 from typing import Optional
@@ -486,10 +498,12 @@ uvicorn app.main:app --reload --port 8001
 ## 11. 安全规范
 
 ### 11.1 API安全
-- 使用JWT进行身份验证
-- API密钥存储在环境变量中
-- 实现速率限制（Rate Limiting）
-- 输入验证和SQL注入防护
+- **API Key验证**：所有API端点需要验证API Key（从请求头Authorization: Bearer {key}读取）
+- **项目Secret**：每个项目生成唯一secret用于webhook验证
+- **用户认证**：可选使用JWT或Auth0进行用户身份验证
+- **速率限制**：实现Rate Limiting防止滥用
+- **输入验证**：使用Pydantic进行严格的输入验证
+- **SQL注入防护**：使用参数化查询（MongoDB、Redis）
 
 ### 11.2 数据安全
 - 敏感数据加密存储

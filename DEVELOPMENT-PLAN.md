@@ -83,17 +83,34 @@
 - [ ] 提交代码并推送到GitHub
 - **验收标准**：端点响应正确，测试通过
 
-### 阶段四：项目管理API (Phase 4: Project Management API)
+### 阶段四：项目管理API和认证 (Phase 4: Project Management API & Auth)
 
-#### 步骤 4.1: 项目管理端点
+#### 步骤 4.1: API认证机制实现
+- [ ] 创建API Key模型和Repository
+- [ ] 实现API Key验证中间件
+- [ ] 实现项目Secret生成
+- [ ] 编写认证测试
+- [ ] 提交代码并推送到GitHub
+- **验收标准**：API Key验证正常，测试通过
+
+#### 步骤 4.2: 项目管理端点
 - [ ] 实现GET /api/v1/projects（列表）
-- [ ] 实现POST /api/v1/projects（创建）
+- [ ] 实现POST /api/v1/projects（创建，包含UUID和secret生成）
 - [ ] 实现GET /api/v1/projects/{project_id}（详情）
 - [ ] 实现PUT /api/v1/projects/{project_id}（更新）
 - [ ] 实现DELETE /api/v1/projects/{project_id}（删除）
 - [ ] 编写完整测试
 - [ ] 提交代码并推送到GitHub
 - **验收标准**：所有端点功能正常，测试通过，符合RESTful规范
+
+#### 步骤 4.3: 提取原项目Copilot提示词
+- [ ] 从原项目提取所有Copilot提示词
+- [ ] 创建config/prompts目录
+- [ ] 保存为配置文件（.txt/.md）
+- [ ] 实现提示词加载器（PromptLoader）
+- [ ] 验证提示词完整性
+- [ ] 提交代码并推送到GitHub
+- **验收标准**：所有提示词已提取，可通过配置读取，格式正确
 
 ### 阶段五：LangChain Copilot服务 (Phase 5: LangChain Copilot Service)
 
