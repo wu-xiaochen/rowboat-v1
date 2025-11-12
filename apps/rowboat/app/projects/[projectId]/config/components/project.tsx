@@ -96,8 +96,8 @@ function ProjectNameSection({
     }
 
     return <Section 
-        title="Project Name"
-        description="The name of your project."
+        title="项目名称"
+        description="你的项目名称。"
     >
         <div className="space-y-4">
             {loading ? (
@@ -116,8 +116,8 @@ function ProjectNameSection({
 
 function ProjectIdSection({ projectId }: { projectId: string }) {
     return <Section 
-        title="Project ID"
-        description="Your project's unique identifier."
+        title="项目ID"
+        description="你的项目的唯一标识符。"
     >
         <div className="flex flex-row gap-2 items-center">
             <div className="text-sm font-mono text-gray-600 dark:text-gray-400">{projectId}</div>
@@ -146,7 +146,7 @@ function SecretSection({ projectId }: { projectId: string }) {
     }, [projectId]);
 
     const handleRotateSecret = async () => {
-        if (!confirm("Are you sure you want to rotate the secret? All existing signatures will become invalid.")) {
+        if (!confirm("确定要旋转密钥吗？所有现有签名将变为无效。")) {
             return;
         }
         setLoading(true);
@@ -161,8 +161,8 @@ function SecretSection({ projectId }: { projectId: string }) {
     };
 
     return <Section 
-        title="Project Secret"
-        description="The project secret is used for signing tool-call requests sent to your webhook."
+        title="项目密钥"
+        description="项目密钥用于签名发送到你的webhook的工具调用请求。"
     >
         <div className="space-y-4">
             {loading ? (
@@ -181,8 +181,8 @@ function SecretSection({ projectId }: { projectId: string }) {
                         </button>
                         <CopyButton
                             onCopy={() => navigator.clipboard.writeText(secret || '')}
-                            label="Copy"
-                            successLabel="Copied"
+                            label="复制"
+                            successLabel="已复制"
                         />
                         <Button
                             size="sm"
@@ -190,7 +190,7 @@ function SecretSection({ projectId }: { projectId: string }) {
                             onClick={handleRotateSecret}
                             disabled={loading}
                         >
-                            Rotate
+                            旋转
                         </Button>
                     </div>
                 </div>
@@ -603,17 +603,17 @@ function DisconnectToolkitsSection({ projectId, onProjectConfigUpdated }: {
                                                 {toolkit.connectedAccount?.status === 'ACTIVE' ? (
                                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full border border-green-300 bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-200 dark:border-green-700">
                                                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                                                        Connected
+                                                        已连接
                                                     </span>
                                                 ) : toolkit.connectedAccount ? (
                                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full border border-gray-300 bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700">
                                                         <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
-                                                        Disconnected
+                                                        未连接
                                                     </span>
                                                 ) : (
                                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full border border-yellow-300 bg-yellow-50 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700">
                                                         <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
-                                                        Not Connected
+                                                        未连接
                                                     </span>
                                                 )}
                                             </div>
@@ -629,7 +629,7 @@ function DisconnectToolkitsSection({ projectId, onProjectConfigUpdated }: {
                                                 disabled={disconnectingToolkit === toolkit.slug}
                                                 isLoading={disconnectingToolkit === toolkit.slug}
                                             >
-                                                {disconnectingToolkit === toolkit.slug ? 'Disconnecting...' : 'Disconnect'}
+                                                {disconnectingToolkit === toolkit.slug ? '断开连接中...' : '断开连接'}
                                             </Button>
                                         ) : toolkit.connectedAccount ? (
                                             <Button
@@ -637,7 +637,7 @@ function DisconnectToolkitsSection({ projectId, onProjectConfigUpdated }: {
                                                 variant="secondary"
                                                 disabled={true}
                                             >
-                                                Disconnected
+                                                未连接
                                             </Button>
                                         ) : (
                                             <Button
@@ -645,7 +645,7 @@ function DisconnectToolkitsSection({ projectId, onProjectConfigUpdated }: {
                                                 variant="secondary"
                                                 disabled={true}
                                             >
-                                                Not Connected
+                                                未连接
                                             </Button>
                                         )}
 
@@ -656,8 +656,8 @@ function DisconnectToolkitsSection({ projectId, onProjectConfigUpdated }: {
                     ) : (
                         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                             <AlertTriangle className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                            <p className="text-sm">No toolkits found</p>
-                            <p className="text-xs mt-1">Connect toolkits from the workflow editor or triggers to manage them here</p>
+                            <p className="text-sm">未找到工具包</p>
+                            <p className="text-xs mt-1">从工作流编辑器或触发器连接工具包以在此处管理它们</p>
                         </div>
                     )}
                 </div>
@@ -671,9 +671,9 @@ function DisconnectToolkitsSection({ projectId, onProjectConfigUpdated }: {
                     setSelectedToolkit(null);
                 }}
                 onConfirm={handleConfirmDisconnect}
-                title={`Disconnect ${selectedToolkit?.name || 'Toolkit'}`}
-                confirmationQuestion={`Are you sure you want to disconnect the ${selectedToolkit?.name || 'toolkit'}? This will permanently remove all its tools, triggers, and connections. Your workflows may stop working properly if they depend on this toolkit.`}
-                confirmButtonText="Disconnect"
+                title={`断开连接 ${selectedToolkit?.name || '工具包'}`}
+                confirmationQuestion={`确定要断开连接 ${selectedToolkit?.name || '工具包'}吗？这将永久移除其所有工具、触发器和连接。如果你的工作流依赖此工具包，可能会停止正常工作。`}
+                confirmButtonText="断开连接"
                 isLoading={disconnectingToolkit !== null}
             />
 
