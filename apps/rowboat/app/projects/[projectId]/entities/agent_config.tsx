@@ -125,7 +125,7 @@ export function AgentConfig({
     }, [agent.ragDataSources, previousRagSources.length]);
 
     const handleUpdateInstructions = async () => {
-        const message = `Update the instructions for agent "${agent.name}" to use the rag tool (rag_search) since data sources have been added. If this has already been done, do not take any action, but let me know.`;
+        const message = `更新智能体"${agent.name}"的指令以使用rag工具（rag_search），因为已添加数据源。如果已经完成，请不要执行任何操作，但请告诉我。`;
         triggerCopilotChat(message);
         setShowRagCta(false);
     };

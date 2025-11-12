@@ -48,21 +48,21 @@ export function PipelineConfig({
 
     const validateName = (value: string) => {
         if (value.length === 0) {
-            setNameError("Name cannot be empty");
+            setNameError("名称不能为空");
             return false;
         }
         // Check for conflicts with other pipeline names
         if (value !== pipeline.name && usedPipelineNames.has(value)) {
-            setNameError("This name is already taken by another pipeline");
+            setNameError("此名称已被其他管道使用");
             return false;
         }
         // Check for conflicts with agent names
         if (usedAgentNames.has(value)) {
-            setNameError("This name is already taken by an agent");
+            setNameError("此名称已被智能体使用");
             return false;
         }
         if (!/^[a-zA-Z0-9_-\s]+$/.test(value)) {
-            setNameError("Name must contain only letters, numbers, underscores, hyphens, and spaces");
+            setNameError("名称只能包含字母、数字、下划线、连字符和空格");
             return false;
         }
         setNameError(null);
@@ -93,7 +93,7 @@ export function PipelineConfig({
                         size="sm"
                         onClick={handleClose}
                         showHoverContent={true}
-                        hoverContent="Close"
+                        hoverContent="关闭"
                     >
                         <XIcon className="w-4 h-4" />
                     </CustomButton>
@@ -107,7 +107,7 @@ export function PipelineConfig({
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-sm font-medium">Changes saved</span>
+                        <span className="text-sm font-medium">更改已保存</span>
                     </div>
                 )}
 
@@ -116,13 +116,13 @@ export function PipelineConfig({
                     {/* Identity Section Card */}
                     <SectionCard
                         icon={<Settings className="w-5 h-5 text-indigo-500" />}
-                        title="Identity"
+                        title="身份"
                         labelWidth="md:w-32"
                         className="mb-1"
                     >
                         <div className="flex flex-col gap-6">
                             <div className="flex flex-col md:flex-row md:items-start gap-1 md:gap-0">
-                                <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">Name</label>
+                                <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">名称</label>
                                 <div className="flex-1">
                                     <InputField
                                         type="text"
@@ -134,7 +134,7 @@ export function PipelineConfig({
                                 </div>
                             </div>
                             <div className="flex flex-col md:flex-row md:items-start gap-1 md:gap-0">
-                                <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">Description</label>
+                                <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">描述</label>
                                 <div className="flex-1">
                                     <InputField
                                         type="text"
@@ -144,7 +144,7 @@ export function PipelineConfig({
                                             showSavedMessage();
                                         }}
                                         multiline={true}
-                                        placeholder="Enter a description for this pipeline"
+                                        placeholder="输入此管道的描述"
                                         className="w-full"
                                     />
                                 </div>
@@ -155,21 +155,21 @@ export function PipelineConfig({
                     {/* Pipeline Info */}
                     <SectionCard
                         icon={<Settings className="w-5 h-5 text-indigo-500" />}
-                        title="Behavior"
+                        title="行为"
                         labelWidth="md:w-32"
                         className="mb-1"
                     >
                         <div className="flex flex-col gap-4">
                             <div className="text-sm text-gray-600 dark:text-gray-400">
                                 <div className="mb-2">
-                                    <span className="font-medium">Agents in Pipeline:</span> {pipeline.agents.length}
+                                    <span className="font-medium">管道中的智能体：</span> {pipeline.agents.length}
                                 </div>
                                 <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                                    <div className="font-medium mb-2">How Pipelines Work:</div>
+                                    <div className="font-medium mb-2">管道如何工作：</div>
                                     <ul className="text-xs space-y-1 list-disc list-inside">
-                                        <li>Agents execute sequentially in the order shown</li>
-                                        <li>Output from one agent flows as input to the next</li>
-                                        <li>Add agents to this pipeline from the agents panel</li>
+                                        <li>智能体按显示的顺序顺序执行</li>
+                                        <li>一个智能体的输出作为下一个智能体的输入</li>
+                                        <li>从智能体面板向此管道添加智能体</li>
                                     </ul>
                                 </div>
                             </div>

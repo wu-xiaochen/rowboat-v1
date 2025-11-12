@@ -62,7 +62,7 @@ export function DataSourceConfig({
                 }
             } catch (err) {
                 console.error('Failed to load data source:', err);
-                setError('Failed to load data source details');
+                setError('加载数据源详细信息失败');
             } finally {
                 setLoading(false);
             }
@@ -211,7 +211,7 @@ export function DataSourceConfig({
 
     // Handle file deletion
     const handleDeleteFile = async (fileId: string) => {
-        if (!window.confirm('Are you sure you want to delete this file?')) return;
+        if (!window.confirm('确定要删除此文件吗？')) return;
         
         try {
             await deleteDocFromDataSource({
@@ -244,7 +244,7 @@ export function DataSourceConfig({
 
     // Handle URL deletion
     const handleDeleteUrl = async (urlId: string) => {
-        if (!window.confirm('Are you sure you want to delete this URL?')) return;
+        if (!window.confirm('确定要删除此URL吗？')) return;
         
         try {
             await deleteDocFromDataSource({
@@ -256,7 +256,7 @@ export function DataSourceConfig({
             // Reload data source to get updated status
             await updateDataSourceAndNotify();
         } catch (err) {
-            console.error('Failed to delete URL:', err);
+            console.error('删除URL失败:', err);
         }
     };
 
@@ -298,7 +298,7 @@ export function DataSourceConfig({
             // Reload data source to get updated status
             await updateDataSourceAndNotify();
         } catch (err) {
-            console.error('Failed to save text:', err);
+            console.error('保存文本失败:', err);
         } finally {
             setSavingText(false);
         }
@@ -331,7 +331,7 @@ export function DataSourceConfig({
             // Reload data source to get updated status
             await updateDataSourceAndNotify();
         } catch (err) {
-            console.error('Failed to add URLs:', err);
+            console.error('添加URL失败:', err);
         } finally {
             setAddingUrls(false);
         }
@@ -425,14 +425,14 @@ export function DataSourceConfig({
                 title={
                     <div className="flex items-center justify-between w-full">
                         <div className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                            Loading Data Source...
+                            加载数据源...
                         </div>
                         <Button
                             variant="secondary"
                             size="sm"
                             onClick={handleClose}
                             showHoverContent={true}
-                            hoverContent="Close"
+                            hoverContent="关闭"
                         >
                             <XIcon className="w-4 h-4" />
                         </Button>
@@ -452,14 +452,14 @@ export function DataSourceConfig({
                 title={
                     <div className="flex items-center justify-between w-full">
                         <div className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                            Error Loading Data Source
+                            加载数据源错误
                         </div>
                         <Button
                             variant="secondary"
                             size="sm"
                             onClick={handleClose}
                             showHoverContent={true}
-                            hoverContent="Close"
+                            hoverContent="关闭"
                         >
                             <XIcon className="w-4 h-4" />
                         </Button>
@@ -469,7 +469,7 @@ export function DataSourceConfig({
                 <div className="flex items-center justify-center h-64 text-red-500">
                     <div className="text-center">
                         <AlertTriangle className="w-12 h-12 mx-auto mb-4" />
-                        <p>{error || 'Data source not found'}</p>
+                        <p>{error || '未找到数据源'}</p>
                     </div>
                 </div>
             </Panel>
@@ -487,28 +487,28 @@ export function DataSourceConfig({
             return (
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400">
                     <Spinner size="sm" color="warning" />
-                    <span className="text-sm font-medium">Processing</span>
+                    <span className="text-sm font-medium">处理中</span>
                 </div>
             );
         } else if (isError) {
             return (
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400">
                     <AlertTriangle className="w-4 h-4" />
-                    <span className="text-sm font-medium">Error</span>
+                    <span className="text-sm font-medium">错误</span>
                 </div>
             );
         } else if (isActive) {
             return (
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
                     <CheckCircle className="w-4 h-4" />
-                    <span className="text-sm font-medium">Active</span>
+                    <span className="text-sm font-medium">激活</span>
                 </div>
             );
         } else {
             return (
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400">
                     <Circle className="w-4 h-4" />
-                    <span className="text-sm font-medium">Inactive</span>
+                    <span className="text-sm font-medium">未激活</span>
                 </div>
             );
         }
@@ -517,10 +517,10 @@ export function DataSourceConfig({
     // Type display name
     const getTypeDisplayName = (type: string) => {
         switch (type) {
-            case 'urls': return 'Scraped URLs';
-            case 'files_local': return 'Local Files';
-            case 'files_s3': return 'S3 Files';
-            case 'text': return 'Text Content';
+            case 'urls': return '抓取的URL';
+            case 'files_local': return '本地文件';
+            case 'files_s3': return 'S3文件';
+            case 'text': return '文本内容';
             default: return type;
         }
     };
@@ -543,7 +543,7 @@ export function DataSourceConfig({
                                 {dataSource.name}
                             </div>
                             <div className="text-sm text-gray-500 dark:text-gray-400">
-                                Data Source
+                                数据源
                             </div>
                         </div>
                     </div>
@@ -552,7 +552,7 @@ export function DataSourceConfig({
                         size="sm"
                         onClick={handleClose}
                         showHoverContent={true}
-                        hoverContent="Close"
+                        hoverContent="关闭"
                     >
                         <XIcon className="w-4 h-4" />
                     </Button>
@@ -563,7 +563,7 @@ export function DataSourceConfig({
                 <div className="p-6 space-y-6">
                     {/* Status Section */}
                     <div className="space-y-3">
-                        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Status</h3>
+                        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">状态</h3>
                         {statusIndicator()}
                         {isError && dataSource.error && (
                             <div className="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-md">
@@ -574,27 +574,27 @@ export function DataSourceConfig({
 
                     {/* Basic Information */}
                     <div className="space-y-3">
-                        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Information</h3>
+                        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">信息</h3>
                         <div className="grid grid-cols-1 gap-4 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-gray-500 dark:text-gray-400">Type:</span>
+                                <span className="text-gray-500 dark:text-gray-400">类型：</span>
                                 <span className="text-gray-900 dark:text-gray-100">{getTypeDisplayName(dataSource.data.type)}</span>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="text-gray-500 dark:text-gray-400">Status:</span>
+                                <span className="text-gray-500 dark:text-gray-400">状态：</span>
                                 <div className="flex items-center">
                                     {statusIndicator()}
                                 </div>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-500 dark:text-gray-400">Created:</span>
+                                <span className="text-gray-500 dark:text-gray-400">创建时间：</span>
                                 <span className="text-gray-900 dark:text-gray-100">
                                     {new Date(dataSource.createdAt).toLocaleDateString()}
                                 </span>
                             </div>
                             {dataSource.lastUpdatedAt && (
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500 dark:text-gray-400">Last Updated:</span>
+                                    <span className="text-gray-500 dark:text-gray-400">最后更新：</span>
                                     <span className="text-gray-900 dark:text-gray-100">
                                         {new Date(dataSource.lastUpdatedAt).toLocaleDateString()}
                                     </span>
@@ -606,7 +606,7 @@ export function DataSourceConfig({
                     {/* Description */}
                     {dataSource.description && (
                         <div className="space-y-3">
-                            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Description</h3>
+                            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">描述</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
                                 {dataSource.description}
                             </p>
@@ -618,7 +618,7 @@ export function DataSourceConfig({
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    Files ({filesTotal})
+                                    文件 ({filesTotal})
                                 </h3>
                             </div>
 
@@ -632,18 +632,18 @@ export function DataSourceConfig({
                                 {uploadingFiles ? (
                                     <div className="flex items-center justify-center gap-2">
                                         <Spinner size="sm" />
-                                        <p className="text-sm">Uploading files...</p>
+                                        <p className="text-sm">上传文件中...</p>
                                     </div>
                                 ) : isDragActive ? (
-                                    <p className="text-sm">Drop the files here...</p>
+                                    <p className="text-sm">将文件拖放到此处...</p>
                                 ) : (
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-center gap-2">
                                             <PlusIcon className="w-4 h-4" />
-                                            <p className="text-sm">Drag and drop files here, or click to select files</p>
+                                            <p className="text-sm">拖放文件到此处，或点击选择文件</p>
                                         </div>
                                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                                            Only PDF files are supported for now.
+                                            目前仅支持PDF文件。
                                         </p>
                                     </div>
                                 )}
@@ -652,12 +652,12 @@ export function DataSourceConfig({
                             {filesLoading ? (
                                 <div className="flex items-center justify-center gap-2 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                                     <Spinner size="sm" />
-                                    <p className="text-gray-600 dark:text-gray-300">Loading files...</p>
+                                    <p className="text-gray-600 dark:text-gray-300">加载文件中...</p>
                                 </div>
                             ) : files.length === 0 ? (
                                 <div className="text-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                                     <FileIcon className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                                    <p className="text-gray-500 dark:text-gray-400">No files uploaded yet</p>
+                                    <p className="text-gray-500 dark:text-gray-400">尚未上传文件</p>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
@@ -674,14 +674,14 @@ export function DataSourceConfig({
                                                     </p>
                                                     <p className="text-xs text-gray-500 dark:text-gray-400">
                                                         <RelativeTime date={new Date(file.createdAt)} />
-                                                        {file.data.type === 'file_local' && ' • Local'}
+                                                        {file.data.type === 'file_local' && ' • 本地'}
                                                         {file.data.type === 'file_s3' && ' • S3'}
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 {(file.data.type === 'file_local' || file.data.type === 'file_s3') && (
-                                                    <Tooltip content="Download file">
+                                                    <Tooltip content="下载文件">
                                                         <button
                                                             onClick={() => handleDownloadFile(file.id)}
                                                             className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
@@ -690,7 +690,7 @@ export function DataSourceConfig({
                                                         </button>
                                                     </Tooltip>
                                                 )}
-                                                <Tooltip content="Delete file">
+                                                <Tooltip content="删除文件">
                                                     <button
                                                         onClick={() => handleDeleteFile(file.id)}
                                                         className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
@@ -735,7 +735,7 @@ export function DataSourceConfig({
                                     size="sm"
                                     startContent={<PlusIcon className="w-4 h-4" />}
                                 >
-                                    Add URLs
+                                    添加URL
                                 </HeroButton>
                             ) : (
                                 <form 
@@ -744,7 +744,7 @@ export function DataSourceConfig({
                                 >
                                     <div className="space-y-2">
                                         <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                            Add URLs (one per line)
+                                            添加URL（每行一个）
                                         </label>
                                         <HeroTextarea
                                             required
@@ -763,7 +763,7 @@ export function DataSourceConfig({
                                             isLoading={addingUrls}
                                             startContent={!addingUrls ? <PlusIcon className="w-4 h-4" /> : undefined}
                                         >
-                                            {addingUrls ? 'Adding...' : 'Add URLs'}
+                                            {addingUrls ? '添加中...' : '添加URL'}
                                         </HeroButton>
                                         <HeroButton
                                             type="button"
@@ -772,7 +772,7 @@ export function DataSourceConfig({
                                             onClick={() => setShowAddUrlForm(false)}
                                             isDisabled={addingUrls}
                                         >
-                                            Cancel
+                                            取消
                                         </HeroButton>
                                     </div>
                                 </form>
@@ -781,12 +781,12 @@ export function DataSourceConfig({
                             {urlsLoading ? (
                                 <div className="flex items-center justify-center gap-2 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                                     <Spinner size="sm" />
-                                    <p className="text-gray-600 dark:text-gray-300">Loading URLs...</p>
+                                    <p className="text-gray-600 dark:text-gray-300">加载URL中...</p>
                                 </div>
                             ) : urls.length === 0 ? (
                                 <div className="text-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                                     <GlobeIcon className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                                    <p className="text-gray-500 dark:text-gray-400">No URLs added yet</p>
+                                    <p className="text-gray-500 dark:text-gray-400">尚未添加URL</p>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
@@ -819,7 +819,7 @@ export function DataSourceConfig({
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <Tooltip content="Delete URL">
+                                                <Tooltip content="删除URL">
                                                     <button
                                                         onClick={() => handleDeleteUrl(url.id)}
                                                         className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
@@ -852,32 +852,32 @@ export function DataSourceConfig({
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    Text Content
+                                    文本内容
                                 </h3>
                             </div>
                             
                             {textLoading ? (
                                 <div className="flex items-center justify-center gap-2 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                                     <Spinner size="sm" />
-                                    <p className="text-gray-600 dark:text-gray-300">Loading content...</p>
+                                    <p className="text-gray-600 dark:text-gray-300">加载内容中...</p>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                        Text content
+                                        文本内容
                                     </label>
                                     <InputField
                                         type="text"
                                         value={textContent}
                                         onChange={handleUpdateTextContent}
                                         multiline={true}
-                                        placeholder="Enter your text content here"
+                                        placeholder="在此输入文本内容"
                                         className="w-full"
                                         disabled={savingText}
                                     />
                                     {savingText && (
                                         <div className="text-xs text-gray-500 dark:text-gray-400">
-                                            Saving...
+                                            保存中...
                                         </div>
                                     )}
                                 </div>
@@ -887,7 +887,7 @@ export function DataSourceConfig({
 
                     {/* Usage Information */}
                     <div className="space-y-3">
-                        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Usage</h3>
+                        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">使用</h3>
                         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md">
                             <div className="flex items-start gap-3">
                                 <div className="w-5 h-5 text-blue-500 mt-0.5">
@@ -896,8 +896,8 @@ export function DataSourceConfig({
                                     </svg>
                                 </div>
                                 <div className="text-sm text-blue-700 dark:text-blue-300">
-                                    <p className="font-medium mb-1">Using this data source</p>
-                                    <p>To use this data source in your agents, go to the RAG tab in individual agent settings and connect this data source.</p>
+                                    <p className="font-medium mb-1">使用此数据源</p>
+                                    <p>要在智能体中使用此数据源，请转到各个智能体设置中的RAG选项卡并连接此数据源。</p>
                                 </div>
                             </div>
                         </div>

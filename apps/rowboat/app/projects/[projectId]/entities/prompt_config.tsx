@@ -52,10 +52,10 @@ export function PromptConfig({
     // Move validation function inside component to access props
     const validatePromptName = (value: string) => {
         if (value.length === 0) {
-            return "Name cannot be empty";
+            return "名称不能为空";
         }
         if (value !== prompt.name && usedPromptNames.has(value)) {
-            return "This name is already taken";
+            return "此名称已被使用";
         }
         return null;
     };
@@ -72,7 +72,7 @@ export function PromptConfig({
                         size="sm"
                         onClick={handleClose}
                         showHoverContent={true}
-                        hoverContent="Close"
+                        hoverContent="关闭"
                     >
                         <XIcon className="w-4 h-4" />
                     </Button>
@@ -86,14 +86,14 @@ export function PromptConfig({
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-sm font-medium">Changes saved ✓</span>
+                        <span className="text-sm font-medium">更改已保存 ✓</span>
                     </div>
                 )}
                 {prompt.type === "base_prompt" && (
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <label className={sectionHeaderStyles}>
-                                Name
+                                名称
                             </label>
                             <div className={clsx(
                                 "border rounded-lg focus-within:ring-2",
@@ -117,7 +117,7 @@ export function PromptConfig({
                                         });
                                         showSavedMessage();
                                     }}
-                                    placeholder="Enter prompt name..."
+                                    placeholder="输入提示词名称..."
                                     className="w-full text-sm bg-transparent focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 transition-colors px-4 py-3"
                                     autoResize
                                 />
@@ -131,7 +131,7 @@ export function PromptConfig({
 
                 <div className="space-y-4">
                     <label className={sectionHeaderStyles}>
-                        Value
+                        值
                     </label>
                     <Textarea
                         value={prompt.prompt}
@@ -142,7 +142,7 @@ export function PromptConfig({
                             });
                             showSavedMessage();
                         }}
-                        placeholder="Enter variable value..."
+                        placeholder="输入变量值..."
                         className={`${valueTextareaStyles} min-h-[200px]`}
                         autoResize
                     />

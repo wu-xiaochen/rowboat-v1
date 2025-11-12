@@ -67,10 +67,10 @@ export function App({
                 title={
                     <div className="flex items-center gap-2 text-zinc-800 dark:text-zinc-200 font-semibold">
                         <MessageCircle className="w-4 h-4" />
-                        Chat
+                        聊天
                     </div>
                 }
-                subtitle={hasAgents ? "Chat with your assistant" : "Create an agent to start chatting"}
+                subtitle={hasAgents ? "与你的助手聊天" : "创建智能体以开始聊天"}
                 rightActions={hasAgents ? (
                     <div className="flex items-center gap-2">
                         <Button
@@ -79,7 +79,7 @@ export function App({
                             onClick={handleNewChatButtonClick}
                             className="bg-blue-50 text-blue-700 hover:bg-blue-100"
                             showHoverContent={true}
-                            hoverContent="New chat"
+                            hoverContent="新聊天"
                         >
                             <PlusIcon className="w-4 h-4" />
                         </Button>
@@ -89,7 +89,7 @@ export function App({
                             onClick={() => setShowDebugMessages(!showDebugMessages)}
                             className={showDebugMessages ? "bg-blue-50 text-blue-700 hover:bg-blue-100" : "bg-gray-50 text-gray-500 hover:bg-gray-100"}
                             showHoverContent={true}
-                            hoverContent={showDebugMessages ? "Hide debug messages" : "Show debug messages"}
+                            hoverContent={showDebugMessages ? "隐藏调试消息" : "显示调试消息"}
                         >
                             {showDebugMessages ? (
                                 <BugIcon className="w-4 h-4" />
@@ -102,7 +102,7 @@ export function App({
                             size="sm"
                             onClick={handleCopyJson}
                             showHoverContent={true}
-                            hoverContent={showCopySuccess ? "Copied" : "Copy JSON"}
+                            hoverContent={showCopySuccess ? "已复制" : "复制JSON"}
                         >
                             {showCopySuccess ? (
                                 <CheckIcon className="w-4 h-4" />
@@ -136,16 +136,16 @@ export function App({
                                 <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
                                     <MessageCircle className="w-6 h-6" />
                                 </div>
-                                <div className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Create an agent to start chatting</div>
-                                <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Skipper can build agents for you!</div>
+                                <div className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">创建智能体以开始聊天</div>
+                                <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">AI助手可以为你构建智能体！</div>
                                 <div className="mt-4 flex items-center justify-center gap-3">
                                     <Button
                                         variant="primary"
                                         size="sm"
                                         className="!bg-blue-700 hover:!bg-blue-800 !text-white dark:!bg-blue-600 dark:hover:!bg-blue-700 !border !border-blue-700 dark:!border-blue-600"
-                                        onClick={() => triggerCopilotChat?.("Help me create my first agent.")}
+                                        onClick={() => triggerCopilotChat?.("帮我创建我的第一个智能体。")}
                                     >
-                                        Ask Skipper
+                                        询问AI助手
                                     </Button>
                                 </div>
                             </div>
