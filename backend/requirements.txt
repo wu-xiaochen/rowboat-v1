@@ -1,0 +1,46 @@
+# FastAPI 框架
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.20
+
+# Pydantic 配置管理
+pydantic==2.10.3
+pydantic-settings==2.6.1
+
+# LangChain 核心
+langchain==0.3.14
+langchain-core==0.3.21
+langchain-community==0.3.13
+langchain-openai==0.2.14
+
+# CrewAI 多智能体框架
+crewai==0.86.0
+crewai-tools==0.17.0
+
+# 数据库驱动
+motor==3.6.0  # MongoDB 异步驱动
+redis==5.2.1  # Redis 客户端
+qdrant-client==1.12.1  # Qdrant 向量数据库
+
+# Composio 工具集成
+composio-core==0.7.6
+
+# 工具和实用库
+python-dotenv==1.0.1
+httpx==0.28.1
+aiohttp==3.11.11
+
+# 测试框架
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-cov==6.0.0
+
+# 代码质量工具
+black==24.10.0
+ruff==0.8.4
+mypy==1.13.0
+
+# 其他依赖
+python-jose[cryptography]==3.3.0  # JWT
+passlib[bcrypt]==1.7.4  # 密码哈希
+
