@@ -37,12 +37,14 @@ class ConversationsRepository:
         # 转换为字典，准备插入数据库
         conversation_dict = conversation.model_dump(by_alias=True, exclude={"id"})
         
+        # 添加id字段到字典中（MongoDB不需要，但我们保留用于查询）
+        conversation_dict["id"] = conversation.id
+        
         # 插入数据库
-        result = await collection.insert_one(conversation_dict)
+        await collection.insert_one(conversation_dict)
         
         # 返回创建的对话
-        created_conversation = conversation.model_copy()
-        return created_conversation
+        return conversation
     
     async def get_by_id(self, conversation_id: str) -> Optional[Conversation]:
         """

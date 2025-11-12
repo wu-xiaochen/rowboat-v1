@@ -5,7 +5,7 @@ API v1 router aggregation
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import health, info, api_keys, projects
+from app.api.v1.endpoints import health, info, api_keys, projects, chat
 
 # 创建v1路由器
 router = APIRouter(prefix="/api/v1")
@@ -15,4 +15,5 @@ router.include_router(health.router)
 router.include_router(info.router)
 router.include_router(projects.router)
 router.include_router(api_keys.router)
+router.include_router(chat.router)
 

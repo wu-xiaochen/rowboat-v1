@@ -307,7 +307,7 @@ class Conversation(BaseModel):
     id: str
     project_id: str = Field(alias="projectId")
     workflow: Workflow
-    reason: Reason
+    reason: Dict[str, Any]  # 使用字典类型，因为reason可以是chat/api/job等不同类型
     is_live_workflow: bool = Field(alias="isLiveWorkflow")
     turns: Optional[List[Turn]] = None
     created_at: datetime = Field(alias="createdAt")
