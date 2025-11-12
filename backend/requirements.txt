@@ -12,6 +12,10 @@ langchain==0.3.14
 langchain-core==0.3.21
 langchain-community==0.3.13
 langchain-openai==0.2.14
+langchain-text-splitters==0.3.3
+
+# OpenAI 兼容API
+openai==1.54.5
 
 # CrewAI 多智能体框架
 crewai==0.86.0

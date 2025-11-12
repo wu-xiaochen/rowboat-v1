@@ -38,10 +38,15 @@ class EmbeddingService:
             (embedding向量, token数量)
         """
         try:
-            # 调用OpenAI兼容的API
-            response = self.client.embeddings.create(
-                model=self.model,
-                input=text,
+            # 调用OpenAI兼容的API（注意：OpenAI客户端是同步的，需要在异步环境中使用）
+            import asyncio
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: self.client.embeddings.create(
+                    model=self.model,
+                    input=text,
+                )
             )
             
             # 提取嵌入向量和token数量
@@ -65,10 +70,15 @@ class EmbeddingService:
             (嵌入向量列表, token总数)
         """
         try:
-            # 调用OpenAI兼容的API
-            response = self.client.embeddings.create(
-                model=self.model,
-                input=texts,
+            # 调用OpenAI兼容的API（注意：OpenAI客户端是同步的，需要在异步环境中使用）
+            import asyncio
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: self.client.embeddings.create(
+                    model=self.model,
+                    input=texts,
+                )
             )
             
             # 提取嵌入向量列表和token数量
