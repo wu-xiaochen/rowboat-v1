@@ -181,20 +181,20 @@ export function AgentConfig({
 
     const validateName = (value: string) => {
         if (value.length === 0) {
-            setNameError("Name cannot be empty");
+            setNameError("名称不能为空");
             return false;
         }
         if (value !== agent.name && usedAgentNames.has(value)) {
-            setNameError("This name is already taken by another agent");
+            setNameError("此名称已被其他智能体使用");
             return false;
         }
         // Check for conflicts with pipeline names
         if (usedPipelineNames.has(value)) {
-            setNameError("This name is already taken by a pipeline");
+            setNameError("此名称已被管道使用");
             return false;
         }
         if (!/^[a-zA-Z0-9_-\s]+$/.test(value)) {
-            setNameError("Name must contain only letters, numbers, underscores, hyphens, and spaces");
+            setNameError("名称只能包含字母、数字、下划线、连字符和空格");
             return false;
         }
         setNameError(null);
