@@ -7,7 +7,7 @@ import { container } from "@/di/container";
 import { IUsersRepository } from "@/src/application/repositories/users.repository.interface";
 
 export const GUEST_SESSION = {
-    email: "guest@zhixinzhigou.com",
+    email: "wuxiaochen0802@gmail.com",
     email_verified: true,
     sub: "guest_user",
 }
@@ -16,7 +16,7 @@ export const GUEST_DB_USER: z.infer<typeof User> = {
     id: "guest_user",
     auth0Id: "guest_user",
     name: "Guest",
-    email: "guest@zhixinzhigou.com",
+    email: "wuxiaochen0802@gmail.com",
     createdAt: new Date().toISOString(),
 }
 

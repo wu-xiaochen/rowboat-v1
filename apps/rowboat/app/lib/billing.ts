@@ -16,7 +16,7 @@ const GUEST_BILLING_CUSTOMER = {
     id: "guest-user",
     userId: "guest-user",
     name: "Guest",
-    email: "guest@zhixinzhigou.com",
+    email: "wuxiaochen0802@gmail.com",
     stripeCustomerId: "guest",
     stripeSubscriptionId: "test",
     subscriptionPlan: "free" as const,
