@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import logo from '@/public/logo.svg';
@@ -175,24 +175,61 @@ export default function Sidebar({ projectId, useAuth, collapsed = false, onToggl
                 const fullPath = `/projects/${projectId}/${item.href}`;
                 const isActive = pathname.startsWith(fullPath);
 
-                return <>
-                  {collapsed && <Tooltip
-                    key={item.href}
-                    content={collapsed ? item.label : ""}
-                    showArrow
-                    placement="right"
-                  >
-                    <Link
+                return (
+                  <React.Fragment key={item.href}>
+                    {collapsed && <Tooltip
+                      content={collapsed ? item.label : ""}
+                      showArrow
+                      placement="right"
+                    >
+                      <Link
+                        href={fullPath}
+                        className={`
+                          relative w-full rounded-md flex items-center
+                          text-[15px] font-medium transition-all duration-200
+                          px-2.5 py-3 gap-2.5
+                          ${isActive
+                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-l-2 border-indigo-600 dark:border-indigo-400'
+                            : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-300'
+                          }
+                        `}
+                        data-tour-target={
+                          item.href === 'config'
+                            ? 'settings'
+                            : item.href === 'sources'
+                              ? 'entity-data-sources'
+                              : item.href === 'manage-triggers'
+                                ? 'triggers'
+                                : item.href === 'jobs'
+                                  ? 'jobs'
+                                  : item.href === 'conversations'
+                                    ? 'conversations'
+                                    : undefined
+                        }
+                      >
+                        <Icon
+                          size={COLLAPSED_ICON_SIZE}
+                          className={`
+                            transition-all duration-200
+                            ${isActive
+                              ? 'text-indigo-600 dark:text-indigo-400'
+                              : 'text-zinc-500 dark:text-zinc-400'
+                            }
+                          `}
+                        />
+                      </Link>
+                    </Tooltip>}
+                    {!collapsed && <Link
                       href={fullPath}
                       className={`
-                        relative w-full rounded-md flex items-center
-                        text-[15px] font-medium transition-all duration-200
-                        px-2.5 py-3 gap-2.5
-                        ${isActive
+                          relative w-full rounded-md flex items-center
+                          text-[15px] font-medium transition-all duration-200
+                          px-2.5 py-3 gap-2.5
+                          ${isActive
                           ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-l-2 border-indigo-600 dark:border-indigo-400'
                           : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-300'
                         }
-                      `}
+                        `}
                       data-tour-target={
                         item.href === 'config'
                           ? 'settings'
@@ -208,55 +245,19 @@ export default function Sidebar({ projectId, useAuth, collapsed = false, onToggl
                       }
                     >
                       <Icon
-                        size={COLLAPSED_ICON_SIZE}
+                        size={EXPANDED_ICON_SIZE}
                         className={`
-                          transition-all duration-200
-                          ${isActive
-                            ? 'text-indigo-600 dark:text-indigo-400'
-                            : 'text-zinc-500 dark:text-zinc-400'
-                          }
-                        `}
-                      />
-                    </Link>
-                  </Tooltip>}
-                  {!collapsed && <Link
-                    href={fullPath}
-                    className={`
-                        relative w-full rounded-md flex items-center
-                        text-[15px] font-medium transition-all duration-200
-                        px-2.5 py-3 gap-2.5
-                        ${isActive
-                        ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-l-2 border-indigo-600 dark:border-indigo-400'
-                        : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-300'
-                      }
-                      `}
-                    data-tour-target={
-                      item.href === 'config'
-                        ? 'settings'
-                        : item.href === 'sources'
-                          ? 'entity-data-sources'
-                          : item.href === 'manage-triggers'
-                            ? 'triggers'
-                            : item.href === 'jobs'
-                              ? 'jobs'
-                              : item.href === 'conversations'
-                                ? 'conversations'
-                                : undefined
-                    }
-                  >
-                    <Icon
-                      size={EXPANDED_ICON_SIZE}
-                      className={`
                           transition-all duration-200
                           ${isActive
                           ? 'text-indigo-600 dark:text-indigo-400'
                           : 'text-zinc-500 dark:text-zinc-400'
                         }
                         `}
-                    />
-                    <span>{item.label}</span>
-                  </Link>}
-                </>
+                      />
+                      <span>{item.label}</span>
+                    </Link>}
+                  </React.Fragment>
+                );
               })
             )}
           </nav>

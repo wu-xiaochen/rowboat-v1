@@ -4,15 +4,22 @@ import { Composio } from "@composio/core";
 import { ZAuthConfig, ZConnectedAccount, ZCreateAuthConfigRequest, ZCreateAuthConfigResponse, ZCreateConnectedAccountRequest, ZCreateConnectedAccountResponse, ZDeleteOperationResponse, ZErrorResponse, ZGetToolkitResponse, ZListResponse, ZTool, ZToolkit, ZTriggerType } from "./types";
 
 const BASE_URL = 'https://backend.composio.dev/api/v3';
-const COMPOSIO_API_KEY = process.env.COMPOSIO_API_KEY || "test";
+// In Next.js, client-side code can only access NEXT_PUBLIC_ prefixed env vars
+// For server-side code, use process.env.COMPOSIO_API_KEY
+// For client-side code, we should use NEXT_PUBLIC_COMPOSIO_API_KEY or proxy through backend
+const COMPOSIO_API_KEY = typeof window === 'undefined' 
+    ? (process.env.COMPOSIO_API_KEY || process.env.NEXT_PUBLIC_COMPOSIO_API_KEY || "test")
+    : (process.env.NEXT_PUBLIC_COMPOSIO_API_KEY || "test");
+
 export const composio = new Composio({
     apiKey: COMPOSIO_API_KEY,
 });
 
 // Warn if API key is missing, helps diagnose HTML error pages from auth proxies
-if (!process.env.COMPOSIO_API_KEY || COMPOSIO_API_KEY === 'test') {
+if (COMPOSIO_API_KEY === 'test') {
     const warnLogger = new PrefixLogger('composioApiCall');
     warnLogger.log('WARNING: COMPOSIO_API_KEY is not set or using default placeholder. Requests may fail with non-JSON HTML error pages.');
+    warnLogger.log('Please set NEXT_PUBLIC_COMPOSIO_API_KEY in your .env.local file for client-side usage, or COMPOSIO_API_KEY for server-side usage.');
 }
 
 export async function composioApiCall<T extends z.ZodTypeAny>(
