@@ -3,7 +3,7 @@
 ## 项目目标回顾
 - 前后端完全分离
 - 前端：保留所有功能，中文本地化，品牌替换（rowboat → 质信智购）
-- 后端：Python + FastAPI + LangChain + CrewAI
+- 后端：Python + FastAPI + LangChain + OpenAI Agent SDK Python版本
 - 所有配置外部化，禁止硬编码
 - 高度解耦设计，新功能不影响旧功能
 - 每步完成后测试和审视
@@ -22,7 +22,7 @@
 
 #### 步骤 1.2: 后端项目结构初始化
 - [ ] 创建backend目录结构
-- [ ] 创建requirements.txt（包含FastAPI、LangChain、CrewAI等）
+- [ ] 创建requirements.txt（包含FastAPI、LangChain、openai-agents等）
 - [ ] 创建.env.example模板文件
 - [ ] 创建app/core/config.py（使用pydantic-settings）
 - [ ] 创建main.py入口文件
@@ -156,20 +156,24 @@
 - [ ] 提交代码并推送到GitHub
 - **验收标准**：流式响应正常，前端可接收
 
-### 阶段七：CrewAI多智能体集成 (Phase 7: CrewAI Multi-Agent Integration)
+### 阶段七：OpenAI Agent SDK多智能体集成 (Phase 7: OpenAI Agent SDK Multi-Agent Integration)
 
-#### 步骤 7.1: CrewAI服务实现
-- [ ] 创建CrewAIService类（app/services/agents/crew_service.py）
-- [ ] 实现智能体创建逻辑
-- [ ] 实现任务执行逻辑
+#### 步骤 7.1: OpenAI Agent SDK服务实现
+- [ ] 安装openai-agents包
+- [ ] 创建AgentsService类（app/services/agents/agents_service.py）
+- [ ] 实现智能体创建逻辑（使用Agent类）
+- [ ] 实现Handoff（移交）机制
+- [ ] 实现Pipeline（管道）执行逻辑（通过handoff序列）
+- [ ] 实现流式响应（使用Runner.stream）
+- [ ] 实现Guardrails（护栏）验证（可选）
 - [ ] 编写服务测试
 - [ ] 提交代码并推送到GitHub
-- **验收标准**：CrewAI服务可创建智能体团队
+- **验收标准**：OpenAI Agent SDK服务可创建智能体，支持handoff和流式响应
 
 #### 步骤 7.2: 智能体API端点
 - [ ] 实现GET /api/v1/projects/{project_id}/agents
 - [ ] 实现POST /api/v1/projects/{project_id}/agents
-- [ ] 实现智能体执行端点
+- [ ] 实现智能体执行端点（集成到聊天端点）
 - [ ] 编写完整测试
 - [ ] 提交代码并推送到GitHub
 - **验收标准**：智能体API功能完整，测试通过

@@ -20,6 +20,7 @@ from app.models.chat_schemas import (
 )
 from app.repositories.projects import ProjectsRepository
 from app.repositories.conversations import ConversationsRepository
+from app.services.agents.agents_service import get_agents_service
 
 
 class ChatService:
@@ -32,6 +33,7 @@ class ChatService:
         """初始化聊天服务"""
         self.projects_repo = ProjectsRepository()
         self.conversations_repo = ConversationsRepository()
+        self.agents_service = get_agents_service()
     
     async def run_turn(
         self,
@@ -122,23 +124,24 @@ class ChatService:
         turn_id = str(uuid.uuid4())
         
         # 执行对话回合
-        # 注意：这里暂时返回一个简单的响应，后续需要实现agents运行时
         try:
-            # TODO: 实现agents运行时
-            # 这里暂时返回一个简单的响应
+            # 收集输出消息
             output_messages: List[Message] = []
             
-            # 模拟生成响应（后续需要实现agents运行时）
-            # 这里暂时返回一个简单的助手消息
-            from app.models.schemas import AssistantMessage
-            output_messages.append(
-                AssistantMessage(
-                    role="assistant",
-                    content="这是一个占位符响应。agents运行时将在后续实现。",
-                    agent_name=None,
-                    response_type="external",
+            # 使用agents服务流式生成响应
+            async for message in self.agents_service.stream_response(
+                project_id=project_id,
+                workflow=workflow,
+                messages=messages,
+            ):
+                # 收集消息
+                output_messages.append(message)
+                
+                # 发送消息事件
+                yield MessageTurnEvent(
+                    type="message",
+                    data=message,
                 )
-            )
             
             # 创建Turn对象
             now = datetime.now()

@@ -17,9 +17,8 @@ langchain-text-splitters==0.3.3
 # OpenAI 兼容API
 openai==1.54.5
 
-# CrewAI 多智能体框架
-crewai==0.86.0
-crewai-tools==0.17.0
+# OpenAI Agent SDK Python 多智能体框架
+openai-agents>=0.0.1
 
 # 数据库驱动
 motor==3.6.0  # MongoDB 异步驱动
