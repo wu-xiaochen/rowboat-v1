@@ -95,14 +95,29 @@ interface EmptyStateProps {
     hasFilteredItems: boolean;
 }
 
-const EmptyState: React.FC<EmptyStateProps> = ({ entity, hasFilteredItems }) => (
-    <div className={clsx(
-        "flex items-center justify-center h-24 text-sm text-zinc-400 dark:text-zinc-500",
-        entity === "prompts" && "pb-6"
-    )}>
-        {hasFilteredItems ? "No tools to show" : `No ${entity} created`}
-    </div>
-);
+const EmptyState: React.FC<EmptyStateProps> = ({ entity, hasFilteredItems }) => {
+    const entityMap: Record<string, string> = {
+        agents: "智能体",
+        tools: "工具",
+        prompts: "提示词",
+        datasources: "数据源",
+        pipelines: "管道",
+        agent: "智能体",
+        tool: "工具",
+        prompt: "提示词",
+        datasource: "数据源",
+        pipeline: "管道",
+    };
+    const entityName = entityMap[entity] || entity;
+    return (
+        <div className={clsx(
+            "flex items-center justify-center h-24 text-sm text-zinc-400 dark:text-zinc-500",
+            entity === "prompts" && "pb-6"
+        )}>
+            {hasFilteredItems ? "没有工具可显示" : `未创建${entityName}`}
+        </div>
+    );
+};
 
 const ListItemWithMenu = ({ 
     name, 
@@ -198,7 +213,7 @@ const ListItemWithMenu = ({
             <div className="flex items-center gap-1 shrink-0">
                 {statusLabel}
                 {isMocked && (
-                    <Tooltip content="Mocked" size="sm" delay={500}>
+                    <Tooltip content="模拟" size="sm" delay={500}>
                         <div className="w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center text-xs font-medium text-white">
                             M
                         </div>
@@ -764,7 +779,7 @@ export const EntityList = forwardRef<
                                         )}
                                     </button>
                                     <Brain className="w-4 h-4" />
-                                    <span>Agents</span>
+                                    <span>智能体</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     {SHOW_VISUALIZATION && (
@@ -777,7 +792,7 @@ export const EntityList = forwardRef<
                                             }}
                                             className={`group ${buttonClasses}`}
                                             showHoverContent={true}
-                                            hoverContent="Visualise Agents"
+                                            hoverContent="可视化智能体"
                                         >
                                             <Eye className="w-4 h-4" />
                                         </Button>
@@ -792,7 +807,7 @@ export const EntityList = forwardRef<
                                          }}
                                          className={`group ${buttonClasses}`}
                                          showHoverContent={true}
-                                         hoverContent="Add Agent"
+                                         hoverContent="添加智能体"
                                     >
                                         <PlusIcon className="w-4 h-4" />
                                     </Button>
@@ -916,7 +931,7 @@ export const EntityList = forwardRef<
                                         )}
                                     </button>
                                     <Wrench className="w-4 h-4" />
-                                    <span>Tools</span>
+                                    <span>工具</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                      <Button
@@ -929,7 +944,7 @@ export const EntityList = forwardRef<
                                          }}
                                          className={`group ${buttonClasses}`}
                                          showHoverContent={true}
-                                         hoverContent="Add Tool"
+                                         hoverContent="添加工具"
                                     >
                                         <PlusIcon className="w-4 h-4" />
                                     </Button>
@@ -1025,10 +1040,10 @@ export const EntityList = forwardRef<
                                                                                     "text-zinc-900 dark:text-zinc-100"
                                                                                 )}>{tool.name}</span>
                                                                                 {tool.mockTool && (
-                                                                                    <span className="ml-2 px-1 py-0 rounded bg-purple-50 text-purple-400 dark:bg-purple-900/40 dark:text-purple-200 text-[11px] font-normal align-middle">Mocked</span>
+                                                                                    <span className="ml-2 px-1 py-0 rounded bg-purple-50 text-purple-400 dark:bg-purple-900/40 dark:text-purple-200 text-[11px] font-normal align-middle">模拟</span>
                                                                                 )}
                                                                                 {!tool.isLibrary && (
-                                                                                    <Tooltip content="Remove tool" size="sm" delay={500}>
+                                                                                    <Tooltip content="移除工具" size="sm" delay={500}>
                                                                                         <button
                                                                                             className="ml-1 p-1 pr-2 rounded hover:bg-red-100 dark:hover:bg-red-900 flex items-center"
                                                                                             onClick={e => { e.stopPropagation(); onDeleteTool(tool.name); }}
@@ -1088,7 +1103,7 @@ export const EntityList = forwardRef<
                                         )}
                                     </button>
                                     <Database className="w-4 h-4" />
-                                    <span>Data</span>
+                                    <span>数据</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                      <Button
@@ -1101,7 +1116,7 @@ export const EntityList = forwardRef<
                                          }}
                                          className={`group ${buttonClasses}`}
                                          showHoverContent={true}
-                                         hoverContent="Add Data Source"
+                                         hoverContent="添加数据源"
                                     >
                                         <PlusIcon className="w-4 h-4" />
                                     </Button>
@@ -1123,37 +1138,37 @@ export const EntityList = forwardRef<
                                                 let statusPill = null;
                                                 if (isPending) {
                                                     statusPill = (
-                                                        <Tooltip content="Processing" size="sm" delay={500}>
+                                                        <Tooltip content="处理中" size="sm" delay={500}>
                                                             <span className="flex items-center gap-1 px-2 py-0.5 text-[11px] rounded-full border border-yellow-300 bg-yellow-50 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700">
                                                                 <Circle className="w-2 h-2 animate-pulse" fill="currentColor" />
-                                                                <span>Processing</span>
+                                                                <span>处理中</span>
                                                             </span>
                                                         </Tooltip>
                                                     );
                                                 } else if (isError) {
                                                     statusPill = (
-                                                        <Tooltip content={dataSource.error || "Error"} size="sm" delay={500}>
+                                                        <Tooltip content={dataSource.error || "错误"} size="sm" delay={500}>
                                                             <span className="flex items-center gap-1 px-2 py-0.5 text-[11px] rounded-full border border-red-300 bg-red-50 text-red-700 dark:bg-red-900 dark:text-red-200 dark:border-red-700">
                                                                 <Circle className="w-2 h-2" fill="currentColor" />
-                                                                <span>Error</span>
+                                                                <span>错误</span>
                                                             </span>
                                                         </Tooltip>
                                                     );
                                                 } else if (isActive) {
                                                     statusPill = (
-                                                        <Tooltip content="Active" size="sm" delay={500}>
+                                                        <Tooltip content="激活" size="sm" delay={500}>
                                                             <span className="flex items-center gap-1 px-2 py-0.5 text-[11px] rounded-full border border-green-300 bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-200 dark:border-green-700">
                                                                 <Circle className="w-2 h-2" fill="currentColor" />
-                                                                <span>Active</span>
+                                                                <span>激活</span>
                                                             </span>
                                                         </Tooltip>
                                                     );
                                                 } else {
                                                     statusPill = (
-                                                        <Tooltip content="Inactive" size="sm" delay={500}>
+                                                        <Tooltip content="未激活" size="sm" delay={500}>
                                                             <span className="flex items-center gap-1 px-2 py-0.5 text-[11px] rounded-full border border-gray-300 bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700">
                                                                 <Circle className="w-2 h-2" fill="currentColor" />
-                                                                <span>Inactive</span>
+                                                                <span>未激活</span>
                                                             </span>
                                                         </Tooltip>
                                                     );
@@ -1190,7 +1205,7 @@ export const EntityList = forwardRef<
                                                                     <EntityDropdown 
                                                                         name={dataSource.name} 
                                                                         onDelete={async () => {
-                                                                            if (window.confirm(`Are you sure you want to delete the data source "${dataSource.name}"?`)) {
+                                                                            if (window.confirm(`确定要删除数据源"${dataSource.name}"吗？`)) {
                                                                                 await deleteDataSource(dataSource.id);
                                                                                 onDataSourcesUpdated?.();
                                                                             }
@@ -1385,9 +1400,9 @@ function AgentDropdown({
                     }
                 }}
             >
-                <DropdownItem key="set-main-agent">Set as start agent</DropdownItem>
-                <DropdownItem key="toggle">{agent.disabled ? 'Enable' : 'Disable'}</DropdownItem>
-                <DropdownItem key="delete" className="text-danger">Delete</DropdownItem>
+                <DropdownItem key="set-main-agent">设置为起始智能体</DropdownItem>
+                <DropdownItem key="toggle">{agent.disabled ? '启用' : '禁用'}</DropdownItem>
+                <DropdownItem key="delete" className="text-danger">删除</DropdownItem>
             </DropdownMenu>
         </Dropdown>
     );
@@ -1508,7 +1523,7 @@ const ComposioCard = ({
 
     // Status dot
     const statusDot = (
-        <Tooltip content={isToolkitConnected ? "Connected" : "Disconnected"} size="sm" delay={500}>
+        <Tooltip content={isToolkitConnected ? "已连接" : "已断开连接"} size="sm" delay={500}>
             <Circle className={clsx(
                 "w-3 h-3",
                 isToolkitConnected ? "text-green-500" : "text-red-500"
@@ -1573,7 +1588,7 @@ const ComposioCard = ({
                                 <UnlinkIcon className="h-3 w-3" />
                             )}
                         >
-                            {isProcessingAuth ? 'Disconnecting...' : 'Disconnect'}
+                            {isProcessingAuth ? '断开连接中...' : '断开连接'}
                         </DropdownItem>
                     ) : null}
                     <DropdownItem
@@ -1584,7 +1599,7 @@ const ComposioCard = ({
                             <Trash2 className="h-3 w-3" />
                         )}
                     >
-                        {isProcessingRemove ? 'Removing...' : 'Remove Toolkit'}
+                        {isProcessingRemove ? '移除中...' : '移除工具包'}
                     </DropdownItem>
                 </DropdownMenu>
             </Dropdown>
@@ -1662,9 +1677,9 @@ const ComposioCard = ({
                                     <span className="whitespace-normal break-words text-xs">{tool.name}</span>
                                 </button>
                                 {tool.mockTool && (
-                                    <span className="ml-2 px-1 py-0 rounded bg-purple-50 text-purple-400 dark:bg-purple-900/40 dark:text-purple-200 text-[11px] font-normal align-middle">Mocked</span>
+                                    <span className="ml-2 px-1 py-0 rounded bg-purple-50 text-purple-400 dark:bg-purple-900/40 dark:text-purple-200 text-[11px] font-normal align-middle">模拟</span>
                                 )}
-                                <Tooltip content="Remove tool" size="sm" delay={500}>
+                                <Tooltip content="移除工具" size="sm" delay={500}>
                                     <button
                                         className="ml-1 p-1 pr-2 rounded hover:bg-red-100 dark:hover:bg-red-900 flex items-center"
                                         onClick={() => onDeleteTool(tool.name)}
@@ -1693,9 +1708,9 @@ const ComposioCard = ({
                 isOpen={showDisconnectModal}
                 onClose={() => setShowDisconnectModal(false)}
                 onConfirm={handleConfirmDisconnect}
-                title={`Disconnect ${card.name}`}
-                confirmationQuestion={`Are you sure you want to disconnect the ${card.name} toolkit?`}
-                confirmButtonText="Disconnect"
+                title={`断开连接 ${card.name}`}
+                confirmationQuestion={`确定要断开连接 ${card.name} 工具包吗？`}
+                confirmButtonText="断开连接"
                 isLoading={isProcessingAuth}
             />
             {/* Remove Toolkit Confirmation Modal */}
@@ -1703,9 +1718,9 @@ const ComposioCard = ({
                 isOpen={showRemoveToolkitModal}
                 onClose={() => setShowRemoveToolkitModal(false)}
                 onConfirm={handleRemoveToolkit}
-                title={`Remove ${card.name} Toolkit`}
-                confirmationQuestion={`Are you sure you want to remove the ${card.name} toolkit and all its tools? This will disconnect and delete all tools from this toolkit.`}
-                confirmButtonText="Remove Toolkit"
+                title={`移除 ${card.name} 工具包`}
+                confirmationQuestion={`确定要移除 ${card.name} 工具包及其所有工具吗？这将断开连接并删除此工具包中的所有工具。`}
+                confirmButtonText="移除工具包"
                 isLoading={isProcessingRemove}
             />
         </>
