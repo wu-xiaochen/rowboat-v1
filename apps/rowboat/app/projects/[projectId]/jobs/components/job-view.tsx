@@ -26,8 +26,8 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
     }, [jobId]);
 
     const title = useMemo(() => {
-        if (!job) return 'Job';
-        return `Job ${job.id}`;
+        if (!job) return '任务';
+        return `任务 ${job.id}`;
     }, [job]);
 
     const getStatusColor = (status: string) => {
@@ -48,11 +48,11 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
     const getReasonDisplay = (reason: any) => {
         if (reason.type === 'composio_trigger') {
             return {
-                type: 'Composio Trigger',
+                type: 'Composio触发器',
                 details: {
-                    'Trigger Type': reason.triggerTypeSlug,
-                    'Trigger ID': reason.triggerId,
-                    'Deployment ID': reason.triggerDeploymentId,
+                    '触发器类型': reason.triggerTypeSlug,
+                    '触发器ID': reason.triggerId,
+                    '部署ID': reason.triggerDeploymentId,
                 },
                 payload: reason.payload,
                 link: reason.triggerDeploymentId ? `/projects/${projectId}/manage-triggers/triggers/${reason.triggerDeploymentId}` : null
@@ -60,9 +60,9 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
         }
         if (reason.type === 'scheduled_job_rule') {
             return {
-                type: 'Scheduled Job Rule',
+                type: '计划任务规则',
                 details: {
-                    'Rule ID': reason.ruleId,
+                    '规则ID': reason.ruleId,
                 },
                 payload: null,
                 link: `/projects/${projectId}/manage-triggers/scheduled/${reason.ruleId}`
@@ -70,20 +70,35 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
         }
         if (reason.type === 'recurring_job_rule') {
             return {
-                type: 'Recurring Job Rule',
+                type: '重复任务规则',
                 details: {
-                    'Rule ID': reason.ruleId,
+                    '规则ID': reason.ruleId,
                 },
                 payload: null,
                 link: `/projects/${projectId}/manage-triggers/recurring/${reason.ruleId}`
             };
         }
         return {
-            type: 'Unknown',
+            type: '未知',
             details: {},
             payload: null,
             link: null
         };
+    };
+
+    const getStatusDisplay = (status: string) => {
+        switch (status) {
+            case 'completed':
+                return '已完成';
+            case 'failed':
+                return '失败';
+            case 'running':
+                return '运行中';
+            case 'pending':
+                return '等待中';
+            default:
+                return status;
+        }
     };
 
     // Extract conversation and turn IDs from job output
@@ -101,7 +116,7 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
                     {loading && (
                         <div className="flex items-center gap-2">
                             <Spinner size="sm" />
-                            <div>Loading...</div>
+                            <div>加载中...</div>
                         </div>
                     )}
                     {!loading && job && (
@@ -110,24 +125,24 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
                             <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <span className="font-semibold text-gray-700 dark:text-gray-300">Job ID:</span>
+                                        <span className="font-semibold text-gray-700 dark:text-gray-300">任务ID：</span>
                                         <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">{job.id}</span>
                                     </div>
                                     <div>
-                                        <span className="font-semibold text-gray-700 dark:text-gray-300">Status:</span>
+                                        <span className="font-semibold text-gray-700 dark:text-gray-300">状态：</span>
                                         <span className={`ml-2 font-mono ${getStatusColor(job.status)}`}>
-                                            {job.status}
+                                            {getStatusDisplay(job.status)}
                                         </span>
                                     </div>
                                     <div>
-                                        <span className="font-semibold text-gray-700 dark:text-gray-300">Created:</span>
+                                        <span className="font-semibold text-gray-700 dark:text-gray-300">创建时间：</span>
                                         <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">
                                             {new Date(job.createdAt).toLocaleString()}
                                         </span>
                                     </div>
                                     {job.updatedAt && (
                                         <div>
-                                            <span className="font-semibold text-gray-700 dark:text-gray-300">Updated:</span>
+                                            <span className="font-semibold text-gray-700 dark:text-gray-300">更新时间：</span>
                                             <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">
                                                 {new Date(job.updatedAt).toLocaleString()}
                                             </span>
@@ -135,7 +150,7 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
                                     )}
                                     {conversationId && (
                                         <div>
-                                            <span className="font-semibold text-gray-700 dark:text-gray-300">Conversation:</span>
+                                            <span className="font-semibold text-gray-700 dark:text-gray-300">对话：</span>
                                             <Link
                                                 href={`/projects/${projectId}/conversations/${conversationId}`}
                                                 className="ml-2 font-mono text-blue-600 dark:text-blue-400 hover:underline"
@@ -146,7 +161,7 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
                                     )}
                                     {turnId && (
                                         <div>
-                                            <span className="font-semibold text-gray-700 dark:text-gray-300">Turn:</span>
+                                            <span className="font-semibold text-gray-700 dark:text-gray-300">回合：</span>
                                             <Link
                                                 href={`/projects/${projectId}/conversations/${conversationId}#turn-${turnId}`}
                                                 className="ml-2 font-mono text-blue-600 dark:text-blue-400 hover:underline"
@@ -157,7 +172,7 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
                                     )}
                                     {job.output?.error && (
                                         <div className="col-span-2">
-                                            <span className="font-semibold text-red-700 dark:text-red-300">Error:</span>
+                                            <span className="font-semibold text-red-700 dark:text-red-300">错误：</span>
                                             <span className="ml-2 font-mono text-red-600 dark:text-red-400">
                                                 {job.output.error}
                                             </span>
@@ -170,7 +185,7 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
                             {reasonInfo && (
                                 <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                                     <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                        Job Reason
+                                        任务原因
                                     </div>
                                     <div className="space-y-4">
                                         <div>
@@ -180,7 +195,7 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
                                             <div className="grid grid-cols-1 gap-2 text-sm">
                                                 {Object.entries(reasonInfo.details).map(([key, value]) => (
                                                     <div key={key} className="flex justify-between">
-                                                        <span className="font-semibold text-gray-700 dark:text-gray-300">{key}:</span>
+                                                        <span className="font-semibold text-gray-700 dark:text-gray-300">{key}：</span>
                                                         <span className="font-mono text-gray-600 dark:text-gray-400">{value}</span>
                                                     </div>
                                                 ))}
@@ -190,7 +205,7 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
                                         {reasonInfo.payload && Object.keys(reasonInfo.payload).length > 0 && (
                                             <div>
                                                 <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
-                                                    Trigger Payload
+                                                    触发器载荷
                                                 </div>
                                                 <pre className="bg-gray-100 dark:bg-gray-900 p-3 rounded text-xs overflow-x-auto border border-gray-200 dark:border-gray-700 font-mono max-h-[300px]">
                                                     {JSON.stringify(reasonInfo.payload, null, 2)}
@@ -200,13 +215,13 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
                                         {reasonInfo.link && (
                                             <div>
                                                 <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
-                                                    Related Link
+                                                    相关链接
                                                 </div>
                                                 <Link
                                                     href={reasonInfo.link}
                                                     className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
                                                 >
-                                                    {reasonInfo.type === 'Scheduled Job Rule' ? 'View Scheduled Job Rule' : 'View Details'}
+                                                    {reasonInfo.type === '计划任务规则' ? '查看计划任务规则' : '查看详情'}
                                                 </Link>
                                             </div>
                                         )}
@@ -217,13 +232,13 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
                             {/* Job Input */}
                             <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                                 <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                    Job Input
+                                    任务输入
                                 </div>
                                 <div className="space-y-4">
                                     {/* Messages */}
                                     <div>
                                         <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
-                                            Messages ({job.input.messages.length})
+                                            消息 ({job.input.messages.length})
                                         </div>
                                         <div className="space-y-1">
                                             {job.input.messages.map((message, msgIndex) => (
@@ -240,7 +255,7 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
                             {job.output && (
                                 <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                                     <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                        Job Output
+                                        任务输出
                                     </div>
                                     <pre className="bg-gray-100 dark:bg-gray-900 p-3 rounded text-xs overflow-x-auto border border-gray-200 dark:border-gray-700 font-mono">
                                         {JSON.stringify(job.output, null, 2)}
@@ -251,7 +266,7 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
                     )}
                     {!loading && !job && (
                         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                            <div className="text-sm font-mono">Job not found.</div>
+                            <div className="text-sm font-mono">未找到任务。</div>
                         </div>
                     )}
                 </div>

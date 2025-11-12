@@ -19,7 +19,7 @@ function TurnContainer({ turn, index, projectId }: { turn: z.infer<typeof Turn>;
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <span className="text-sm font-mono font-semibold text-gray-700 dark:text-gray-300">
-                            TURN #{index + 1}
+                            回合 #{index + 1}
                         </span>
                         <ReasonBadge reason={turn.reason} projectId={projectId} />
                     </div>
@@ -35,7 +35,7 @@ function TurnContainer({ turn, index, projectId }: { turn: z.infer<typeof Turn>;
                 {turn.input.messages && turn.input.messages.length > 0 && (
                     <div className="p-4 bg-gray-50 dark:bg-gray-900/50">
                         <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">
-                            Input Messages ({turn.input.messages.length})
+                            输入消息 ({turn.input.messages.length})
                         </div>
                         <div className="space-y-1">
                             {turn.input.messages.map((message, msgIndex) => (
@@ -49,7 +49,7 @@ function TurnContainer({ turn, index, projectId }: { turn: z.infer<typeof Turn>;
                 {turn.output && turn.output.length > 0 && (
                     <div className="p-4">
                         <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">
-                            Output Messages ({turn.output.length})
+                            输出消息 ({turn.output.length})
                         </div>
                         <div className="space-y-1">
                             {turn.output.map((message, msgIndex) => (
@@ -63,7 +63,7 @@ function TurnContainer({ turn, index, projectId }: { turn: z.infer<typeof Turn>;
                 {turn.error && (
                     <div className="p-4 bg-red-50 dark:bg-red-900/10 border-l-4 border-red-500">
                         <div className="text-xs font-semibold text-red-600 dark:text-red-400 mb-1 uppercase tracking-wide">
-                            Error
+                            错误
                         </div>
                         <div className="text-sm text-red-700 dark:text-red-300 font-mono">
                             {turn.error}
@@ -92,8 +92,8 @@ export function ConversationView({ projectId, conversationId }: { projectId: str
     }, [conversationId]);
 
     const title = useMemo(() => {
-        if (!conversation) return 'Conversation';
-        return `Conversation ${conversation.id}`;
+        if (!conversation) return '对话';
+        return `对话 ${conversation.id}`;
     }, [conversation]);
 
     return (
@@ -106,7 +106,7 @@ export function ConversationView({ projectId, conversationId }: { projectId: str
                     {loading && (
                         <div className="flex items-center gap-2">
                             <Spinner size="sm" />
-                            <div>Loading...</div>
+                            <div>加载中...</div>
                         </div>
                     )}
                     {!loading && conversation && (
@@ -115,31 +115,31 @@ export function ConversationView({ projectId, conversationId }: { projectId: str
                             <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <span className="font-semibold text-gray-700 dark:text-gray-300">Conversation ID:</span>
+                                        <span className="font-semibold text-gray-700 dark:text-gray-300">对话ID：</span>
                                         <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">{conversation.id}</span>
                                     </div>
                                     <div>
-                                        <span className="font-semibold text-gray-700 dark:text-gray-300">Created:</span>
+                                        <span className="font-semibold text-gray-700 dark:text-gray-300">创建时间：</span>
                                         <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">
                                             {new Date(conversation.createdAt).toLocaleString()}
                                         </span>
                                     </div>
                                     {conversation.updatedAt && (
                                         <div>
-                                            <span className="font-semibold text-gray-700 dark:text-gray-300">Updated:</span>
+                                            <span className="font-semibold text-gray-700 dark:text-gray-300">更新时间：</span>
                                             <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">
                                                 {new Date(conversation.updatedAt).toLocaleString()}
                                             </span>
                                         </div>
                                     )}
                                     <div>
-                                        <span className="font-semibold text-gray-700 dark:text-gray-300">Live Workflow:</span>
+                                        <span className="font-semibold text-gray-700 dark:text-gray-300">实时工作流：</span>
                                         <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">
-                                            {conversation.isLiveWorkflow ? 'Yes' : 'No'}
+                                            {conversation.isLiveWorkflow ? '是' : '否'}
                                         </span>
                                     </div>
                                     <div>
-                                        <span className="font-semibold text-gray-700 dark:text-gray-300">Reason:</span>
+                                        <span className="font-semibold text-gray-700 dark:text-gray-300">原因：</span>
                                                                            <span className="ml-2">
                                        <ReasonBadge reason={conversation.reason} projectId={projectId} />
                                    </span>
@@ -150,7 +150,7 @@ export function ConversationView({ projectId, conversationId }: { projectId: str
                             {/* Workflow */}
                             <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                                 <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                    Workflow
+                                    工作流
                                 </div>
                                 <pre className="bg-gray-100 dark:bg-gray-900 p-3 rounded text-xs overflow-x-auto border border-gray-200 dark:border-gray-700 font-mono max-h-[400px]">
                                     {JSON.stringify(conversation.workflow, null, 2)}
@@ -161,7 +161,7 @@ export function ConversationView({ projectId, conversationId }: { projectId: str
                             {conversation.turns && conversation.turns.length > 0 ? (
                                 <div className="space-y-4">
                                     <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
-                                        Turns ({conversation.turns.length})
+                                        回合 ({conversation.turns.length})
                                     </div>
                                     {conversation.turns.map((turn, index) => (
                                         <TurnContainer key={turn.id} turn={turn} index={index} projectId={projectId} />
@@ -169,7 +169,7 @@ export function ConversationView({ projectId, conversationId }: { projectId: str
                                 </div>
                             ) : (
                                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                                    <div className="text-sm font-mono">No turns in this conversation.</div>
+                                    <div className="text-sm font-mono">此对话中没有回合。</div>
                                 </div>
                             )}
                         </div>
