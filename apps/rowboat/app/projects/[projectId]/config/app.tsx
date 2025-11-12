@@ -77,7 +77,7 @@ export function BasicSettingsSection({
         setLoading(false);
     }
 
-    return <Section title="Basic settings">
+    return <Section title="基础设置">
         <FormSection label="项目名称">
             {loading && <Spinner size="sm" />}
             {!loading && <InputField type="text"
@@ -96,8 +96,8 @@ export function BasicSettingsSection({
                     onCopy={() => {
                         navigator.clipboard.writeText(projectId);
                     }}
-                    label="Copy"
-                    successLabel="Copied"
+                    label="复制"
+                    successLabel="已复制"
                 />
             </div>
         </FormSection>
@@ -249,9 +249,9 @@ export function ChatWidgetSection({
         });
     }, [projectId]);
 
-    const code = `<!-- RowBoat Chat Widget -->
+    const code = `<!-- 质信智购聊天Widget -->
 <script>
-    window.ROWBOAT_CONFIG = {
+    window.ZHIXINZHIGOU_CONFIG = {
         clientId: '${chatClientId}'
     };
     (function(d) {
@@ -262,9 +262,9 @@ export function ChatWidgetSection({
     })(document);
 </script>`;
 
-    return <Section title="Chat widget">
+    return <Section title="聊天Widget">
         <p className="text-sm">
-            To use the chat widget, copy and paste this code snippet just before the closing &lt;/body&gt; tag of your website:
+            要使用聊天Widget，请复制并粘贴此代码片段到你的网站的&lt;/body&gt;标签之前：
         </p>
         {loading && <Spinner size="sm" />}
         {!loading && <Textarea
@@ -277,8 +277,8 @@ export function ChatWidgetSection({
                 onCopy={() => {
                     navigator.clipboard.writeText(code);
                 }}
-                label="Copy"
-                successLabel="Copied"
+                label="复制"
+                successLabel="已复制"
             />}
         />}
     </Section>;
@@ -314,12 +314,12 @@ export function DeleteProjectSection({
     };
 
     return (
-        <Section title="Delete project">
+        <Section title="删除项目">
             {loading && <Spinner size="sm" />}
             {!loading && <div className="flex flex-col gap-4">
                 <p className="text-sm">
-                    Deleting a project will permanently remove all associated data, including workflows, sources, and API keys.
-                    This action cannot be undone.
+                    删除项目将永久移除所有关联数据，包括工作流、数据源和API密钥。
+                    此操作无法撤销。
                 </p>
                 <div>
                     <Button
@@ -328,27 +328,27 @@ export function DeleteProjectSection({
                         onClick={onOpen}
                         disabled={loading}
                     >
-                        Delete project
+                        删除项目
                     </Button>
                 </div>
 
                 <Modal isOpen={isOpen} onClose={onClose}>
                     <ModalContent>
-                        <ModalHeader>Delete Project</ModalHeader>
+                        <ModalHeader>删除项目</ModalHeader>
                         <ModalBody>
                             <div className="flex flex-col gap-4">
                                 <p>
-                                    This action cannot be undone. Please type in the following to confirm:
+                                    此操作无法撤销。请输入以下内容以确认：
                                 </p>
                                 <Input
-                                    label="Project name"
+                                    label="项目名称"
                                     placeholder={projectName}
                                     value={projectNameInput}
                                     onChange={(e) => setProjectNameInput(e.target.value)}
                                 />
                                 <Input
-                                    label='Type "delete project" to confirm'
-                                    placeholder="delete project"
+                                    label='输入"删除项目"以确认'
+                                    placeholder="删除项目"
                                     value={confirmationInput}
                                     onChange={(e) => setConfirmationInput(e.target.value)}
                                 />
@@ -356,14 +356,14 @@ export function DeleteProjectSection({
                         </ModalBody>
                         <ModalFooter>
                             <Button variant="secondary" onClick={onClose}>
-                                Cancel
+                                取消
                             </Button>
                             <Button
                                 color="danger"
                                 onClick={handleDelete}
                                 disabled={!isValid}
                             >
-                                Delete Project
+                                删除项目
                             </Button>
                         </ModalFooter>
                     </ModalContent>

@@ -110,17 +110,17 @@ export default function Sidebar({ projectId, useAuth, collapsed = false, onToggl
     },
     {
       href: 'conversations',
-      label: 'Conversations',
+      label: '对话',
       icon: MessageSquareIcon,
     },
     {
       href: 'jobs',
-      label: 'Jobs',
+      label: '任务',
       icon: LogsIcon,
     },
     {
       href: 'config',
-      label: 'Settings',
+      label: '设置',
       icon: SettingsIcon,
     }
   ];
@@ -143,7 +143,7 @@ export default function Sidebar({ projectId, useAuth, collapsed = false, onToggl
         <div className="flex flex-col grow">
           {/* 质信智购Logo */}
           <div className="p-3 border-b border-zinc-100 dark:border-zinc-800">
-            <Tooltip content="Home" showArrow placement="right">
+            <Tooltip content="首页" showArrow placement="right">
               <Link
                 href="/projects"
                 className={`
@@ -281,7 +281,7 @@ export default function Sidebar({ projectId, useAuth, collapsed = false, onToggl
           {/* Theme and Auth Controls */}
           <div className="p-3 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
             {/* Help button - always visible, but behavior depends on feature flag */}
-            <Tooltip content={collapsed ? "Help" : ""} showArrow placement="right">
+            <Tooltip content={collapsed ? "帮助" : ""} showArrow placement="right">
               <button
                 onClick={USE_PRODUCT_TOUR ? showHelpModal : () => {
                   // Basic help behavior when tour is disabled
@@ -298,7 +298,7 @@ export default function Sidebar({ projectId, useAuth, collapsed = false, onToggl
                 data-tour-target="tour-button"
               >
                 <HelpCircle size={COLLAPSED_ICON_SIZE} />
-                {!collapsed && <span>Help</span>}
+                {!collapsed && <span>帮助</span>}
               </button>
             </Tooltip>
 
