@@ -50,17 +50,17 @@ export function ConversationsList({ projectId }: { projectId: string }) {
 
     const sections = useMemo(() => {
         const groups: Record<string, ListedItem[]> = {
-            Today: [],
-            'This week': [],
-            'This month': [],
-            Older: [],
+            今天: [],
+            本周: [],
+            本月: [],
+            更早: [],
         };
         for (const item of items) {
             const d = new Date(item.createdAt);
-            if (isToday(d)) groups['Today'].push(item);
-            else if (isThisWeek(d)) groups['This week'].push(item);
-            else if (isThisMonth(d)) groups['This month'].push(item);
-            else groups['Older'].push(item);
+            if (isToday(d)) groups['今天'].push(item);
+            else if (isThisWeek(d)) groups['本周'].push(item);
+            else if (isThisMonth(d)) groups['本月'].push(item);
+            else groups['更早'].push(item);
         }
         return groups;
     }, [items]);
@@ -70,7 +70,7 @@ export function ConversationsList({ projectId }: { projectId: string }) {
             title={
                 <div className="flex items-center gap-3">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        CONVERSATIONS
+                        对话
                     </div>
                 </div>
             }
@@ -85,11 +85,11 @@ export function ConversationsList({ projectId }: { projectId: string }) {
                     {loading && (
                         <div className="flex items-center gap-2">
                             <Spinner size="sm" />
-                            <div>Loading...</div>
+                            <div>加载中...</div>
                         </div>
                     )}
                     {!loading && items.length === 0 && (
-                        <p className="mt-4 text-center">No conversations yet.</p>
+                        <p className="mt-4 text-center">还没有对话。</p>
                     )}
                     {!loading && items.length > 0 && (
                         <div className="flex flex-col gap-8">
@@ -101,9 +101,9 @@ export function ConversationsList({ projectId }: { projectId: string }) {
                                             <table className="w-full">
                                                 <thead className="bg-gray-50 dark:bg-gray-800/50">
                                                     <tr>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Conversation</th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Reason</th>
-                                                        <th className="w-[25%] px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Created</th>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">对话</th>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">原因</th>
+                                                        <th className="w-[25%] px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">创建时间</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -141,7 +141,7 @@ export function ConversationsList({ projectId }: { projectId: string }) {
                                         onClick={loadMore}
                                         disabled={loadingMore}
                                     >
-                                        {loadingMore ? 'Loading...' : 'Load more'}
+                                        {loadingMore ? '加载中...' : '加载更多'}
                                     </Button>
                                 </div>
                             )}

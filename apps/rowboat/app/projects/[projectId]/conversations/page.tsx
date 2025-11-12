@@ -3,7 +3,7 @@ import { requireActiveBillingSubscription } from '@/app/lib/billing';
 import { ConversationsList } from "./components/conversations-list";
 
 export const metadata: Metadata = {
-    title: "Conversations",
+    title: "对话",
 };
 
 export default async function Page(

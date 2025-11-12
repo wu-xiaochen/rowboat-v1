@@ -64,17 +64,17 @@ export function JobsList({ projectId, filters, showTitle = true, customTitle }: 
 
     const sections = useMemo(() => {
         const groups: Record<string, ListedItem[]> = {
-            Today: [],
-            'This week': [],
-            'This month': [],
-            Older: [],
+            今天: [],
+            本周: [],
+            本月: [],
+            更早: [],
         };
         for (const item of items) {
             const d = new Date(item.createdAt);
-            if (isToday(d)) groups['Today'].push(item);
-            else if (isThisWeek(d)) groups['This week'].push(item);
-            else if (isThisMonth(d)) groups['This month'].push(item);
-            else groups['Older'].push(item);
+            if (isToday(d)) groups['今天'].push(item);
+            else if (isThisWeek(d)) groups['本周'].push(item);
+            else if (isThisMonth(d)) groups['本月'].push(item);
+            else groups['更早'].push(item);
         }
         return groups;
     }, [items]);
@@ -94,31 +94,46 @@ export function JobsList({ projectId, filters, showTitle = true, customTitle }: 
         }
     };
 
+    const getStatusDisplay = (status: string) => {
+        switch (status) {
+            case 'completed':
+                return '已完成';
+            case 'failed':
+                return '失败';
+            case 'running':
+                return '运行中';
+            case 'pending':
+                return '等待中';
+            default:
+                return status;
+        }
+    };
+
     const getReasonDisplay = (reason: any) => {
         if (reason.type === 'composio_trigger') {
             return {
-                type: 'Composio Trigger',
+                type: 'Composio触发器',
                 display: `Composio: ${reason.triggerTypeSlug}`,
                 link: reason.triggerDeploymentId ? `/projects/${projectId}/manage-triggers/triggers/${reason.triggerDeploymentId}` : null
             };
         }
         if (reason.type === 'scheduled_job_rule') {
             return {
-                type: 'Scheduled Job Rule',
-                display: `Scheduled Rule`,
+                type: '计划任务规则',
+                display: `计划规则`,
                 link: `/projects/${projectId}/manage-triggers/scheduled/${reason.ruleId}`
             };
         }
         if (reason.type === 'recurring_job_rule') {
             return {
-                type: 'Recurring Job Rule',
-                display: `Recurring Rule`,
+                type: '重复任务规则',
+                display: `重复规则`,
                 link: `/projects/${projectId}/manage-triggers/recurring/${reason.ruleId}`
             };
         }
         return {
-            type: 'Unknown',
-            display: 'Unknown',
+            type: '未知',
+            display: '未知',
             link: null
         };
     };
@@ -129,7 +144,7 @@ export function JobsList({ projectId, filters, showTitle = true, customTitle }: 
                 showTitle ? (
                     <div className="flex items-center gap-3">
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {customTitle || "JOBS"}
+                            {customTitle || "任务"}
                         </div>
                     </div>
                 ) : null
@@ -138,7 +153,7 @@ export function JobsList({ projectId, filters, showTitle = true, customTitle }: 
                 <div className="flex items-center gap-3">
                     {filters && items.length > 0 && (
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {items.length} job{items.length !== 1 ? 's' : ''} found
+                            找到 {items.length} 个任务
                         </div>
                     )}
                     {/* Reserved for future actions */}
@@ -150,12 +165,12 @@ export function JobsList({ projectId, filters, showTitle = true, customTitle }: 
                     {loading && (
                         <div className="flex items-center gap-2">
                             <Spinner size="sm" />
-                            <div>Loading...</div>
+                            <div>加载中...</div>
                         </div>
                     )}
                     {!loading && items.length === 0 && (
                         <p className="mt-4 text-center">
-                            {filters ? "No jobs found matching the current filters." : "No jobs yet."}
+                            {filters ? "没有找到匹配当前筛选条件的任务。" : "还没有任务。"}
                         </p>
                     )}
                     {!loading && items.length > 0 && (
@@ -168,10 +183,10 @@ export function JobsList({ projectId, filters, showTitle = true, customTitle }: 
                                             <table className="w-full">
                                                 <thead className="bg-gray-50 dark:bg-gray-800/50">
                                                     <tr>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Job</th>
-                                                        <th className="w-[20%] px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
-                                                        <th className="w-[25%] px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Reason</th>
-                                                        <th className="w-[25%] px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Created</th>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">任务</th>
+                                                        <th className="w-[20%] px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">状态</th>
+                                                        <th className="w-[25%] px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">原因</th>
+                                                        <th className="w-[25%] px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">创建时间</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -191,7 +206,7 @@ export function JobsList({ projectId, filters, showTitle = true, customTitle }: 
                                                                 </td>
                                                                 <td className="px-6 py-4 text-left">
                                                                     <span className={`text-sm font-medium ${getStatusColor(job.status)}`}>
-                                                                        {job.status}
+                                                                        {getStatusDisplay(job.status)}
                                                                     </span>
                                                                 </td>
                                                                 <td className="px-6 py-4 text-left">
@@ -229,7 +244,7 @@ export function JobsList({ projectId, filters, showTitle = true, customTitle }: 
                                         onClick={loadMore}
                                         disabled={loadingMore}
                                     >
-                                        {loadingMore ? 'Loading...' : 'Load more'}
+                                        {loadingMore ? '加载中...' : '加载更多'}
                                     </Button>
                                 </div>
                             )}

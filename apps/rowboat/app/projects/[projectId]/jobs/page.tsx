@@ -3,7 +3,7 @@ import { requireActiveBillingSubscription } from '@/app/lib/billing';
 import { JobsList } from "./components/jobs-list";
 
 export const metadata: Metadata = {
-    title: "Jobs",
+    title: "任务",
 };
 
 export default async function Page(
