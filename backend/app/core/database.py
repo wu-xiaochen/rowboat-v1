@@ -200,6 +200,9 @@ async def initialize_databases():
     # 检查Qdrant连接
     if check_qdrant_connection():
         print("✓ Qdrant连接成功")
+        # 确保embeddings集合存在
+        # 注意：BAAI/bge-m3模型的向量维度是1024
+        create_qdrant_collection("embeddings", vector_size=1024)
     else:
         print("✗ Qdrant连接失败")
 
