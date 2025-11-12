@@ -56,8 +56,8 @@ export interface TurnEvent {
 export class ChatApiClient {
     private apiClient: ApiClient;
 
-    constructor(apiClient: ApiClient = apiClient) {
-        this.apiClient = apiClient;
+    constructor(apiClientInstance?: ApiClient) {
+        this.apiClient = apiClientInstance || apiClient;
     }
 
     /**
