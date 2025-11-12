@@ -305,7 +305,7 @@ function ApiKeysSection({ projectId }: { projectId: string }) {
                     onClick={handleCreateKey}
                     disabled={loading}
                 >
-                    Create API Key
+                    创建API密钥
                 </Button>
             </div>
 
@@ -314,9 +314,9 @@ function ApiKeysSection({ projectId }: { projectId: string }) {
             ) : (
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                     <div className="grid grid-cols-12 items-center border-b border-gray-200 dark:border-gray-700 p-4">
-                        <div className="col-span-7 font-medium text-gray-900 dark:text-gray-100">API Key</div>
-                        <div className="col-span-3 font-medium text-gray-900 dark:text-gray-100">Created</div>
-                        <div className="col-span-2 font-medium text-gray-900 dark:text-gray-100">Last Used</div>
+                        <div className="col-span-7 font-medium text-gray-900 dark:text-gray-100">API密钥</div>
+                        <div className="col-span-3 font-medium text-gray-900 dark:text-gray-100">创建时间</div>
+                        <div className="col-span-2 font-medium text-gray-900 dark:text-gray-100">最后使用</div>
                     </div>
                     
                     {message && (
@@ -344,14 +344,14 @@ function ApiKeysSection({ projectId }: { projectId: string }) {
                             <div className="col-span-2 text-sm text-gray-500">
                                 {key.lastUsedAt ? (
                                     <RelativeTime date={new Date(key.lastUsedAt)} />
-                                ) : 'Never'}
+                                ) : '从未使用'}
                             </div>
                         </div>
                     ))}
                     
                     {keys.length === 0 && (
                         <div className="p-6 text-center text-gray-500 dark:text-gray-400">
-                            No API keys created yet
+                            尚未创建API密钥
                         </div>
                     )}
                 </div>
