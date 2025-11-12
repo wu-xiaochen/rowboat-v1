@@ -156,10 +156,10 @@ export function TopBar({
     const currentStep = !step1Complete ? 1 : !step2Complete ? 2 : !step4Complete ? 4 : null;
     
     const progressSteps: ProgressStep[] = [
-        { id: 1, label: "Build: Ask the copilot to create your assistant. Add tools and connect data sources.", completed: step1Complete, isCurrent: currentStep === 1 },
+        { id: 1, label: "构建：请AI助手创建你的助手。添加工具并连接数据源。", completed: step1Complete, isCurrent: currentStep === 1 },
         { id: 2, label: "测试：通过聊天测试你的助手。使用'修复'和'解释'来改进它。", completed: step2Complete, isCurrent: currentStep === 2 },
         // Removed the 'Publish' step from the progress bar
-        { id: 4, label: "Use: Click the 'Use Assistant' button to chat, set triggers (like emails), or connect via API.", completed: step4Complete, isCurrent: currentStep === 4 },
+        { id: 4, label: "使用：点击'使用助手'按钮进行聊天，设置触发器（如邮件），或通过API连接。", completed: step4Complete, isCurrent: currentStep === 4 },
     ];
 
     return (
