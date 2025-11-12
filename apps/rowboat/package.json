@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack -p 3001",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3001",
     "lint": "next lint",
     "setupQdrant": "tsx app/scripts/setup_qdrant.ts",
     "deleteQdrant": "tsx app/scripts/delete_qdrant.ts",
