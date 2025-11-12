@@ -876,15 +876,15 @@ export function TopBar({
             >
                 <ModalContent>
                     <ModalHeader>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Confirm publish to community</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">确认发布到社区</h3>
                     </ModalHeader>
                     <ModalBody>
                         <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                            <p>Publishing to community will make this assistant and its description publicly visible to other users.</p>
+                            <p>发布到社区将使此助手及其描述对其他用户公开可见。</p>
                             <ul className="list-disc pl-5 space-y-1">
-                                <li>Your assistant may appear in the community templates library.</li>
-                                <li>Others can import and use this assistant in their own projects.</li>
-                                <li>Do not include secrets or private data in the description or workflow.</li>
+                                <li>你的助手可能会出现在社区模板库中。</li>
+                                <li>其他人可以在自己的项目中导入和使用此助手。</li>
+                                <li>不要在描述或工作流中包含密钥或私有数据。</li>
                             </ul>
                             <div className="mt-3 flex items-start gap-2">
                                 <input
@@ -894,12 +894,12 @@ export function TopBar({
                                     onChange={(e) => setAcknowledged(e.target.checked)}
                                     className="mt-1 h-4 w-4"
                                 />
-                                <label htmlFor="ack-publish" className="text-sm">I understand this will be publicly available.</label>
+                                <label htmlFor="ack-publish" className="text-sm">我理解这将是公开可用的。</label>
                             </div>
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <Button variant="light" onPress={() => { setAcknowledged(false); onConfirmClose(); }}>Cancel</Button>
+                        <Button variant="light" onPress={() => { setAcknowledged(false); onConfirmClose(); }}>取消</Button>
                         <Button
                             color="primary"
                             isDisabled={!acknowledged}
@@ -909,7 +909,7 @@ export function TopBar({
                                 onCommunityPublish();
                             }}
                         >
-                            Confirm & Publish
+                            确认并发布
                         </Button>
                     </ModalFooter>
                 </ModalContent>
