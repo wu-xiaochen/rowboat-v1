@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import Link from "next/link";
 import Image from "next/image";
-import logo from '@/public/logo.png';
-import logoOnly from '@/public/logo-only.png';
+import logo from '@/public/logo.svg';
+import logoOnly from '@/public/logo-only.svg';
 import { usePathname } from "next/navigation";
 import { Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import { UserButton } from "@/app/lib/components/user_button";

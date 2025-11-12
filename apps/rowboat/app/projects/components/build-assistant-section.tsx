@@ -427,7 +427,7 @@ export function BuildAssistantSection() {
                 <div className="flex flex-col items-center justify-center min-h-screen">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mb-4"></div>
                     <p className="text-gray-600 dark:text-gray-400">
-                        Creating your assistant...
+                        正在创建您的助手...
                     </p>
                 </div>
             )}
@@ -530,16 +530,16 @@ export function BuildAssistantSection() {
                                         </div>
                                     </div>
                                 </Tab>
-                                <Tab key="existing" title="My Assistants">
+                                <Tab key="existing" title="我的助手">
                                     <div className="pt-4">
                                         <div className="flex flex-col bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4">
                                             {projectsLoading ? (
                                                 <div className="flex items-center justify-center h-full text-sm text-gray-500 dark:text-gray-400">
-                                                    Loading assistants...
+                                                    加载助手中...
                                                 </div>
                                             ) : projects.length === 0 ? (
                                                 <div className="flex items-center justify-center h-full text-sm text-gray-500 dark:text-gray-400">
-                                                    No assistants found. Create your first assistant to get started!
+                                                    未找到助手。创建您的第一个助手以开始！
                                                 </div>
                                             ) : (
                                                 <>
@@ -559,8 +559,8 @@ export function BuildAssistantSection() {
                                                                                     {project.name}
                                                                                 </div>
                                                                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                                                    Created {new Date(project.createdAt).toLocaleDateString()}
-                                                                                    {project.lastUpdatedAt && `• Last updated ${new Date(project.lastUpdatedAt).toLocaleDateString()}`}
+                                                                                    创建于 {new Date(project.createdAt).toLocaleDateString()}
+                                                                                    {project.lastUpdatedAt && ` • 最后更新 ${new Date(project.lastUpdatedAt).toLocaleDateString()}`}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -590,7 +590,7 @@ export function BuildAssistantSection() {
                                                                 <ChevronLeftIcon className="w-5 h-5" />
                                                             </button>
                                                             <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                                Page {currentPage} of {totalPages} ({projects.length} assistants)
+                                                                第 {currentPage} 页，共 {totalPages} 页（{projects.length} 个助手）
                                                             </span>
                                                             <button
                                                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}

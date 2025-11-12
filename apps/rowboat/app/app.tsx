@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import logo from "@/public/logo.png";
+import logo from "@/public/logo.svg";
 import { useUser } from "@auth0/nextjs-auth0";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@heroui/react";
@@ -25,20 +25,21 @@ export function App() {
                 <div className="bg-white/70 backdrop-blur-sm rounded-xl p-10 flex flex-col items-center gap-8 shadow-lg">
                     <Image
                         src={logo}
-                        alt="RowBoat Logo"
+                        alt="质信智购 Logo"
                         height={40}
+                        width={120}
                     />
                     {(isLoading || !user) && <Spinner size="sm" />}
                     {user && <div className="flex items-center gap-2">
                         <Spinner size="sm" />
-                        <div className="text-sm text-gray-400">Welcome, {user.name}</div>
+                        <div className="text-sm text-gray-400">欢迎, {user.name}</div>
                     </div>}
                 </div>
             </div>
 
             {/* Footer */}
             <div className="flex flex-col items-center gap-2 text-xs text-white/70">
-                <div>&copy; 2025 RowBoat Labs</div>
+                <div>&copy; 2025 质信智购</div>
             </div>
         </div>
     );
