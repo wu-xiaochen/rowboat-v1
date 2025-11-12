@@ -1,5 +1,17 @@
 ![ui](/assets/banner.png)
 
+<h2 align="center">质信智购 - AI多智能体平台</h2>
+
+> **注意**：本项目是Rowboat的中文版本，已进行前后端分离改造，后端使用Python技术栈。
+
+## 📚 文档导航
+
+- [项目开发规则](.cursor/rules/project-rules.mdc) - 核心开发规范
+- [开发计划](DEVELOPMENT-PLAN.md) - 详细开发计划
+- [文档索引](DOCUMENTATION_INDEX.md) - 所有文档的索引
+- [优化总结](OPTIMIZATION_SUMMARY.md) - 项目优化总结
+- [E2E测试报告](E2E_TEST_FINAL_REPORT.md) - 端到端测试报告
+
 <h2 align="center">AI that builds and manages your agent swarms</h2>
 <h5 align="center">
 
