@@ -15,7 +15,7 @@ function UserMessage({ content }: { content: string }) {
     return (
         <div className="self-end flex flex-col items-end gap-1 mt-5 mb-8">
             <div className="text-gray-500 dark:text-gray-400 text-xs">
-                User
+                用户
             </div>
             <div className="max-w-[85%] inline-block">
                 <div className="bg-blue-100 dark:bg-blue-900/40 px-4 py-2.5 

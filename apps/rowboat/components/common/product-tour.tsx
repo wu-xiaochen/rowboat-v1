@@ -48,12 +48,12 @@ const TOUR_STEPS: TourStep[] = [
     {
         target: 'deploy',
         content: '部署你的工作流版本使其生效。\n这将使你的工作流可通过API和SDK使用。\n\n了解更多：\n• <a href="https://docs.rowboatlabs.com/using_the_api/" target="_blank" class="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">使用API</a>\n• <a href="https://docs.rowboatlabs.com/using_the_sdk/" target="_blank" class="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">使用SDK</a>',
-        title: 'Step 8/9'
+        title: '步骤 8/9'
     },
     {
         target: 'tour-button',
         content: '随时可以回来重新开始导览。\n还有问题？查看我们的<a href="https://docs.rowboatlabs.com/" target="_blank" class="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">文档</a>或联系<a href="https://discord.gg/rxB8pzHxaS" target="_blank" class="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">Discord</a>。',
-        title: 'Step 9/9'
+        title: '步骤 9/9'
     }
 ];
 

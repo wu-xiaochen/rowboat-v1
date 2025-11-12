@@ -30,12 +30,12 @@ export function FeedbackModal({ isOpen, onClose, onSubmit, title = "提供反馈
                     {title}
                 </ModalHeader>
                 <p className="text-xs text-gray-600 dark:text-gray-400 px-6 pt-1 pb-0">
-                    Tell Skipper what needs to be fixed
+                    告诉AI助手需要修复什么
                 </p>
                 <ModalBody>
                     <div className="space-y-3">
                         <Textarea
-                            placeholder="Describe the issue..."
+                            placeholder="描述问题..."
                             value={feedback}
                             onChange={(e) => setFeedback(e.target.value)}
                             minRows={3}
@@ -46,10 +46,10 @@ export function FeedbackModal({ isOpen, onClose, onSubmit, title = "提供反馈
                 </ModalBody>
                 <ModalFooter>
                     <Button variant="bordered" onPress={handleCancel}>
-                        Cancel
+                        取消
                     </Button>
                     <Button color="primary" onPress={handleSubmit}>
-                        Submit
+                        提交
                     </Button>
                 </ModalFooter>
             </ModalContent>
