@@ -78,7 +78,7 @@ export function BasicSettingsSection({
     }
 
     return <Section title="Basic settings">
-        <FormSection label="Project name">
+        <FormSection label="项目名称">
             {loading && <Spinner size="sm" />}
             {!loading && <InputField type="text"
                 value={projectName || ''}
@@ -89,7 +89,7 @@ export function BasicSettingsSection({
 
         <Divider />
 
-        <FormSection label="Project ID">
+        <FormSection label="项目ID">
             <div className="flex flex-row gap-2 items-center">
                 <div className="text-gray-600 text-sm font-mono">{projectId}</div>
                 <CopyButton
@@ -296,7 +296,7 @@ export function DeleteProjectSection({
     const [projectNameInput, setProjectNameInput] = useState("");
     const [confirmationInput, setConfirmationInput] = useState("");
 
-    const isValid = projectNameInput === projectName && confirmationInput === "delete project";
+    const isValid = projectNameInput === projectName && confirmationInput === "删除项目";
 
     useEffect(() => {
         setLoading(true);

@@ -447,7 +447,7 @@ export function BuildAssistantSection() {
                             <Tabs defaultSelectedKey="new" selectedKey={selectedTab} onSelectionChange={(key) => {
                                 setSelectedTab(key as string);
                             }} className="w-full">
-                                <Tab key="new" title="New Assistant">
+                                <Tab key="new" title="新建助手">
                                     <div className="pt-4">
                                         <div className="flex items-center gap-12">
                                             {/* Mascot */}

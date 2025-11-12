@@ -23,7 +23,7 @@ export async function ensureLibraryTemplatesSeeded(): Promise<void> {
 
             // Upsert to avoid race-condition duplicates
             const filter = {
-                authorName: "Rowboat",
+                authorName: "质信智购",
                 source: 'library',
                 tags: { $all: ["__library__", `prebuilt:${prebuiltKey}`] },
             } as const;
@@ -31,8 +31,8 @@ export async function ensureLibraryTemplatesSeeded(): Promise<void> {
                 name,
                 description: (tpl as any).description || "",
                 category: (tpl as any).category || "Other",
-                authorId: "rowboat-system",
-                authorName: "Rowboat",
+                authorId: "zhixinzhigou-system",
+                authorName: "质信智购",
                 authorEmail: undefined,
                 isAnonymous: false,
                 workflow: tpl as any,
@@ -179,8 +179,8 @@ export async function ensureTemplateSeeded(prebuiltKey: string): Promise<void> {
                 name,
                 description: (tpl as any).description || "",
                 category: (tpl as any).category || "Other",
-                authorId: "rowboat-system",
-                authorName: "Rowboat",
+                authorId: "zhixinzhigou-system",
+                authorName: "质信智购",
                 authorEmail: undefined,
                 isAnonymous: false,
                 workflow: transformedWorkflow,
