@@ -133,7 +133,7 @@ export async function ensureTemplateSeeded(prebuiltKey: string): Promise<void> {
         // Check if already exists
         const existing = await collection.findOne({ 
             name, 
-            authorName: "Rowboat", 
+            authorName: "质信智购", 
             tags: { $in: [ `prebuilt:${prebuiltKey}`, "__library__" ] } 
         });
 

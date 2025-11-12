@@ -1,6 +1,5 @@
 'use client';
 
-import { Metadata } from "next";
 import { Spinner, Dropdown, DropdownMenu, DropdownItem, DropdownTrigger, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure, Divider, Textarea } from "@heroui/react";
 import { Button } from "@/components/ui/button";
 import { ReactNode, useEffect, useState } from "react";
@@ -12,10 +11,6 @@ import { Label } from "../../../lib/components/label";
 import { FormSection } from "../../../lib/components/form-section";
 import { Panel } from "@/components/common/panel-common";
 import { ProjectSection, SimpleProjectSection } from './components/project';
-
-export const metadata: Metadata = {
-    title: "Project config",
-};
 
 export function Section({
     title,
@@ -124,7 +119,7 @@ export function SecretSection({
     }, [projectId]);
 
     const handleRotateSecret = async () => {
-        if (!confirm("Are you sure you want to rotate the secret? All existing signatures will become invalid.")) {
+        if (!confirm("确定要旋转密钥吗？所有现有签名将变为无效。")) {
             return;
         }
         setLoading(true);
@@ -138,13 +133,13 @@ export function SecretSection({
         }
     };
 
-    return <Section title="Secret">
+    return <Section title="项目密钥">
         <p className="text-sm">
-            The project secret is used for signing tool-call requests sent to your webhook
+            项目密钥用于签名发送到你的webhook的工具调用请求
         </p>
         <Divider />
         <SectionRow>
-            <LeftLabel label="Project secret" />
+            <LeftLabel label="项目密钥" />
             <RightContent>
                 <div className="flex flex-row gap-2 items-center">
                     {loading && <Spinner size="sm" />}
@@ -162,8 +157,8 @@ export function SecretSection({
                             onCopy={() => {
                                 navigator.clipboard.writeText(secret);
                             }}
-                            label="Copy"
-                            successLabel="Copied"
+                            label="复制"
+                            successLabel="已复制"
                         />
                         <Button
                             size="sm"
@@ -172,7 +167,7 @@ export function SecretSection({
                             onClick={handleRotateSecret}
                             disabled={loading}
                         >
-                            Rotate
+                            旋转
                         </Button>
                     </div>}
                 </div>
@@ -209,13 +204,13 @@ export function WebhookUrlSection({
             new URL(url);
             return { valid: true };
         } catch {
-            return { valid: false, errorMessage: 'Please enter a valid URL' };
+            return { valid: false, errorMessage: '请输入有效的URL' };
         }
     }
 
     return <Section title="Webhook URL">
         <p className="text-sm">
-            In workflow editor, tool calls will be posted to this URL, unless they are mocked.
+            在工作流编辑器中，工具调用将发布到此URL，除非它们被模拟。
         </p>
         <Divider />
         <FormSection label="Webhook URL">
@@ -396,8 +391,8 @@ function ApiKeyDisplay({ apiKey }: { apiKey: string }) {
                     onCopy={() => {
                         navigator.clipboard.writeText(apiKey);
                     }}
-                    label="Copy"
-                    successLabel="Copied"
+                    label="复制"
+                    successLabel="已复制"
                 />
             </div>
         </div>
@@ -415,7 +410,7 @@ export function ConfigApp({
 }) {
     return (
         <div className="h-full overflow-auto p-6">
-            <Panel title="Project settings">
+            <Panel title="项目设置">
                 <ProjectSection
                     projectId={projectId}
                     useChatWidget={useChatWidget}
@@ -435,7 +430,7 @@ export function SimpleConfigApp({
 }) {
     return (
         <div className="h-full overflow-auto p-6">
-            <Panel title="Project Settings">
+            <Panel title="项目设置">
                 <SimpleProjectSection
                     projectId={projectId}
                     onProjectConfigUpdated={onProjectConfigUpdated}

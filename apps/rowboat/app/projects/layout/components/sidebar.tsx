@@ -100,12 +100,12 @@ export default function Sidebar({ projectId, useAuth, collapsed = false, onToggl
   const navItems = [
     {
       href: 'workflow',
-      label: 'Build',
+      label: '构建',
       icon: WorkflowIcon,
     },
     {
       href: 'manage-triggers',
-      label: 'Triggers',
+      label: '触发器',
       icon: ZapIcon,
     },
     {
