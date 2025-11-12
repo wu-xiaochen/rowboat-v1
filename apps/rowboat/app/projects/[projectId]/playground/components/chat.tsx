@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState, useCallback } from "react";
-import { createCachedTurn, createConversation } from "@/app/actions/playground-chat.actions";
+import { chatApiClient, TurnEvent } from "@/src/application/lib/chat-api-client";
 import { Messages } from "./messages";
 import { z } from "zod";
 import { Message, ToolMessage } from "@/app/lib/types/types";
@@ -11,7 +11,6 @@ import { BillingUpgradeModal } from "@/components/common/billing-upgrade-modal";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { FeedbackModal } from "./feedback-modal";
 import { FIX_WORKFLOW_PROMPT, FIX_WORKFLOW_PROMPT_WITH_FEEDBACK, EXPLAIN_WORKFLOW_PROMPT_ASSISTANT, EXPLAIN_WORKFLOW_PROMPT_TOOL, EXPLAIN_WORKFLOW_PROMPT_TRANSITION } from "../copilot-prompts";
-import { TurnEvent } from "@/src/entities/models/turn";
 
 export function Chat({
     projectId,
@@ -145,11 +144,9 @@ export function Chat({
 
     // Add a stop handler function
     const handleStop = useCallback(() => {
-        if (eventSourceRef.current) {
-            eventSourceRef.current.close();
-            eventSourceRef.current = null;
-            setLoading(false);
-        }
+        // 停止加载状态
+        setLoading(false);
+        // 注意：流式请求的取消需要在useEffect中处理
     }, []);
 
     function handleUserMessage(prompt: string) {
@@ -167,13 +164,10 @@ export function Chat({
         }
     }
 
-    // clean up event source on component unmount
+    // clean up on component unmount
     useEffect(() => {
         return () => {
-            if (eventSourceRef.current) {
-                eventSourceRef.current.close();
-                eventSourceRef.current = null;
-            }
+            // 清理工作将在useEffect的返回函数中处理
         }
     }, []);
 
@@ -214,137 +208,94 @@ export function Chat({
     // get agent response
     useEffect(() => {
         let ignore = false;
-        let eventSource: EventSource | null = null;
+        let abortController: AbortController | null = null;
 
         async function process() {
             try {
-                // first, if there is no conversation id, create it
-                if (!conversationId.current) {
-                    const response = await createConversation({
-                        projectId,
-                        workflow,
-                        isLiveWorkflow,
-                    });
-                    conversationId.current = response.id;
-                }
+                // 准备聊天请求
+                // 后端会自动创建对话（如果conversation_id不存在）
+                const request = {
+                    conversationId: conversationId.current || undefined,
+                    messages: messages, // 发送所有消息（包括历史消息）
+                    stream: true,
+                };
 
-                // set up a cached turn
-                const response = await createCachedTurn({
-                    conversationId: conversationId.current,
-                    messages: messages.slice(-1), // only send the last message
-                });
-                if (ignore) {
-                    return;
-                }
-                // if ('billingError' in response) {
-                //     setBillingError(response.billingError);
-                //     setError(response.billingError);
-                //     setLoading(false);
-                //     console.log('returning from createRun due to billing error');
-                //     return;
-                // }
+                // 创建AbortController用于取消请求
+                abortController = new AbortController();
 
-                // stream events
-                eventSource = new EventSource(`/api/stream-response/${response.key}`);
-                eventSourceRef.current = eventSource;
+                // 使用chatApiClient发送流式消息
+                const stream = chatApiClient.sendMessageStream(projectId, request);
 
-                // handle events
-                eventSource.addEventListener("message", (event) => {
-                    console.log(`chat.tsx: got message: ${JSON.stringify(event.data)}`);
+                // 处理流式事件
+                for await (const turnEvent of stream) {
                     if (ignore) {
-                        return;
+                        break;
                     }
 
                     try {
-                        const data = JSON.parse(event.data);
-                        const turnEvent = TurnEvent.parse(data);
-                        console.log(`chat.tsx: got event: ${turnEvent}`);
+                        console.log(`chat.tsx: got event: ${turnEvent.type}`, turnEvent);
 
                         switch (turnEvent.type) {
                             case "message": {
                                 // Handle regular message events
                                 const generatedMessage = turnEvent.data;
-                                // Update optimistic messages immediately for real-time streaming UX
-                                setOptimisticMessages(prev => [...prev, generatedMessage]);
+                                if (generatedMessage) {
+                                    // Update optimistic messages immediately for real-time streaming UX
+                                    setOptimisticMessages(prev => [...prev, generatedMessage]);
+                                }
                                 break;
                             }
                             case "done": {
                                 // Handle completion event
-                                if (eventSource) {
-                                    eventSource.close();
-                                    eventSourceRef.current = null;
+                                if (turnEvent.conversationId) {
+                                    conversationId.current = turnEvent.conversationId;
                                 }
 
                                 // Combine state and collected messages in the response
-                                setLastAgenticResponse({
-                                    turn: turnEvent.turn,
-                                    messages: turnEvent.turn.output,
-                                });
+                                if (turnEvent.turn) {
+                                    setLastAgenticResponse({
+                                        turn: turnEvent.turn,
+                                        messages: turnEvent.turn.output,
+                                    });
 
-                                // Commit all streamed messages atomically to the source of truth
-                                setMessages([...messages, ...turnEvent.turn.output]);
+                                    // Commit all streamed messages atomically to the source of truth
+                                    setMessages([...messages, ...turnEvent.turn.output]);
+                                }
                                 setLoading(false);
                                 break;
                             }
                             case "error": {
                                 // Handle error event
-                                if (eventSource) {
-                                    eventSource.close();
-                                    eventSourceRef.current = null;
-                                }
-
                                 console.error('Turn Error:', turnEvent.error);
                                 if (!ignore) {
                                     setLoading(false);
-                                    setError('Error: ' + turnEvent.error);
+                                    setError('Error: ' + (turnEvent.error || 'Unknown error'));
                                     // Rollback to last known good state on stream errors
                                     setOptimisticMessages(messages);
 
                                     // check if billing error
                                     if (turnEvent.isBillingError) {
-                                        setBillingError(turnEvent.error);
+                                        setBillingError(turnEvent.error || '');
                                     }
                                 }
                                 break;
                             }
                         }
                     } catch (err) {
-                        console.error('Failed to parse SSE message:', err);
-                        setError(`Failed to parse SSE message: ${err instanceof Error ? err.message : 'Unknown error'}`);
-                        // Rollback to last known good state on parsing errors
-                        setOptimisticMessages(messages);
+                        console.error('Failed to process turn event:', err);
+                        if (!ignore) {
+                            setError(`Failed to process event: ${err instanceof Error ? err.message : 'Unknown error'}`);
+                            // Rollback to last known good state on parsing errors
+                            setOptimisticMessages(messages);
+                        }
                     }
-                });
-
-                eventSource.addEventListener('stream_error', (event) => {
-                    console.log(`chat.tsx: got stream_error event: ${event.data}`);
-                    if (eventSource) {
-                        eventSource.close();
-                        eventSourceRef.current = null;
-                    }
-    
-                    console.error('SSE Error:', event);
-                    if (!ignore) {
-                        setLoading(false);
-                        setError('Error: ' + JSON.parse(event.data).error);
-                        // Rollback to last known good state on stream errors
-                        setOptimisticMessages(messages);
-                    }
-                });
-
-                eventSource.onerror = (error) => {
-                    console.error('SSE Error:', error);
-                    if (!ignore) {
-                        setLoading(false);
-                        setError('Stream connection failed');
-                        // Rollback to last known good state on connection errors
-                        setOptimisticMessages(messages);
-                    }
-                };
+                }
             } catch (err) {
                 if (!ignore) {
-                    setError(`Failed to create run: ${err instanceof Error ? err.message : 'Unknown error'}`);
+                    setError(`Failed to send message: ${err instanceof Error ? err.message : 'Unknown error'}`);
                     setLoading(false);
+                    // Rollback to last known good state on errors
+                    setOptimisticMessages(messages);
                 }
             }
         }
@@ -372,6 +323,10 @@ export function Chat({
 
         return () => {
             ignore = true;
+            // 取消正在进行的请求
+            if (abortController) {
+                abortController.abort();
+            }
         };
     }, [
         conversationId,
