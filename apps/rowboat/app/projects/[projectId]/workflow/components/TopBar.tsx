@@ -181,7 +181,7 @@ export function TopBar({
                             }}
                             isInvalid={!!projectNameError}
                             errorMessage={projectNameError}
-                            placeholder="Project name..."
+                            placeholder="项目名称..."
                             variant="bordered"
                             size="sm"
                             classNames={{
@@ -199,7 +199,7 @@ export function TopBar({
                     <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 font-medium text-xs rounded-full">
                         <RadioIcon size={12} />
                         <span>
-                            {autoPublishEnabled ? 'Live ' : (isLive ? 'Live ' : 'Draft')}
+                            {autoPublishEnabled ? '实时' : (isLive ? '实时' : '草稿')}
                         </span>
                     </div>
 
@@ -212,7 +212,7 @@ export function TopBar({
                             className="gap-2 px-3 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 font-medium text-sm border border-gray-200 dark:border-gray-600 shadow-sm"
                             startContent={<PenLine size={14} />}
                         >
-                            Switch to draft
+                            切换到草稿
                         </Button>
                     ) : (
                         !isLive && (
@@ -222,7 +222,7 @@ export function TopBar({
                                     isSelected={autoPublishEnabled}
                                     onValueChange={onToggleAutoPublish}
                                 >
-                                    Auto-publish
+                                    自动发布
                                 </Checkbox>
                             </div>
                         )
@@ -337,7 +337,7 @@ export function TopBar({
                                     <ChevronDownIcon size={14} />
                                 </Button>
                             </DropdownTrigger>
-                            <DropdownMenu aria-label="Choose layout" selectionMode="single" selectedKeys={[selectedKey]} closeOnSelect={true} onSelectionChange={(keys) => {
+                            <DropdownMenu aria-label="选择布局" selectionMode="single" selectedKeys={[selectedKey]} closeOnSelect={true} onSelectionChange={(keys) => {
                                 const key = Array.from(keys as Set<string>)[0] as RadioKey;
                                 const zeroAgents = !hasAgents;
                                 // Allow only permitted options when zero agents
@@ -417,7 +417,7 @@ export function TopBar({
                                             className={`gap-2 px-3 h-8 font-semibold text-sm rounded-r-none border shadow-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-800 border-indigo-300`}
                                             startContent={<ShareIcon size={14} />}
                                         >
-                                            Share
+                                            分享
                                         </Button>
                                         <Dropdown>
                                             <DropdownTrigger>
@@ -429,13 +429,13 @@ export function TopBar({
                                                     <ChevronDownIcon size={12} />
                                                 </Button>
                                             </DropdownTrigger>
-                                            <DropdownMenu aria-label="Share actions">
+                                            <DropdownMenu aria-label="分享操作">
                                                 <DropdownItem
                                                     key="download-json"
                                                     startContent={<DownloadIcon size={16} />}
                                                     onPress={onDownloadJSON}
                                                 >
-                                                    Download JSON
+                                                    下载JSON
                                                 </DropdownItem>
                                             </DropdownMenu>
                                         </Dropdown>
@@ -453,86 +453,86 @@ export function TopBar({
                                                 size="sm"
                                                 className="gap-2 px-3 h-8 bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-400 font-semibold text-sm border border-blue-200 dark:border-blue-700 shadow-sm"
                                                 startContent={<Plug size={14} />}
-                                                onPress={onUseAssistantClick}
-                                            >
-                                                Use Assistant
-                                                <ChevronDownIcon size={12} />
-                                            </Button>
-                                        </DropdownTrigger>
-                                        <DropdownMenu aria-label="Assistant access options">
-                                            <DropdownItem
-                                                key="chat"
-                                                startContent={<MessageCircleIcon size={16} />}
-                                                onPress={() => { 
-                                                    onUseAssistantClick();
-                                                    onStartNewChatAndFocus();
-                                                }}
-                                            >
-                                                Chat with Assistant
-                                            </DropdownItem>
-                                            <DropdownItem
-                                                key="api-sdk"
-                                                startContent={<SettingsIcon size={16} />}
-                                                onPress={() => { 
-                                                    onUseAssistantClick();
-                                                    if (projectId) { router.push(`/projects/${projectId}/config`); } 
-                                                }}
-                                            >
-                                                API & SDK Settings
-                                            </DropdownItem>
-                                            <DropdownItem
-                                                key="manage-triggers"
-                                                startContent={<ZapIcon size={16} />}
-                                                onPress={() => { 
-                                                    onUseAssistantClick();
-                                                    if (projectId) { router.push(`/projects/${projectId}/manage-triggers`); } 
-                                                }}
-                                            >
-                                                Manage Triggers
-                                            </DropdownItem>
-                                        </DropdownMenu>
-                                    </Dropdown>
+                                            onPress={onUseAssistantClick}
+                                        >
+                                            使用助手
+                                            <ChevronDownIcon size={12} />
+                                        </Button>
+                                    </DropdownTrigger>
+                                    <DropdownMenu aria-label="助手访问选项">
+                                        <DropdownItem
+                                            key="chat"
+                                            startContent={<MessageCircleIcon size={16} />}
+                                            onPress={() => { 
+                                                onUseAssistantClick();
+                                                onStartNewChatAndFocus();
+                                            }}
+                                        >
+                                            与助手聊天
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            key="api-sdk"
+                                            startContent={<SettingsIcon size={16} />}
+                                            onPress={() => { 
+                                                onUseAssistantClick();
+                                                if (projectId) { router.push(`/projects/${projectId}/config`); } 
+                                            }}
+                                        >
+                                            API和SDK设置
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            key="manage-triggers"
+                                            startContent={<ZapIcon size={16} />}
+                                            onPress={() => { 
+                                                onUseAssistantClick();
+                                                if (projectId) { router.push(`/projects/${projectId}/manage-triggers`); } 
+                                            }}
+                                        >
+                                            管理触发器
+                                        </DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
 
-                                    <div className="flex items-center gap-2 ml-2">
-                                        {publishing && <Spinner size="sm" />}
-                                        <div className="flex">
-                                            <Button
-                                                variant="solid"
-                                                size="sm"
-                                                onPress={handleShareClick}
-                                                className={`gap-2 px-3 h-8 font-semibold text-sm rounded-r-none border shadow-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-800 border-indigo-300`}
-                                                startContent={<ShareIcon size={14} />}
-                                            >
-                                                Share
-                                            </Button>
-                                            <Dropdown>
-                                                <DropdownTrigger>
-                                                    <Button
-                                                        variant="solid"
-                                                        size="sm"
-                                                        className={`min-w-0 px-2 h-8 rounded-l-none border border-l-0 shadow-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-800 border-indigo-300`}
-                                                    >
-                                                        <ChevronDownIcon size={12} />
-                                                    </Button>
-                                                </DropdownTrigger>
-                                                <DropdownMenu aria-label="Share actions">
-                                                    <DropdownItem
-                                                        key="download-json"
-                                                        startContent={<DownloadIcon size={16} />}
-                                                        onPress={onDownloadJSON}
-                                                    >
-                                                        Download JSON
-                                                    </DropdownItem>
-                                                </DropdownMenu>
-                                            </Dropdown>
-                                        </div>
+                                <div className="flex items-center gap-2 ml-2">
+                                    {publishing && <Spinner size="sm" />}
+                                    <div className="flex">
+                                        <Button
+                                            variant="solid"
+                                            size="sm"
+                                            onPress={handleShareClick}
+                                            className={`gap-2 px-3 h-8 font-semibold text-sm rounded-r-none border shadow-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-800 border-indigo-300`}
+                                            startContent={<ShareIcon size={14} />}
+                                        >
+                                            分享
+                                        </Button>
+                                        <Dropdown>
+                                            <DropdownTrigger>
+                                                <Button
+                                                    variant="solid"
+                                                    size="sm"
+                                                    className={`min-w-0 px-2 h-8 rounded-l-none border border-l-0 shadow-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-800 border-indigo-300`}
+                                                >
+                                                    <ChevronDownIcon size={12} />
+                                                </Button>
+                                            </DropdownTrigger>
+                                            <DropdownMenu aria-label="分享操作">
+                                                <DropdownItem
+                                                    key="download-json"
+                                                    startContent={<DownloadIcon size={16} />}
+                                                    onPress={onDownloadJSON}
+                                                >
+                                                    下载JSON
+                                                </DropdownItem>
+                                            </DropdownMenu>
+                                        </Dropdown>
                                     </div>
+                                </div>
                                 </>) : (
                                 // Draft mode in manual publish: Show publish button
                                 <>
                                     <div className="flex">
                                     {(!hasAgents) ? (
-                                        <Tooltip content="Create agents to publish your assistant">
+                                        <Tooltip content="创建智能体以发布你的助手">
                                             <span className="inline-flex">
                                                 <Button
                                                     variant="solid"
@@ -543,7 +543,7 @@ export function TopBar({
                                                     startContent={<RocketIcon size={14} />}
                                                     data-tour-target="deploy"
                                                 >
-                                                    Publish
+                                                    发布
                                                 </Button>
                                             </span>
                                         </Tooltip>
@@ -556,7 +556,7 @@ export function TopBar({
                                             startContent={<RocketIcon size={14} />}
                                             data-tour-target="deploy"
                                         >
-                                            Publish
+                                            发布
                                         </Button>
                                     )}
                                     {hasAgents ? (
@@ -570,13 +570,13 @@ export function TopBar({
                                                     <ChevronDownIcon size={12} />
                                                 </Button>
                                             </DropdownTrigger>
-                                            <DropdownMenu aria-label="Deploy actions">
+                                            <DropdownMenu aria-label="部署操作">
                                                 <DropdownItem
                                                     key="view-live"
                                                     startContent={<RadioIcon size={16} />}
                                                     onPress={() => onChangeMode('live')}
                                                 >
-                                                    View live version
+                                                    查看实时版本
                                                 </DropdownItem>
                                                 <DropdownItem
                                                     key="reset-to-live"
@@ -584,12 +584,12 @@ export function TopBar({
                                                     onPress={onRevertToLive}
                                                     className="text-red-600 dark:text-red-400"
                                                 >
-                                                    Reset to live version
+                                                    重置到实时版本
                                                 </DropdownItem>
                                             </DropdownMenu>
                                         </Dropdown>
                                     ) : (
-                                        <Tooltip content="Create agents to publish your assistant">
+                                        <Tooltip content="创建智能体以发布你的助手">
                                             <span className="inline-flex">
                                                 <Button
                                                     variant="solid"
@@ -614,7 +614,7 @@ export function TopBar({
                                                 className={`gap-2 px-3 h-8 font-semibold text-sm rounded-r-none border shadow-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-800 border-indigo-300`}
                                                 startContent={<ShareIcon size={14} />}
                                             >
-                                                Share
+                                                分享
                                             </Button>
                                             <Dropdown>
                                                 <DropdownTrigger>
@@ -626,13 +626,13 @@ export function TopBar({
                                                         <ChevronDownIcon size={12} />
                                                     </Button>
                                                 </DropdownTrigger>
-                                                <DropdownMenu aria-label="Share actions">
+                                                <DropdownMenu aria-label="分享操作">
                                                     <DropdownItem
                                                         key="download-json"
                                                         startContent={<DownloadIcon size={16} />}
                                                         onPress={onDownloadJSON}
                                                     >
-                                                        Download JSON
+                                                        下载JSON
                                                     </DropdownItem>
                                                 </DropdownMenu>
                                             </Dropdown>
@@ -728,8 +728,8 @@ export function TopBar({
                                         <MessageCircleIcon size={16} className="text-purple-600 dark:text-purple-400" />
                                     </div>
                                     <div>
-                                        <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">Publish to Community</h3>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Make it discoverable by others</p>
+                                        <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">发布到社区</h3>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">让其他人可以发现它</p>
                                     </div>
                                 </div>
                                 
@@ -737,10 +737,10 @@ export function TopBar({
                                     {/* Assistant Name */}
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                            Assistant Name <span className="text-red-500">*</span>
+                                            助手名称 <span className="text-red-500">*</span>
                                         </label>
                                         <Input
-                                            placeholder="Enter assistant name"
+                                            placeholder="输入助手名称"
                                             value={communityData.name}
                                             onChange={(e) => setCommunityData({ ...communityData, name: e.target.value })}
                                             classNames={{
@@ -753,10 +753,10 @@ export function TopBar({
                                     {/* Description */}
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                            Description <span className="text-red-500">*</span>
+                                            描述 <span className="text-red-500">*</span>
                                         </label>
                                         <Textarea
-                                            placeholder="Describe what this assistant does..."
+                                            placeholder="描述这个助手做什么..."
                                             value={communityData.description}
                                             onChange={(e) => setCommunityData({ ...communityData, description: e.target.value })}
                                             minRows={3}
@@ -770,10 +770,10 @@ export function TopBar({
                                     {/* Category */}
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                            Category <span className="text-red-500">*</span>
+                                            类别 <span className="text-red-500">*</span>
                                         </label>
                                         <Select
-                                            placeholder="Select a category"
+                                            placeholder="选择类别"
                                             selectedKeys={communityData.category ? [communityData.category] : []}
                                             onSelectionChange={(keys) => {
                                                 const selected = Array.from(keys)[0] as string;
@@ -784,13 +784,13 @@ export function TopBar({
                                                 value: "text-sm"
                                             }}
                                         >
-                                            <SelectItem key="Work Productivity">Work Productivity</SelectItem>
-                                            <SelectItem key="Developer Productivity">Developer Productivity</SelectItem>
-                                            <SelectItem key="News & Social">News & Social</SelectItem>
-                                            <SelectItem key="Customer Support">Customer Support</SelectItem>
-                                            <SelectItem key="Education">Education</SelectItem>
-                                            <SelectItem key="Entertainment">Entertainment</SelectItem>
-                                            <SelectItem key="Other">Other</SelectItem>
+                                            <SelectItem key="Work Productivity">工作效率</SelectItem>
+                                            <SelectItem key="Developer Productivity">开发效率</SelectItem>
+                                            <SelectItem key="News & Social">新闻与社交</SelectItem>
+                                            <SelectItem key="Customer Support">客户支持</SelectItem>
+                                            <SelectItem key="Education">教育</SelectItem>
+                                            <SelectItem key="Entertainment">娱乐</SelectItem>
+                                            <SelectItem key="Other">其他</SelectItem>
                                         </Select>
                                     </div>
 
@@ -798,10 +798,10 @@ export function TopBar({
                                     <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/30 rounded-xl border border-gray-200 dark:border-gray-700">
                                         <div className="flex-1">
                                             <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
-                                                {communityData.isAnonymous ? 'Publish anonymously' : `Publish as ${getUserDisplayName()}`}
+                                                {communityData.isAnonymous ? '匿名发布' : `以${getUserDisplayName()}的身份发布`}
                                             </div>
                                             <div className="text-xs text-gray-500 dark:text-gray-400">
-                                                {communityData.isAnonymous ? 'Your name will be hidden from the community' : 'Your name will be visible to the community'}
+                                                {communityData.isAnonymous ? '你的名字将对社区隐藏' : '你的名字将对社区可见'}
                                             </div>
                                         </div>
                                         <button
@@ -826,7 +826,7 @@ export function TopBar({
                                                 <span className="text-green-600 dark:text-green-400 text-xs">✓</span>
                                             </div>
                                             <p className="text-green-700 dark:text-green-300 text-sm font-medium">
-                                                Successfully published to community!
+                                                成功发布到社区！
                                             </p>
                                         </div>
                                     )}
@@ -841,7 +841,7 @@ export function TopBar({
                         onPress={onShareModalClose}
                         className="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                     >
-                        Close
+                        关闭
                     </Button>
                     {SHOW_COMMUNITY_PUBLISH && (
                         <Button
@@ -854,7 +854,7 @@ export function TopBar({
                             isDisabled={communityPublishSuccess || !communityData.name.trim() || !communityData.description.trim() || !communityData.category}
                             className={`${communityPublishSuccess ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} px-6 py-2 text-white font-medium`}
                         >
-                            {communityPublishSuccess ? 'Published' : (communityPublishing ? 'Publishing...' : 'Publish to Community')}
+                            {communityPublishSuccess ? '已发布' : (communityPublishing ? '发布中...' : '发布到社区')}
                         </Button>
                     )}
                 </ModalFooter>
