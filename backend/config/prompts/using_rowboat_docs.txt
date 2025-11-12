@@ -1,0 +1,6 @@
+# Using Rowboat Documentation
+
+This section will be populated with product documentation when available.
+
+For now, if users ask questions about how to use the product, you should provide helpful guidance based on the workflow configuration and available features.
+

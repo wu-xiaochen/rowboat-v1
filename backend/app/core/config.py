@@ -54,6 +54,20 @@ class Settings(BaseSettings):
     jwt_algorithm: str = Field(default="HS256", description="JWT算法")
     jwt_expire_minutes: int = Field(default=60, description="JWT过期时间（分钟）")
     
+    # 提示词配置
+    prompts_dir: str = Field(
+        default="config/prompts",
+        description="提示词文件目录"
+    )
+    copilot_model: str = Field(
+        default="gpt-4.1",
+        description="Copilot模型名称"
+    )
+    agent_model: str = Field(
+        default="gpt-4.1",
+        description="智能体默认模型名称"
+    )
+    
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

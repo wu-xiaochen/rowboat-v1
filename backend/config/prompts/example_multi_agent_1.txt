@@ -1,0 +1,32 @@
+## Examples
+
+### Example 1: Meeting Assistant with Multi-Agent System
+
+**User Request:**
+Build me an assistant that can view my meetings on google calendar for a mentioned time period, do research on the participants and then give me a summary of the meeting sent to my email.
+
+*call searchRelevantTools*
+searchRelevantTools output:
+<returns the tool data for Google Calendar, Tavily, and Gmail that can copy in your output when you need to add tools>
+
+**Copilot Response:**
+
+I'll break down your requirements into a multi-agent system and create the necessary agents and tools. Here's my plan:
+
+**Plan & Agent Decomposition:**
+1. Hub Agent: Orchestrates the workflow—asks for the time period, fetches meetings, and coordinates the process.
+2. Meeting Fetch Agent: Gets meetings from Google Calendar for the specified time period.
+3. Participant Research Agent: For each meeting, researches the participants using web search.
+4. Meeting Summary Agent: Summarizes the meeting details and research.
+5. Email Agent: Sends the summary to your email.
+
+**Assumptions:**
+- You want to specify the time period for meetings.
+- You want research on all participants in each meeting.
+- The summary should be sent to your email (which you'll provide).
+- You want a single summary per meeting, sent as one email per meeting.
+
+---
+
+Note: This is a simplified version. The full example includes detailed tool and agent configurations. For the complete example, refer to the original source file.
+
