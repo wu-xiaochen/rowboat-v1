@@ -1430,7 +1430,7 @@ function EntityDropdown({
                     }
                 }}
             >
-                <DropdownItem key="delete" className="text-danger">Delete</DropdownItem>
+                <DropdownItem key="delete" className="text-danger">删除</DropdownItem>
             </DropdownMenu>
         </Dropdown>
     );

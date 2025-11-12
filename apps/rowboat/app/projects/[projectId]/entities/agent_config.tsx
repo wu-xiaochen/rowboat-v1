@@ -291,7 +291,7 @@ export function AgentConfig({
                         size="sm"
                         onClick={handleClose}
                         showHoverContent={true}
-                        hoverContent="Close"
+                        hoverContent="关闭"
                     >
                         <XIcon className="w-4 h-4" />
                     </CustomButton>
@@ -305,7 +305,7 @@ export function AgentConfig({
                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                        </svg>
-                       <span className="text-sm font-medium">Changes saved</span>
+                       <span className="text-sm font-medium">更改已保存</span>
                    </div>
                )}
 
@@ -322,7 +322,7 @@ export function AgentConfig({
                                     : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                             )}
                         >
-                            {tab === 'instructions' ? 'Instructions' : 'Model & RAG'}
+                            {tab === 'instructions' ? '指令' : '模型和RAG'}
                         </button>
                     ))}
                 </div>
@@ -340,14 +340,14 @@ export function AgentConfig({
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                 </svg>
-                                                <span className="text-sm font-medium">Changes saved</span>
+                                                <span className="text-sm font-medium">更改已保存</span>
                                             </div>
                                         )}
                                         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{agent.name}</span>
                                                 <span className="text-sm text-gray-500 dark:text-gray-400">/</span>
-                                                <span className="text-sm text-gray-500 dark:text-gray-400">Instructions</span>
+                                                <span className="text-sm text-gray-500 dark:text-gray-400">指令</span>
                                             </div>
                                             <button
                                                 type="button"
@@ -383,7 +383,7 @@ export function AgentConfig({
                                 <div className="space-y-6">
                                     {/* Description Section */}
                                     <div className="space-y-2">
-                                        <label className={sectionHeaderStyles}>Description</label>
+                                        <label className={sectionHeaderStyles}>描述</label>
                                         <InputField
                                             type="text"
                                             value={agent.description || ""}
@@ -392,7 +392,7 @@ export function AgentConfig({
                                                 showSavedMessage();
                                             }}
                                             multiline={true}
-                                            placeholder="Enter a description for this agent"
+                                            placeholder="输入此智能体的描述"
                                             minHeight="40px"
                                             className="w-full"
                                         />
@@ -401,7 +401,7 @@ export function AgentConfig({
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <label className={sectionHeaderStyles}>Instructions</label>
+                                                <label className={sectionHeaderStyles}>指令</label>
                                                 <button
                                                     type="button"
                                                     className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -419,7 +419,7 @@ export function AgentConfig({
                                         </div>
                                         {!isInstructionsMaximized && (
                                             <div className="text-xs text-gray-500 dark:text-gray-400">
-                                                💡 Tip: Use the maximized view for a better editing experience
+                                                💡 提示：使用最大化视图以获得更好的编辑体验
                                             </div>
                                         )}
                                         <InputField
@@ -433,7 +433,7 @@ export function AgentConfig({
                                                 });
                                                 showSavedMessage();
                                             }}
-                                            placeholder="Type agent instructions..."
+                                            placeholder="输入智能体指令..."
                                             markdown
                                             multiline
                                             mentions

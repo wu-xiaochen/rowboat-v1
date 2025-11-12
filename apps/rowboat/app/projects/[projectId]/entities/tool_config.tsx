@@ -65,9 +65,9 @@ export function ParameterConfig({
                         size="sm"
                         onClick={() => handleDelete(param.name)}
                         startContent={<XIcon className="w-4 h-4" />}
-                        aria-label={`Remove parameter ${param.name}`}
+                        aria-label={`移除参数 ${param.name}`}
                     >
-                        Remove
+                        移除
                     </Button>
                 )}
             </div>
@@ -75,13 +75,13 @@ export function ParameterConfig({
             <div className="space-y-4">
                 <div className="space-y-2">
                     <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                        Name
+                        名称
                     </label>
                     <InputField
                         type="text"
                         value={localName}
                         onChange={(value: string) => setLocalName(value)}
-                        placeholder="Enter parameter name..."
+                        placeholder="输入参数名称..."
                         locked={readOnly}
                         className="w-full"
                     />
@@ -89,7 +89,7 @@ export function ParameterConfig({
 
                 <div className="space-y-2">
                     <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                        Description
+                        描述
                     </label>
                     <Textarea
                         value={param.description}
@@ -99,7 +99,7 @@ export function ParameterConfig({
                                 description: e.target.value
                             });
                         }}
-                        placeholder="Describe this parameter..."
+                        placeholder="描述此参数..."
                         disabled={readOnly}
                         className={textareaStyles}
                         autoResize
@@ -108,7 +108,7 @@ export function ParameterConfig({
 
                 <div className="space-y-2">
                     <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                        Type
+                        类型
                     </label>
                     <Select
                         variant="bordered"
@@ -143,7 +143,7 @@ export function ParameterConfig({
                     isDisabled={readOnly}
                 >
                     <span className="text-sm text-gray-500 dark:text-gray-400">
-                        Required parameter
+                        必需参数
                     </span>
                 </Checkbox>
             </div>
@@ -273,11 +273,11 @@ export function ToolConfig({
 
     function validateToolName(value: string) {
         if (value.length === 0) {
-            setNameError("Name cannot be empty");
+            setNameError("名称不能为空");
             return false;
         }
         if (value !== tool.name && usedToolNames.has(value)) {
-            setNameError("This name is already taken");
+            setNameError("此名称已被使用");
             return false;
         }
         setNameError(null);
@@ -338,7 +338,7 @@ export function ToolConfig({
                         {tool.isLibrary && (
                             <div className="flex items-center gap-2 text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full text-gray-700 dark:text-gray-300">
                                 <FolderIcon className="w-4 h-4 text-blue-700 dark:text-blue-400" />
-                                <span>Library Tool</span>
+                                <span>库工具</span>
                             </div>
                         )}
                     </div>
@@ -347,7 +347,7 @@ export function ToolConfig({
                         size="sm"
                         onClick={handleClose}
                         showHoverContent={true}
-                        hoverContent="Close"
+                        hoverContent="关闭"
                     >
                         <XIcon className="w-4 h-4" />
                     </Button>
@@ -361,19 +361,19 @@ export function ToolConfig({
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-sm font-medium">Changes saved ✓</span>
+                        <span className="text-sm font-medium">更改已保存 ✓</span>
                     </div>
                 )}
                 {/* Identity Section */}
                 <SectionCard
                     icon={<UserIcon className="w-5 h-5 text-indigo-500" />}
-                    title="Identity"
+                    title="身份"
                     labelWidth="md:w-32"
                     className="mb-1"
                 >
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col md:flex-row md:items-start gap-1 md:gap-0">
-                            <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">Name</label>
+                            <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">名称</label>
                             <div className="flex-1">
                                 <InputField
                                     type="text"
@@ -397,7 +397,7 @@ export function ToolConfig({
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row md:items-start gap-1 md:gap-0">
-                            <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">Description</label>
+                            <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">描述</label>
                             <div className="flex-1">
                                 <InputField
                                     type="text"
@@ -408,7 +408,7 @@ export function ToolConfig({
                                         showSavedMessage();
                                     }}
                                     multiline={true}
-                                    placeholder="Describe what this tool does..."
+                                    placeholder="描述此工具的功能..."
                                     className="w-full"
                                 />
                             </div>
@@ -418,14 +418,14 @@ export function ToolConfig({
                 {/* Mock Section */}
                 <SectionCard
                     icon={<Settings className="w-5 h-5 text-indigo-500" />}
-                    title={<span className="whitespace-nowrap">Mock responses</span>}
+                    title={<span className="whitespace-nowrap">模拟响应</span>}
                     labelWidth="md:w-32"
                     className="mb-1"
                     singleColumnFields={true}
                 >
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col gap-1">
-                            <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">Mock tool responses</label>
+                            <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">模拟工具响应</label>
                             <div className="flex items-center gap-2 mb-1">
                                 <Switch
                                     isSelected={tool.mockTool}
@@ -440,14 +440,14 @@ export function ToolConfig({
                                     color="primary"
                                 />
                                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                                    When enabled, this tool will be mocked.
+                                    启用后，此工具将被模拟。
                                 </span>
                             </div>
                         </div>
                         {tool.mockTool && (
                             <div className="flex flex-col gap-1 mt-4">
-                                <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">Mock Response Instructions</label>
-                                <span className="text-xs text-gray-500 dark:text-gray-400 mb-1">Describe the response the mock tool should return. This will be shown in the chat when the tool is called.</span>
+                                <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">模拟响应指令</label>
+                                <span className="text-xs text-gray-500 dark:text-gray-400 mb-1">描述模拟工具应返回的响应。这将在调用工具时在聊天中显示。</span>
                                 <InputField
                                     type="text"
                                     value={tool.mockInstructions || ''}
@@ -459,7 +459,7 @@ export function ToolConfig({
                                         showSavedMessage();
                                     }}
                                     multiline={true}
-                                    placeholder="Mock response instructions..."
+                                    placeholder="模拟响应指令..."
                                     className="w-full text-xs p-2 bg-white dark:bg-gray-900"
                                 />
                             </div>
@@ -469,7 +469,7 @@ export function ToolConfig({
                 {/* Parameters Section */}
                 <SectionCard
                     icon={<Settings2 className="w-5 h-5 text-indigo-500" />}
-                    title="Parameters"
+                    title="参数"
                     labelWidth="md:w-32"
                     className="mb-1"
                 >
@@ -515,7 +515,7 @@ export function ToolConfig({
                                 }}
                                 className="hover:bg-indigo-100 dark:hover:bg-indigo-900 hover:shadow-indigo-500/20 dark:hover:shadow-indigo-400/20 hover:shadow-lg transition-all mt-2"
                             >
-                                Add Parameter
+                                添加参数
                             </Button>
                         )}
                     </div>
@@ -535,14 +535,14 @@ export function ToolConfig({
                         </div>
                         <div className="flex-1">
                             <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                                How this tool runs
+                                此工具如何运行
                             </h3>
                             {tool.isMcp && <div className="text-sm text-gray-700 dark:text-gray-300">
-                                <p>This tool is powered by the <span className="font-medium text-blue-700 dark:text-blue-300">{tool.mcpServerName}</span> MCP server.</p>
+                                <p>此工具由 <span className="font-medium text-blue-700 dark:text-blue-300">{tool.mcpServerName}</span> MCP服务器提供支持。</p>
                             </div>}
                             { tool.isComposio && <div className="text-sm text-gray-700 dark:text-gray-300">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <p>This tool is powered by <span className="font-medium text-purple-700 dark:text-purple-300">Composio</span></p>
+                                    <p>此工具由 <span className="font-medium text-purple-700 dark:text-purple-300">Composio</span> 提供支持</p>
                                     {tool.composioData?.toolkitName && (
                                         <span className="text-xs bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-full">
                                             {tool.composioData.toolkitName}
@@ -552,11 +552,11 @@ export function ToolConfig({
                             </div>}
                             { tool.isWebhook && <div className="text-sm text-gray-700 dark:text-gray-300">
                                 <div className="flex items-center gap-1 mb-1">
-                                    <p>This tool is invoked using the webhook configured in <Link href={`/projects/${projectId}/config`} className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium underline decoration-green-300 hover:decoration-green-500 transition-colors">project settings</Link></p>
+                                    <p>此工具使用在 <Link href={`/projects/${projectId}/config`} className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium underline decoration-green-300 hover:decoration-green-500 transition-colors">项目设置</Link> 中配置的webhook调用</p>
                                 </div>
                             </div>}
                             { !tool.isMcp && !tool.isComposio && !tool.isWebhook && <div className="text-sm text-gray-700 dark:text-gray-300">
-                                <p>This is a placeholder tool that should be mocked.</p>
+                                <p>这是一个应被模拟的占位符工具。</p>
                             </div>}
                         </div>
                     </div>
