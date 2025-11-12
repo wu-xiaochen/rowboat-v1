@@ -50,11 +50,13 @@ def sample_project(sample_workflow):
 @pytest.fixture
 def sample_conversation(sample_workflow):
     """创建示例对话"""
+    # reason字段应该是字典类型
+    reason_dict = {"type": "user_message"}
     return Conversation(
         id="conv123",
         projectId="proj123",
         workflow=sample_workflow,
-        reason=Reason(type=ReasonType.USER_MESSAGE),
+        reason=reason_dict,
         isLiveWorkflow=True,
         createdAt=datetime.now(),
     )

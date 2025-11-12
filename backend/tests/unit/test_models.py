@@ -299,13 +299,14 @@ class TestConversationModel:
             tools=[]
         )
         
-        from app.models.schemas import Reason, ReasonType
+        # reason字段应该是字典类型
+        reason_dict = {"type": "user_message"}
         
         conversation = Conversation(
             id="conv123",
             projectId="proj123",
             workflow=workflow,
-            reason=Reason(type=ReasonType.USER_MESSAGE),
+            reason=reason_dict,
             isLiveWorkflow=True,
             createdAt=datetime.now()
         )

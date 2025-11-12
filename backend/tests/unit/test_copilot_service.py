@@ -137,6 +137,7 @@ class TestCopilotService:
         # Mock LLM响应
         mock_chunk = MagicMock()
         mock_chunk.content = "Hello"
+        mock_chunk.response_metadata = {}
         
         # 创建异步生成器
         async def mock_astream(*args, **kwargs):
@@ -146,7 +147,11 @@ class TestCopilotService:
         mock_llm = MagicMock()
         # 直接返回异步生成器，而不是使用AsyncMock
         mock_llm.astream = mock_astream
+        # 如果没有工具，直接使用llm.astream；如果有工具，使用bind_tools后的astream
+        mock_llm.bind_tools = MagicMock(return_value=mock_llm)
         
+        # 清空工具列表，避免使用bind_tools
+        copilot_service.tools = []
         # 替换llm对象
         copilot_service.llm = mock_llm
         
