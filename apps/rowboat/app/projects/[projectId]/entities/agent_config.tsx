@@ -454,19 +454,19 @@ export function AgentConfig({
                             {/* Behavior Section Card */}
                             <SectionCard
                                 icon={<Settings className="w-5 h-5 text-indigo-500" />}
-                                title="Behavior"
+                                title="行为"
                                 labelWidth="md:w-32"
                                 className="mb-1"
                             >
                                 <div className="flex flex-col gap-6">
                                     <div className="flex flex-col md:flex-row md:items-start gap-1 md:gap-0">
-                                        <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">Agent Type</label>
+                                        <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">智能体类型</label>
                                         <div className="flex-1">
                                             {isPipelineAgent ? (
                                                 // For pipeline agents, show read-only display
                                                 <div className="flex items-center gap-2 px-3 py-2 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 rounded-lg">
                                                     <span className="text-sm text-gray-900 dark:text-gray-100">
-                                                        Pipeline Agent
+                                                        管道智能体
                                                     </span>
                                                 </div>
                                             ) : (
@@ -474,8 +474,8 @@ export function AgentConfig({
                                                 <CustomDropdown
                                                     value={agent.outputVisibility}
                                                     options={[
-                                                        { key: "user_facing", label: "Conversation Agent" },
-                                                        { key: "internal", label: "Task Agent" }
+                                                        { key: "user_facing", label: "对话智能体" },
+                                                        { key: "internal", label: "任务智能体" }
                                                     ]}
                                                     onChange={(value) => {
                                                         handleUpdate({
@@ -489,7 +489,7 @@ export function AgentConfig({
                                         </div>
                                     </div>
                                     <div className="flex flex-col md:flex-row md:items-start gap-1 md:gap-0">
-                                        <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">Model</label>
+                                        <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">模型</label>
                                         <div className="flex-1">
                                             {/* Model select/input logic unchanged */}
                                             {eligibleModels === "*" && <InputField
@@ -506,7 +506,7 @@ export function AgentConfig({
                                             />}
                                             {eligibleModels !== "*" && <Select
                                                 variant="bordered"
-                                                placeholder="Select model"
+                                                placeholder="选择模型"
                                                 className="w-full max-w-64"
                                                 selectedKeys={[agent.model]}
                                                 onSelectionChange={(keys) => {
@@ -516,7 +516,7 @@ export function AgentConfig({
                                                         return;
                                                     }
                                                     if (!model.eligible) {
-                                                        setBillingError(`Please upgrade to the ${model.plan.toUpperCase()} plan to use this model.`);
+                                                        setBillingError(`请升级到 ${model.plan.toUpperCase()} 计划以使用此模型。`);
                                                         return;
                                                     }
                                                     handleUpdate({
@@ -526,7 +526,7 @@ export function AgentConfig({
                                                     showSavedMessage();
                                                 }}
                                             >
-                                                <SelectSection title="Available">
+                                                <SelectSection title="可用">
                                                     {eligibleModels.filter((model) => model.eligible).map((model) => (
                                                         <SelectItem
                                                             key={model.name}
@@ -535,7 +535,7 @@ export function AgentConfig({
                                                         </SelectItem>
                                                     ))}
                                                 </SelectSection>
-                                                <SelectSection title="Requires plan upgrade">
+                                                <SelectSection title="需要升级计划">
                                                     {eligibleModels.filter((model) => !model.eligible).map((model) => (
                                                         <SelectItem
                                                             key={model.name}
@@ -560,24 +560,24 @@ export function AgentConfig({
 
                                     {USE_TRANSFER_CONTROL_OPTIONS && !isPipelineAgent && (
                                         <div className="flex flex-col md:flex-row md:items-start gap-1 md:gap-0">
-                                            <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">After Turn</label>
+                                            <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">回合后</label>
                                             <div className="flex-1">
                                                 <CustomDropdown
                                                     value={agent.controlType || 'retain'}
                                                     options={
                                                         agent.type === "pipeline"
                                                             ? [
-                                                                { key: "relinquish_to_parent", label: "Relinquish to parent" }
+                                                                { key: "relinquish_to_parent", label: "移交控制权给父级" }
                                                             ]
                                                             : agent.outputVisibility === "internal"
                                                             ? [
-                                                                { key: "relinquish_to_parent", label: "Relinquish to parent" },
-                                                                { key: "relinquish_to_start", label: "Relinquish to 'start' agent" }
+                                                                { key: "relinquish_to_parent", label: "移交控制权给父级" },
+                                                                { key: "relinquish_to_start", label: "移交控制权给'起始'智能体" }
                                                             ]
                                                             : [
-                                                                { key: "retain", label: "Retain control" },
-                                                                { key: "relinquish_to_parent", label: "Relinquish to parent" },
-                                                                { key: "relinquish_to_start", label: "Relinquish to 'start' agent" }
+                                                                { key: "retain", label: "保留控制权" },
+                                                                { key: "relinquish_to_parent", label: "移交控制权给父级" },
+                                                                { key: "relinquish_to_start", label: "移交控制权给'起始'智能体" }
                                                             ]
                                                     }
                                                     onChange={(value) => {
@@ -602,11 +602,11 @@ export function AgentConfig({
                             >
                                 <div className="flex flex-col gap-4">
                                     <div className="flex flex-col md:flex-row md:items-start gap-1 md:gap-0">
-                                        <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">Add Source</label>
+                                        <label className="text-sm font-semibold text-gray-600 dark:text-gray-300 md:w-32 mb-1 md:mb-0 md:pr-4">添加数据源</label>
                                         <div className="flex-1 flex items-center gap-3">
                                             <Select
                                                 variant="bordered"
-                                                placeholder="Add data source"
+                                                placeholder="添加数据源"
                                                 size="sm"
                                                 className="w-64"
                                                 onSelectionChange={(keys) => {
@@ -638,7 +638,7 @@ export function AgentConfig({
                                                                 <DatabaseIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                                                             </div>
                                                             <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                                                                No data sources available
+                                                                没有可用的数据源
                                                             </div>
                                                             <CustomButton
                                                                 variant="primary"
@@ -650,7 +650,7 @@ export function AgentConfig({
                                                                 }}
                                                                 startContent={<DatabaseIcon className="w-3 h-3" />}
                                                             >
-                                                                Add Data Source
+                                                                添加数据源
                                                             </CustomButton>
                                                         </div>
                                                     </SelectItem>
@@ -663,7 +663,7 @@ export function AgentConfig({
                                                     onClick={handleUpdateInstructions}
                                                     className="whitespace-nowrap"
                                                 >
-                                                    Update Instructions
+                                                    更新指令
                                                 </CustomButton>
                                             )}
                                         </div>
@@ -683,10 +683,10 @@ export function AgentConfig({
                                                             </div>
                                                             <div className="flex flex-col">
                                                                 <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                                    {ds?.name || "Unknown"}
+                                                                    {ds?.name || "未知"}
                                                                 </span>
                                                                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                                    Data Source
+                                                                    数据源
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -704,7 +704,7 @@ export function AgentConfig({
                                                             }}
                                                             startContent={<Trash2 className="w-4 h-4" />}
                                                         >
-                                                            Remove
+                                                            移除
                                                         </CustomButton>
                                                     </div>
                                                 );
@@ -806,12 +806,12 @@ function GenerateInstructionsModal({
                 currentInstructions,
                 newInstructions,
                 true,
-                "Generated Instructions",
-                "Review the changes below:",
+                "生成的指令",
+                "查看以下更改：",
                 () => onApply(newInstructions)
             );
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+            setError(err instanceof Error ? err.message : '发生意外错误');
         } finally {
             setIsLoading(false);
         }
@@ -830,7 +830,7 @@ function GenerateInstructionsModal({
         <>
             <Modal isOpen={isOpen} onClose={onClose} size="lg">
                 <ModalContent>
-                    <ModalHeader>Generate Instructions</ModalHeader>
+                    <ModalHeader>生成指令</ModalHeader>
                     <ModalBody>
                         <div className="flex flex-col gap-4">
                             {error && (
@@ -844,7 +844,7 @@ function GenerateInstructionsModal({
                                             handleGenerate();
                                         }}
                                     >
-                                        Retry
+                                        重试
                                     </CustomButton>
                                 </div>
                             )}
@@ -854,7 +854,7 @@ function GenerateInstructionsModal({
                                 onChange={(e) => setPrompt(e.target.value)}
                                 onKeyDown={handleKeyDown}
                                 disabled={isLoading}
-                                placeholder="e.g., This agent should help users analyze their data and provide insights..."
+                                placeholder="例如：此智能体应该帮助用户分析数据并提供见解..."
                                 className={textareaStyles}
                                 autoResize
                             />
@@ -867,7 +867,7 @@ function GenerateInstructionsModal({
                             onClick={onClose}
                             disabled={isLoading}
                         >
-                            Cancel
+                            取消
                         </CustomButton>
                         <CustomButton
                             variant="primary"
@@ -876,7 +876,7 @@ function GenerateInstructionsModal({
                             disabled={!prompt.trim() || isLoading}
                             isLoading={isLoading}
                         >
-                            Generate
+                            生成
                         </CustomButton>
                     </ModalFooter>
                 </ModalContent>
@@ -892,13 +892,13 @@ function GenerateInstructionsModal({
 
 function validateAgentName(value: string, currentName?: string, usedNames?: Set<string>) {
     if (value.length === 0) {
-        return "Name cannot be empty";
+        return "名称不能为空";
     }
     if (currentName && value !== currentName && usedNames?.has(value)) {
-        return "This name is already taken";
+        return "此名称已被使用";
     }
     if (!/^[a-zA-Z0-9_-\s]+$/.test(value)) {
-        return "Name must contain only letters, numbers, underscores, hyphens, and spaces";
+        return "名称只能包含字母、数字、下划线、连字符和空格";
     }
     return null;
 }
