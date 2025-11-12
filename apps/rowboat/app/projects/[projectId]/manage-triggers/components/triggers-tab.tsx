@@ -50,17 +50,17 @@ export function TriggersTab({ projectId }: { projectId: string }) {
 
   const sections = useMemo(() => {
     const groups: Record<string, TriggerDeployment[]> = {
-      Today: [],
-      'This week': [],
-      'This month': [],
-      Older: [],
+      今天: [],
+      本周: [],
+      本月: [],
+      更早: [],
     };
     for (const trigger of triggers) {
       const d = new Date(trigger.createdAt);
-      if (isToday(d)) groups['Today'].push(trigger);
-      else if (isThisWeek(d)) groups['This week'].push(trigger);
-      else if (isThisMonth(d)) groups['This month'].push(trigger);
-      else groups['Older'].push(trigger);
+      if (isToday(d)) groups['今天'].push(trigger);
+      else if (isThisWeek(d)) groups['本周'].push(trigger);
+      else if (isThisMonth(d)) groups['本月'].push(trigger);
+      else groups['更早'].push(trigger);
     }
     return groups;
   }, [triggers]);
@@ -75,7 +75,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
       setHasMore(Boolean(response.nextCursor));
     } catch (err: any) {
       console.error('Error loading triggers:', err);
-      setError('Failed to load triggers. Please try again.');
+      setError('加载触发器失败。请重试。');
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
   }, [cursor, projectId]);
 
   const handleDeleteTrigger = async (deploymentId: string) => {
-    if (!window.confirm('Are you sure you want to delete this trigger?')) {
+    if (!window.confirm('确定要删除此触发器吗？')) {
       return;
     }
 
@@ -107,7 +107,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
       await loadTriggers(); // Reload the list
     } catch (err: any) {
       console.error('Error deleting trigger:', err);
-      setError('Failed to delete trigger. Please try again.');
+      setError('删除触发器失败。请重试。');
     } finally {
       setDeletingTrigger(null);
     }
@@ -170,7 +170,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
       const connectedAccountId = projectConfig?.composioConnectedAccounts?.[selectedToolkit.slug]?.id;
       
       if (!connectedAccountId) {
-        throw new Error('No connected account found for this toolkit');
+        throw new Error('未找到此工具包的连接账户');
       }
 
       // Create the trigger deployment
@@ -189,7 +189,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
       handleBackToList();
     } catch (err: any) {
       console.error('Error creating trigger:', err);
-      setError('Failed to create trigger. Please try again.');
+      setError('创建触发器失败。请重试。');
     } finally {
       setIsSubmittingTrigger(false);
     }
@@ -221,7 +221,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
         <Panel
           title={
             <div className="text-base font-normal text-gray-900 dark:text-gray-100">
-              Loading your triggers
+              正在加载您的触发器
             </div>
           }
         >
@@ -229,7 +229,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
             <div className="max-w-[1024px] mx-auto">
               <div className="flex items-center justify-center py-8">
                 <Spinner size="lg" />
-                <span className="ml-2">Loading triggers...</span>
+                <span className="ml-2">加载触发器中...</span>
               </div>
             </div>
           </div>
@@ -242,12 +242,12 @@ export function TriggersTab({ projectId }: { projectId: string }) {
         <Panel
           title={
             <div className="text-base font-normal text-gray-900 dark:text-gray-100">
-              Error loading your triggers
+              加载触发器时出错
             </div>
           }
           rightActions={
             <Button variant="secondary" onClick={loadTriggers} className="whitespace-nowrap">
-              Try Again
+              重试
             </Button>
           }
         >
@@ -267,7 +267,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
         <Panel
           title={
             <div className="text-base font-normal text-gray-900 dark:text-gray-100">
-              Listen for events from connected apps to run your assistant workflow automatically.
+              监听来自连接应用的事件，以自动运行您的助手工作流。
             </div>
           }
           rightActions={
@@ -277,7 +277,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
               onClick={handleCreateNew}
               className="whitespace-nowrap"
             >
-              New External Trigger
+              新建外部触发器
             </Button>
           }
         >
@@ -286,10 +286,10 @@ export function TriggersTab({ projectId }: { projectId: string }) {
               <div className="text-center py-12">
                 <ZapIcon className="w-16 h-16 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                  No external triggers yet
+                  还没有外部触发器
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 mb-6">
-                  Create your first external trigger to listen for events from your connected apps.
+                  创建您的第一个外部触发器以监听来自连接应用的事件。
                 </p>
               </div>
             </div>
@@ -302,7 +302,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
       <Panel
         title={
           <div className="text-base font-normal text-gray-900 dark:text-gray-100">
-            Listen for events from connected apps to run your assistant workflow automatically.
+            监听来自连接应用的事件，以自动运行您的助手工作流。
           </div>
         }
         rightActions={
@@ -312,7 +312,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
             onClick={handleCreateNew}
             className="whitespace-nowrap"
           >
-            New External Trigger
+            新建外部触发器
           </Button>
         }
       >
@@ -354,17 +354,17 @@ export function TriggersTab({ projectId }: { projectId: string }) {
                                 </div>
                                 <div className="h-2" />
                                 <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-sm font-medium text-green-600 dark:text-green-400">Active</span>
+                                  <span className="text-sm font-medium text-green-600 dark:text-green-400">激活</span>
                                   <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {trigger.triggerTypeName}
                                   </span>
                                 </div>
                                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                                  Created: {new Date(trigger.createdAt).toLocaleDateString()}
+                                  创建时间: {new Date(trigger.createdAt).toLocaleDateString()}
                                 </div>
                                 {Object.keys(trigger.triggerConfig).length > 0 && (
                                   <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    Configuration: {Object.keys(trigger.triggerConfig).length} settings
+                                    配置: {Object.keys(trigger.triggerConfig).length} 个设置
                                   </div>
                                 )}
                               </a>
@@ -385,7 +385,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
                               onClick={() => setExpandedTrigger(expandedTrigger === trigger.id ? null : trigger.id)}
                               className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                             >
-                              <span className="font-medium">Advanced Details</span>
+                              <span className="font-medium">高级详情</span>
                               {expandedTrigger === trigger.id ? (
                                 <ChevronUp className="w-3 h-3" />
                               ) : (
@@ -396,13 +396,13 @@ export function TriggersTab({ projectId }: { projectId: string }) {
                             {expandedTrigger === trigger.id && (
                               <div className="mt-2 space-y-1">
                                 <div className="text-xs text-gray-600 dark:text-gray-400">
-                                  <span className="font-medium">Slug:</span> {trigger.triggerTypeSlug}
+                                  <span className="font-medium">Slug：</span> {trigger.triggerTypeSlug}
                                 </div>
                                 <div className="text-xs text-gray-600 dark:text-gray-400">
-                                  <span className="font-medium">Trigger ID:</span> {trigger.triggerId}
+                                  <span className="font-medium">触发器ID：</span> {trigger.triggerId}
                                 </div>
                                 <div className="text-xs text-gray-600 dark:text-gray-400">
-                                  <span className="font-medium">Connected Account:</span> {trigger.connectedAccountId}
+                                  <span className="font-medium">连接账户：</span> {trigger.connectedAccountId}
                                 </div>
                                 
                               </div>
@@ -425,7 +425,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
                     isLoading={loadingMore}
                     className="whitespace-nowrap"
                   >
-                    {loadingMore ? 'Loading...' : 'Load More'}
+                    {loadingMore ? '加载中...' : '加载更多'}
                   </Button>
                 </div>
               )}
@@ -462,10 +462,10 @@ export function TriggersTab({ projectId }: { projectId: string }) {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Select a Toolkit to Create Trigger
+                选择工具包以创建触发器
               </h3>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Note: Triggers run only on the published version of your workflow. Publish any changes to make them active.
+                注意：触发器仅在已发布的工作流版本上运行。发布任何更改以使它们激活。
               </p>
             </div>
             {triggers.length > 0 && (
@@ -475,7 +475,7 @@ export function TriggersTab({ projectId }: { projectId: string }) {
                 startContent={<ArrowLeftIcon className="w-4 h-4" />}
                 className="whitespace-nowrap"
               >
-                Back to Triggers
+                返回触发器
               </Button>
             )}
           </div>

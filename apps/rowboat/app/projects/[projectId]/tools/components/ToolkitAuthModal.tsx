@@ -56,7 +56,7 @@ export function ToolkitAuthModal({
         })
         .catch(err => {
           console.error('Failed to fetch toolkit:', err);
-          setError('Failed to load toolkit details');
+          setError('加载工具包详情失败');
         })
         .finally(() => setLoading(false));
     }
@@ -82,7 +82,7 @@ export function ToolkitAuthModal({
       onClose();
     } catch (error) {
       console.error('Error syncing connected account after OAuth:', error);
-      setError('Authentication completed but failed to sync status. Please refresh and try again.');
+      setError('认证完成，但同步状态失败。请刷新后重试。');
     }
   }, [projectId, toolkitSlug, onComplete, onClose]);
 
@@ -352,8 +352,8 @@ export function ToolkitAuthModal({
           )}
           <span>
             {showForm 
-              ? `Configure ${getAuthMethodName(selectedAuthScheme || '')}` 
-              : `Connect to ${toolkitSlug}`
+              ? `配置 ${getAuthMethodName(selectedAuthScheme || '')}` 
+              : `连接到 ${toolkitSlug}`
             }
           </span>
         </ModalHeader>
@@ -371,14 +371,14 @@ export function ToolkitAuthModal({
               // Form view
               <div className="space-y-4">
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Enter your credentials for {getAuthMethodName(selectedAuthScheme || '')} authentication:
+                  请输入您的 {getAuthMethodName(selectedAuthScheme || '')} 认证凭据：
                 </div>
                 
                 {(() => {
                   const authConfig = toolkit.auth_config_details?.find(config => config.mode === selectedAuthScheme);
                   
                   if (!authConfig) {
-                    return <div>No configuration found for {selectedAuthScheme}</div>;
+                    return <div>未找到 {selectedAuthScheme} 的配置</div>;
                   }
                   
                   // Try connected_account_initiation first, fallback to auth_config_creation
@@ -419,7 +419,7 @@ export function ToolkitAuthModal({
               // Auth options view
               <div className="space-y-4">
                 <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 mt-2">
-                  Choose how you&apos;d like to authenticate with this toolkit:
+                  请选择您希望如何与此工具包进行认证：
                 </div>
                 
                 <div className="space-y-6">
@@ -437,11 +437,11 @@ export function ToolkitAuthModal({
                       </div>
                       <div className="text-left flex flex-col gap-1">
                         <div className="flex items-center gap-2">
-                          <div className="font-medium text-base">Connect using OAuth2</div>
-                          <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-blue-500 text-white font-semibold">Most popular</span>
+                          <div className="font-medium text-base">使用 OAuth2 连接</div>
+                          <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-blue-500 text-white font-semibold">最受欢迎</span>
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          Secure authentication managed by Composio
+                          由 Composio 管理的安全认证
                         </div>
                       </div>
                       {processing && <Spinner size="sm" className="ml-auto" />}
@@ -462,9 +462,9 @@ export function ToolkitAuthModal({
                         <Shield className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                       </div>
                       <div className="text-left">
-                        <div className="font-medium text-base">Connect using custom OAuth2 app</div>
+                        <div className="font-medium text-base">使用自定义 OAuth2 应用连接</div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          Use your own OAuth2 configuration
+                          使用您自己的 OAuth2 配置
                         </div>
                       </div>
                     </HeroButton>
@@ -484,9 +484,9 @@ export function ToolkitAuthModal({
                         {getAuthMethodIcon(config.mode)}
                       </div>
                       <div className="text-left">
-                        <div className="font-medium text-base">Connect using {getAuthMethodName(config.mode)}</div>
+                        <div className="font-medium text-base">使用 {getAuthMethodName(config.mode)} 连接</div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          Enter your credentials
+                          输入您的凭据
                         </div>
                       </div>
                     </HeroButton>
@@ -500,7 +500,7 @@ export function ToolkitAuthModal({
           {showForm ? (
             <>
               <HeroButton variant="bordered" onPress={handleBackToOptions} isDisabled={processing}>
-                Back
+                返回
               </HeroButton>
               <HeroButton 
                 variant="solid" 
@@ -509,12 +509,12 @@ export function ToolkitAuthModal({
                 isDisabled={processing}
                 isLoading={processing}
               >
-                {processing ? 'Connecting...' : 'Connect'}
+                {processing ? '连接中...' : '连接'}
               </HeroButton>
             </>
           ) : (
             <HeroButton variant="bordered" onPress={onClose}>
-              Cancel
+              取消
             </HeroButton>
           )}
         </ModalFooter>
