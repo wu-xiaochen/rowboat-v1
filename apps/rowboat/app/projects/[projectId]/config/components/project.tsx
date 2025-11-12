@@ -255,13 +255,13 @@ function ApiKeysSection({ projectId }: { projectId: string }) {
             setKeys([...keys, key]);
             setMessage({
                 type: 'success',
-                text: 'API key created successfully',
+                text: 'API密钥创建成功',
             });
             setTimeout(() => setMessage(null), 2000);
         } catch (error) {
             setMessage({
                 type: 'error',
-                text: error instanceof Error ? error.message : "Failed to create API key",
+                text: error instanceof Error ? error.message : "创建API密钥失败",
             });
         } finally {
             setLoading(false);
@@ -269,7 +269,7 @@ function ApiKeysSection({ projectId }: { projectId: string }) {
     };
 
     const handleDeleteKey = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this API key? This action cannot be undone.")) {
+        if (!confirm("确定要删除此API密钥吗？此操作无法撤销。")) {
             return;
         }
 
@@ -279,13 +279,13 @@ function ApiKeysSection({ projectId }: { projectId: string }) {
             setKeys(keys.filter((k) => k.id !== id));
             setMessage({
                 type: 'info',
-                text: 'API key deleted successfully',
+                text: 'API密钥删除成功',
             });
             setTimeout(() => setMessage(null), 2000);
         } catch (error) {
             setMessage({
                 type: 'error',
-                text: error instanceof Error ? error.message : "Failed to delete API key",
+                text: error instanceof Error ? error.message : "删除API密钥失败",
             });
         } finally {
             setLoading(false);
@@ -293,7 +293,7 @@ function ApiKeysSection({ projectId }: { projectId: string }) {
     };
 
     return <Section 
-        title="API Keys"
+        title="API密钥"
         description="API密钥用于验证对质信智购API的请求。"
     >
         <div className="space-y-4">
