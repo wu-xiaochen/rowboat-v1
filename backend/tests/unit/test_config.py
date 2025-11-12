@@ -51,6 +51,12 @@ class TestSettings:
     
     def test_settings_default_values(self, monkeypatch):
         """测试：配置的默认值"""
+        # 清除可能影响的环境变量
+        monkeypatch.delenv("APP_NAME", raising=False)
+        monkeypatch.delenv("API_PORT", raising=False)
+        monkeypatch.delenv("DEBUG", raising=False)
+        monkeypatch.delenv("ENVIRONMENT", raising=False)
+        
         # 只设置必需的环境变量
         required_vars = {
             "LLM_API_KEY": "test-key",
