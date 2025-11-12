@@ -212,10 +212,10 @@ const App = forwardRef<{ handleCopyChat: () => void; handleUserMessage: (message
                             {/* Welcome/Intro Section */}
                             <div className="text-center max-w-md px-6 mb-3">
                                 <h3 className="text-xl font-semibold text-zinc-700 dark:text-zinc-300 mb-2 text-center">
-                                    👋 Hi there!
+                                    👋 你好！
                                 </h3>
                                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-4 text-center">
-                                    I’m Skipper, your copilot for building agents and adding tools to them.
+                                    我是AI助手，帮助你构建智能体并添加工具。
                                 </p>
                                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-3 text-center">
                                     你可以在这里做什么：
@@ -223,23 +223,23 @@ const App = forwardRef<{ handleCopyChat: () => void; handleUserMessage: (message
                                 <div className="space-y-2 max-w-2xl mx-auto text-left">
                                     <div className="flex items-start gap-3">
                                         <span className="text-lg">⚡</span>
-                                        <span className="text-sm text-zinc-600 dark:text-zinc-400">Build AI agents instantly with natural language.</span>
+                                        <span className="text-sm text-zinc-600 dark:text-zinc-400">使用自然语言快速构建AI智能体。</span>
                                     </div>
                                     <div className="flex items-start gap-3">
                                         <span className="text-lg">🔌</span>
-                                        <span className="text-sm text-zinc-600 dark:text-zinc-400">Connect tools with one-click integrations.</span>
+                                        <span className="text-sm text-zinc-600 dark:text-zinc-400">通过一键集成连接工具。</span>
                                     </div>
                                     <div className="flex items-start gap-3">
                                         <span className="text-lg">📂</span>
-                                        <span className="text-sm text-zinc-600 dark:text-zinc-400">Power with knowledge by adding documents for RAG.</span>
+                                        <span className="text-sm text-zinc-600 dark:text-zinc-400">通过添加文档为RAG提供知识支持。</span>
                                     </div>
                                     <div className="flex items-start gap-3">
                                         <span className="text-lg">🔄</span>
-                                        <span className="text-sm text-zinc-600 dark:text-zinc-400">Automate workflows by setting up triggers and actions.</span>
+                                        <span className="text-sm text-zinc-600 dark:text-zinc-400">通过设置触发器和操作自动化工作流。</span>
                                     </div>
                                     <div className="flex items-start gap-3">
                                         <span className="text-lg">🚀</span>
-                                        <span className="text-sm text-zinc-600 dark:text-zinc-400">Deploy anywhere via API or SDK.</span>
+                                        <span className="text-sm text-zinc-600 dark:text-zinc-400">通过API或SDK部署到任何地方。</span>
                                     </div>
                                 </div>
                             </div>
