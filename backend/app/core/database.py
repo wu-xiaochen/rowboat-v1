@@ -248,9 +248,10 @@ def create_qdrant_collection(collection_name: str, vector_size: int = 1536):
             return
         
         # 创建集合
+        # 注意：使用Dot距离（点积）而不是Cosine，因为原项目使用Dot
         client.create_collection(
             collection_name=collection_name,
-            vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
+            vectors_config=VectorParams(size=vector_size, distance=Distance.DOT),
         )
         print(f"✓ Qdrant集合 '{collection_name}' 创建成功")
     except Exception as e:
