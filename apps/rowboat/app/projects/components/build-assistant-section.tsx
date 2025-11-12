@@ -437,7 +437,7 @@ export function BuildAssistantSection() {
                     {/* Main Headline */}
                     <div className="text-center mb-16">
                         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6 leading-tight">
-                            Build <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Rowboats</span> that Work for You
+                            构建适合您的<span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">智能体</span>
                         </h1>
                     </div>
 
@@ -454,7 +454,7 @@ export function BuildAssistantSection() {
                                             <div className="flex-shrink-0">
                                                 <Image
                                                     src={mascotImage}
-                                                    alt="Rowboat Mascot"
+                                                    alt="质信智购吉祥物"
                                                     width={200}
                                                     height={200}
                                                     className="w-[200px] h-[200px] object-contain"
@@ -465,7 +465,7 @@ export function BuildAssistantSection() {
                                             <div className="flex-1">
                                                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
                                                     <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                                                        Hey! What agents can I build for you?
+                                                        你好！我可以为你构建什么智能体？
                                                     </h2>
                                                     <div className="relative group flex flex-col">
                                                     <TextareaWithSend
@@ -479,7 +479,7 @@ export function BuildAssistantSection() {
                                                         isImporting={importLoading}
                                                         importDisabled={importLoading}
                                                         isSubmitting={isCreating}
-                                                        placeholder="Example: Build me an assistant to manage my email and calendar..."
+                                                        placeholder="示例：为我构建一个管理我的邮件和日历的助手..."
                                                         className={clsx(
                                                             "w-full rounded-lg p-3 border border-gray-200 dark:border-gray-700",
                                                             "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750",

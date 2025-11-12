@@ -9,7 +9,7 @@ interface FeedbackModalProps {
     title?: string;
 }
 
-export function FeedbackModal({ isOpen, onClose, onSubmit, title = "Provide Feedback" }: FeedbackModalProps) {
+export function FeedbackModal({ isOpen, onClose, onSubmit, title = "提供反馈" }: FeedbackModalProps) {
     const [feedback, setFeedback] = useState("");
 
     const handleSubmit = () => {

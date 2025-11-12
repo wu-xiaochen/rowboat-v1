@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 
 const phrases = [
-    "Can you help me choose the right product?",
-    "Which plan is right for me?",
-    "Do you have a discount code available?",
-    "How do I get early access?",
-    "Can you explain the charges?",
+    "你能帮我选择合适的产品吗？",
+    "哪个计划适合我？",
+    "你有折扣码吗？",
+    "如何获得早期访问权限？",
+    "你能解释一下费用吗？",
 ];
 
 export function TypewriterEffect() {

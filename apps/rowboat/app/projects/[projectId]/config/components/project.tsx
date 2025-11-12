@@ -294,7 +294,7 @@ function ApiKeysSection({ projectId }: { projectId: string }) {
 
     return <Section 
         title="API Keys"
-        description="API keys are used to authenticate requests to the Rowboat API."
+        description="API密钥用于验证对质信智购API的请求。"
     >
         <div className="space-y-4">
             <div className="flex justify-between items-center">

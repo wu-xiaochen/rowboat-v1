@@ -2436,7 +2436,7 @@ export function WorkflowEditor({
                         projectId={projectId}
                         forceStart
                         stepsOverride={[
-                            { target: 'playground', title: 'Step 1/2', content: 'Chat with your assistant to test it. Send messages, watch tool calls in action, and debug agent flows.' },
+                            { target: 'playground', title: '步骤 1/2', content: '与你的助手聊天以测试它。发送消息，观看工具调用，调试智能体流程。' },
                             { target: 'copilot', title: 'Step 2/2', content: 'Ask Copilot to improve your agents based on test results. Use "Fix" and "Explain" to iterate quickly.' },
                         ]}
                         onStepChange={(index) => {
@@ -2455,7 +2455,7 @@ export function WorkflowEditor({
                         projectId={projectId}
                         forceStart
                         stepsOverride={[
-                            { target: 'playground', title: 'Step 1/5', content: 'Chat: you can chat with your assistant here.' },
+                            { target: 'playground', title: '步骤 1/5', content: '聊天：你可以在这里与你的助手聊天。' },
                             { target: 'triggers', title: 'Step 2/5', content: 'Triggers: set up external (webhook/integration) or time-based schedules.' },
                             { target: 'jobs', title: 'Step 3/5', content: 'Jobs: monitor your trigger runs and scheduled tasks here.' },
                             { target: 'settings', title: 'Step 4/5', content: 'Settings: find API keys to connect with the API and SDK.' },

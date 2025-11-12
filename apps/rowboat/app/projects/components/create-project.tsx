@@ -394,16 +394,16 @@ export function CreateProject({ defaultName, onOpenProjectPane, isProjectPaneOpe
                             <div className="flex flex-col gap-6">
                                 <div className="flex w-full items-center">
                                     <label className={largeSectionHeaderStyles}>
-                                        ✏️ What do you want to build?
+                                        ✏️ 你想要构建什么？
                                     </label>
                                 </div>
                                 <div className="space-y-4">
                                     <div className="flex flex-col gap-4">
                                         <div className="flex items-center gap-2">
                                             <p className="text-xs text-gray-600 dark:text-gray-400">
-                                                In the next step, our AI copilot will create agents for you, complete with mock-tools.
+                                                在下一步，我们的AI助手将为您创建智能体，包括模拟工具。
                                             </p>
-                                            <Tooltip content={<div>If you already know the specific agents and tools you need, mention them below.<br /><br />Specify &apos;internal agents&apos; for task agents that will not interact with the user and &apos;user-facing agents&apos; for conversational agents that will interact with users.</div>} className="max-w-[560px]">
+                                            <Tooltip content={<div>如果您已经知道需要哪些特定的智能体和工具，请在下面提及它们。<br /><br />指定&apos;内部智能体&apos;用于不会与用户交互的任务智能体，指定&apos;用户面向智能体&apos;用于将与用户交互的对话智能体。</div>} className="max-w-[560px]">
                                                 <InformationCircleIcon className="w-4 h-4 text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300 cursor-help" />
                                             </Tooltip>
                                         </div>

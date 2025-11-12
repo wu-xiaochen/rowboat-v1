@@ -108,7 +108,7 @@ export function BillingUpgradeModal({ isOpen, onClose, errorMessage }: BillingUp
         if (currentPlan === 'pro') {
             return "You've reached your plan limits";
         }
-        return "Upgrade to do more with Rowboat";
+        return "升级以使用更多质信智购功能";
     };
 
     const visiblePlans = getVisiblePlans();

@@ -116,7 +116,7 @@ export function Chat({
         } else {
             // Fallback for standalone playground
             localStorage.setItem(`project_prompt_${projectId}`, prompt);
-            alert('Fix request submitted! Redirecting to workflow editor...');
+            alert('修复请求已提交！正在跳转到工作流编辑器...');
             window.location.href = `/projects/${projectId}/workflow`;
         }
     }, [pendingFixMessage, pendingFixIndex, projectId, triggerCopilotChat]);
@@ -137,7 +137,7 @@ export function Chat({
             setTimeout(() => setShowExplainSuccess(false), 3000);
         } else {
             localStorage.setItem(`project_prompt_${projectId}`, prompt);
-            alert('Explain request submitted! Redirecting to workflow editor...');
+            alert('解释请求已提交！正在跳转到工作流编辑器...');
             window.location.href = `/projects/${projectId}/workflow`;
         }
     }, [projectId, triggerCopilotChat]);
@@ -391,26 +391,26 @@ export function Chat({
                     {showSuccessMessage && (
                         <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 
                                       rounded-lg flex gap-2 justify-between items-center">
-                            <p className="text-green-600 dark:text-green-400 text-sm">Skipper will suggest fixes for you now.</p>
+                            <p className="text-green-600 dark:text-green-400 text-sm">AI助手将为您提供修复建议。</p>
                             <Button
                                 size="sm"
                                 color="success"
                                 onPress={() => setShowSuccessMessage(false)}
                             >
-                                Dismiss
+                                关闭
                             </Button>
                         </div>
                     )}
                     {showExplainSuccess && (
                         <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 
                                       rounded-lg flex gap-2 justify-between items-center">
-                            <p className="text-blue-600 dark:text-blue-400 text-sm">Skipper will explain this for you now.</p>
+                            <p className="text-blue-600 dark:text-blue-400 text-sm">AI助手将为您解释这一点。</p>
                             <Button
                                 size="sm"
                                 color="primary"
                                 onPress={() => setShowExplainSuccess(false)}
                             >
-                                Dismiss
+                                关闭
                             </Button>
                         </div>
                     )}
@@ -426,7 +426,7 @@ export function Chat({
                                     setBillingError(null);
                                 }}
                             >
-                                Retry
+                                重试
                             </Button>
                         </div>
                     )}

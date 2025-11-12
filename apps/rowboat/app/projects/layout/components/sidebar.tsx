@@ -141,7 +141,7 @@ export default function Sidebar({ projectId, useAuth, collapsed = false, onToggl
     <>
       <aside className={`${collapsed ? 'w-16' : 'w-60'} bg-transparent flex flex-col h-full transition-all duration-300`}>
         <div className="flex flex-col grow">
-          {/* Rowboat Logo */}
+          {/* 质信智购Logo */}
           <div className="p-3 border-b border-zinc-100 dark:border-zinc-800">
             <Tooltip content="Home" showArrow placement="right">
               <Link
@@ -153,13 +153,13 @@ export default function Sidebar({ projectId, useAuth, collapsed = false, onToggl
               >
                 {collapsed && <Image
                   src={logoOnly}
-                  alt="Rowboat"
+                  alt="质信智购"
                   width={32}
                   height={32}
                 />}
                 {!collapsed && <Image
                   src={logo}
-                  alt="Rowboat"
+                  alt="质信智购"
                   height={32}
                 />}
               </Link>
@@ -360,21 +360,21 @@ export default function Sidebar({ projectId, useAuth, collapsed = false, onToggl
               {/* Assistant Description/Prompt */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  What do you want to build?
+                  你想要构建什么？
                 </label>
                 <TextareaWithSend
                   value={assistantPrompt}
                   onChange={setAssistantPrompt}
                   onSubmit={handleCreateAssistant}
                   isSubmitting={isCreatingAssistant}
-                  placeholder="Example: Create a customer support assistant that can handle product inquiries and returns"
+                  placeholder="示例：创建一个可以处理产品咨询和退货的客户支持助手"
                   className="w-full min-h-[120px] border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   autoFocus
                 />
               </div>
 
               <div className="text-xs text-gray-500 dark:text-gray-400">
-                In the next step, our AI copilot will create agents for you, complete with mock-tools.
+                在下一步，我们的AI助手将为您创建智能体，包括模拟工具。
               </div>
             </div>
           </ModalBody>
@@ -384,14 +384,14 @@ export default function Sidebar({ projectId, useAuth, collapsed = false, onToggl
               onClick={handleCreateModalClose}
               disabled={isCreatingAssistant}
             >
-              Cancel
+              取消
             </Button>
             <Button
               variant="primary"
               onClick={handleCreateAssistant}
               disabled={isCreatingAssistant || !assistantPrompt.trim()}
             >
-              {isCreatingAssistant ? "Creating..." : "Create Assistant"}
+              {isCreatingAssistant ? "创建中..." : "创建助手"}
             </Button>
           </ModalFooter>
         </ModalContent>
