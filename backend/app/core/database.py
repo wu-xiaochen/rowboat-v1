@@ -23,11 +23,21 @@ async def get_mongodb_client() -> AsyncIOMotorClient:
     """
     获取MongoDB客户端实例（单例模式）
     Get MongoDB client instance (singleton pattern)
+    
+    优化：配置连接池以提高性能
+    Optimization: Configure connection pool for better performance
     """
     global _mongodb_client
     if _mongodb_client is None:
         settings = get_settings()
-        _mongodb_client = AsyncIOMotorClient(settings.mongodb_connection_string)
+        # 配置连接池参数以优化性能
+        _mongodb_client = AsyncIOMotorClient(
+            settings.mongodb_connection_string,
+            maxPoolSize=50,  # 最大连接池大小
+            minPoolSize=10,  # 最小连接池大小
+            maxIdleTimeMS=45000,  # 最大空闲时间（45秒）
+            serverSelectionTimeoutMS=5000,  # 服务器选择超时（5秒）
+        )
     return _mongodb_client
 
 
@@ -59,6 +69,9 @@ async def get_redis_client() -> Redis:
     """
     获取Redis客户端实例（单例模式）
     Get Redis client instance (singleton pattern)
+    
+    优化：配置连接池以提高性能
+    Optimization: Configure connection pool for better performance
     """
     global _redis_client
     if _redis_client is None:
@@ -66,7 +79,11 @@ async def get_redis_client() -> Redis:
         _redis_client = Redis.from_url(
             settings.redis_url,
             encoding="utf-8",
-            decode_responses=True
+            decode_responses=True,
+            max_connections=50,  # 最大连接数
+            socket_connect_timeout=5,  # 连接超时（5秒）
+            socket_timeout=5,  # Socket超时（5秒）
+            retry_on_timeout=True,  # 超时重试
         )
     return _redis_client
 
@@ -209,24 +226,121 @@ async def initialize_databases():
 
 async def create_mongodb_indexes():
     """
-    创建MongoDB索引
-    Create MongoDB indexes
+    创建MongoDB索引（性能优化）
+    Create MongoDB indexes for performance optimization
     """
     db = await get_mongodb_db()
     
-    # 项目集合索引
-    await db.projects.create_index("name")
-    await db.projects.create_index("created_at")
+    # ==================== Projects 集合索引 ====================
+    projects_collection = db["projects"]
     
-    # 会话集合索引
-    await db.conversations.create_index("project_id")
-    await db.conversations.create_index("created_at")
+    # id字段索引（唯一，用于快速查找）
+    try:
+        await projects_collection.create_index("id", unique=True, name="idx_projects_id")
+        print("✓ 创建 projects.id 索引")
+    except Exception as e:
+        print(f"⚠ projects.id 索引可能已存在: {e}")
     
-    # 智能体集合索引
-    await db.agents.create_index("project_id")
-    await db.agents.create_index("name")
+    # createdByUserId字段索引（用于查询用户的项目）
+    try:
+        await projects_collection.create_index("createdByUserId", name="idx_projects_createdByUserId")
+        print("✓ 创建 projects.createdByUserId 索引")
+    except Exception as e:
+        print(f"⚠ projects.createdByUserId 索引可能已存在: {e}")
     
-    print("✓ MongoDB索引创建成功")
+    # createdAt字段索引（用于排序）
+    try:
+        await projects_collection.create_index("createdAt", name="idx_projects_createdAt")
+        print("✓ 创建 projects.createdAt 索引")
+    except Exception as e:
+        print(f"⚠ projects.createdAt 索引可能已存在: {e}")
+    
+    # 复合索引：createdByUserId + createdAt（用于按用户查询并排序）
+    try:
+        await projects_collection.create_index(
+            [("createdByUserId", 1), ("createdAt", -1)],
+            name="idx_projects_user_created"
+        )
+        print("✓ 创建 projects (createdByUserId, createdAt) 复合索引")
+    except Exception as e:
+        print(f"⚠ projects 复合索引可能已存在: {e}")
+    
+    # ==================== Conversations 集合索引 ====================
+    conversations_collection = db["conversations"]
+    
+    # id字段索引（唯一）
+    try:
+        await conversations_collection.create_index("id", unique=True, name="idx_conversations_id")
+        print("✓ 创建 conversations.id 索引")
+    except Exception as e:
+        print(f"⚠ conversations.id 索引可能已存在: {e}")
+    
+    # projectId字段索引（用于查询项目的对话）
+    try:
+        await conversations_collection.create_index("projectId", name="idx_conversations_projectId")
+        print("✓ 创建 conversations.projectId 索引")
+    except Exception as e:
+        print(f"⚠ conversations.projectId 索引可能已存在: {e}")
+    
+    # createdAt字段索引（用于排序）
+    try:
+        await conversations_collection.create_index("createdAt", name="idx_conversations_createdAt")
+        print("✓ 创建 conversations.createdAt 索引")
+    except Exception as e:
+        print(f"⚠ conversations.createdAt 索引可能已存在: {e}")
+    
+    # 复合索引：projectId + createdAt（用于按项目查询并排序）
+    try:
+        await conversations_collection.create_index(
+            [("projectId", 1), ("createdAt", -1)],
+            name="idx_conversations_project_created"
+        )
+        print("✓ 创建 conversations (projectId, createdAt) 复合索引")
+    except Exception as e:
+        print(f"⚠ conversations 复合索引可能已存在: {e}")
+    
+    # ==================== API Keys 集合索引 ====================
+    api_keys_collection = db["api_keys"]
+    
+    # id字段索引（唯一）
+    try:
+        await api_keys_collection.create_index("id", unique=True, name="idx_api_keys_id")
+        print("✓ 创建 api_keys.id 索引")
+    except Exception as e:
+        print(f"⚠ api_keys.id 索引可能已存在: {e}")
+    
+    # projectId字段索引（用于查询项目的API Keys）
+    try:
+        await api_keys_collection.create_index("projectId", name="idx_api_keys_projectId")
+        print("✓ 创建 api_keys.projectId 索引")
+    except Exception as e:
+        print(f"⚠ api_keys.projectId 索引可能已存在: {e}")
+    
+    # key字段索引（用于API Key验证，唯一）
+    try:
+        await api_keys_collection.create_index("key", unique=True, name="idx_api_keys_key")
+        print("✓ 创建 api_keys.key 索引")
+    except Exception as e:
+        print(f"⚠ api_keys.key 索引可能已存在: {e}")
+    
+    # 复合索引：key + isActive（用于API Key验证查询）
+    try:
+        await api_keys_collection.create_index(
+            [("key", 1), ("isActive", 1)],
+            name="idx_api_keys_key_active"
+        )
+        print("✓ 创建 api_keys (key, isActive) 复合索引")
+    except Exception as e:
+        print(f"⚠ api_keys 复合索引可能已存在: {e}")
+    
+    # createdAt字段索引（用于排序）
+    try:
+        await api_keys_collection.create_index("createdAt", name="idx_api_keys_createdAt")
+        print("✓ 创建 api_keys.createdAt 索引")
+    except Exception as e:
+        print(f"⚠ api_keys.createdAt 索引可能已存在: {e}")
+    
+    print("\n✓ MongoDB索引创建完成")
 
 
 def create_qdrant_collection(collection_name: str, vector_size: int = 1536):

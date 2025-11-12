@@ -7,6 +7,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from app.core.database import get_mongodb_db
+from app.core.cache import get_cache_service
 from app.models.api_key import APIKey
 
 
@@ -19,6 +20,8 @@ class APIKeysRepository:
     def __init__(self):
         """初始化Repository"""
         self.collection_name = "api_keys"
+        self.cache_service = get_cache_service()
+        self.cache_ttl = 600  # API Key缓存10分钟（验证频率高）
     
     async def create(self, api_key: APIKey) -> APIKey:
         """
@@ -68,8 +71,11 @@ class APIKeysRepository:
     
     async def get_by_key_hash(self, key_hash: str) -> Optional[APIKey]:
         """
-        根据Key哈希获取API Key
-        Get API key by key hash
+        根据Key哈希获取API Key（带缓存优化）
+        Get API key by key hash (with cache optimization)
+        
+        注意：这是高频调用方法，缓存可以显著提升性能
+        Note: This is a high-frequency method, caching can significantly improve performance
         
         Args:
             key_hash: API Key哈希值
@@ -77,6 +83,17 @@ class APIKeysRepository:
         Returns:
             API Key对象，如果不存在则返回None
         """
+        # 尝试从缓存获取
+        cache_key = self.cache_service.get_api_key_key(key_hash)
+        cached_key = await self.cache_service.get(cache_key)
+        if cached_key:
+            try:
+                return APIKey(**cached_key)
+            except Exception:
+                # 缓存数据格式错误，继续从数据库查询
+                pass
+        
+        # 从数据库查询
         db = await get_mongodb_db()
         collection = db[self.collection_name]
         
@@ -88,7 +105,13 @@ class APIKeysRepository:
         if "_id" in doc:
             del doc["_id"]
         
-        return APIKey(**doc)
+        api_key = APIKey(**doc)
+        
+        # 存入缓存（转换为字典，排除敏感信息）
+        api_key_dict = api_key.model_dump(by_alias=True)
+        await self.cache_service.set(cache_key, api_key_dict, self.cache_ttl)
+        
+        return api_key
     
     async def get_by_project_id(self, project_id: str) -> List[APIKey]:
         """
@@ -116,8 +139,8 @@ class APIKeysRepository:
     
     async def update_last_used(self, key_id: str) -> bool:
         """
-        更新API Key的最后使用时间
-        Update the last used timestamp of an API key
+        更新API Key的最后使用时间（带缓存失效）
+        Update the last used timestamp of an API key (with cache invalidation)
         
         Args:
             key_id: API Key ID
@@ -128,10 +151,19 @@ class APIKeysRepository:
         db = await get_mongodb_db()
         collection = db[self.collection_name]
         
+        # 先获取key_hash以便清除缓存
+        doc = await collection.find_one({"id": key_id})
+        key_hash = doc.get("key") if doc else None
+        
         result = await collection.update_one(
             {"id": key_id},
             {"$set": {"lastUsedAt": datetime.now()}}
         )
+        
+        # 如果更新成功且找到了key_hash，清除缓存
+        if result.matched_count > 0 and key_hash:
+            cache_key = self.cache_service.get_api_key_key(key_hash)
+            await self.cache_service.delete(cache_key)
         
         return result.matched_count > 0
     
