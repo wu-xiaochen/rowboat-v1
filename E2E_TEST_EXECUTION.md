@@ -268,3 +268,42 @@
 
 ---
 
+### ✅ 测试10：智能体创建功能
+
+**执行时间**：2025-01-27  
+**状态**：✅ 通过
+
+**测试步骤**：
+1. 点击"添加智能体"按钮
+2. 验证创建对话框打开
+3. 选择智能体类型
+4. 创建智能体
+
+**测试结果**：
+- ✅ "添加智能体"按钮可点击
+- ✅ 创建对话框成功打开
+- ✅ 对话框标题显示为"Create New Agent or Pipeline"
+- ✅ 三个选项正常显示：
+  - **Task Agent** (Internal)
+  - **Conversation Agent** (User-facing)
+  - **Pipeline** (Sequential)
+- ✅ 每个选项都有详细描述（英文）
+- ✅ "Cancel"和"Create Agent"按钮正常显示
+- ✅ 选择Conversation Agent后，可以点击"Create Agent"创建
+
+**截图**：无
+
+**发现的问题**：
+- ⚠️ 对话框标题和选项描述为英文（P3优化建议）
+  - "Create New Agent or Pipeline" → "创建新智能体或管道"
+  - "Choose what you want to create:" → "选择你想要创建的内容："
+  - "Task Agent" → "任务智能体"
+  - "Conversation Agent" → "对话智能体"
+  - "Pipeline" → "管道"
+  - "Cancel" → "取消"
+  - "Create Agent" → "创建智能体"
+
+**下一步**：验证智能体创建成功并测试配置
+
+---
+
