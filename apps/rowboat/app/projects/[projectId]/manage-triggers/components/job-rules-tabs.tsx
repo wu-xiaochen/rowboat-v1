@@ -35,16 +35,16 @@ export function JobRulesTabs({ projectId }: { projectId: string }) {
             <Tabs
                 selectedKey={activeTab}
                 onSelectionChange={handleTabChange}
-                aria-label="Job Rules"
+                aria-label="任务规则"
                 fullWidth
             >
-                <Tab key="triggers" title="External Triggers">
+                <Tab key="triggers" title="外部触发器">
                     <TriggersTab projectId={projectId} />
                 </Tab>
-                <Tab key="scheduled" title="One-Time Triggers">
+                <Tab key="scheduled" title="一次性触发器">
                     <ScheduledJobRulesList projectId={projectId} />
                 </Tab>
-                <Tab key="recurring" title="Recurring Triggers">
+                <Tab key="recurring" title="重复触发器">
                     <RecurringJobRulesList projectId={projectId} />
                 </Tab>
             </Tabs>

@@ -15,14 +15,14 @@ type FormMessage = {
 };
 
 const commonCronExamples = [
-    { label: "Every minute", value: "* * * * *" },
-    { label: "Every 5 minutes", value: "*/5 * * * *" },
-    { label: "Every hour", value: "0 * * * *" },
-    { label: "Every 2 hours", value: "0 */2 * * *" },
-    { label: "Daily at midnight", value: "0 0 * * *" },
-    { label: "Daily at 9 AM", value: "0 9 * * *" },
-    { label: "Weekly on Sunday at midnight", value: "0 0 * * 0" },
-    { label: "Monthly on the 1st at midnight", value: "0 0 1 * *" },
+    { label: "每分钟", value: "* * * * *" },
+    { label: "每5分钟", value: "*/5 * * * *" },
+    { label: "每小时", value: "0 * * * *" },
+    { label: "每2小时", value: "0 */2 * * *" },
+    { label: "每天午夜", value: "0 0 * * *" },
+    { label: "每天上午9点", value: "0 9 * * *" },
+    { label: "每周日午夜", value: "0 0 * * 0" },
+    { label: "每月1日午夜", value: "0 0 1 * *" },
 ];
 
 export function CreateRecurringJobRuleForm({ 
@@ -63,12 +63,12 @@ export function CreateRecurringJobRuleForm({
         
         // Validate required fields
         if (!cronExpression.trim()) {
-            alert("Please enter a cron expression");
+            alert("请输入cron表达式");
             return;
         }
 
         if (messages.some(msg => !msg.content?.trim())) {
-            alert("Please fill in all message content");
+            alert("请填写所有消息内容");
             return;
         }
 
@@ -104,7 +104,7 @@ export function CreateRecurringJobRuleForm({
             }
         } catch (error) {
             console.error("Failed to create recurring job rule:", error);
-            alert("Failed to create recurring job rule");
+            alert("创建重复任务规则失败");
         } finally {
             setLoading(false);
         }
@@ -122,21 +122,21 @@ export function CreateRecurringJobRuleForm({
                             className="whitespace-nowrap"
                             onClick={onBack}
                         >
-                            Back
+                            返回
                         </Button>
                     ) : hasExistingTriggers ? (
                         <Link href={`/projects/${projectId}/manage-triggers?tab=recurring`}>
                             <Button variant="secondary" size="sm" startContent={<ArrowLeftIcon className="w-4 h-4" />} className="whitespace-nowrap">
-                                Back
+                                返回
                             </Button>
                         </Link>
                     ) : null}
                     <div>
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            CREATE RECURRING JOB RULE
+                            创建重复任务规则
                         </div>
                         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            Note: Triggers run only on the published version of your workflow. Publish any changes to make them active.
+                            注意：触发器仅在已发布的工作流版本上运行。发布任何更改以使它们激活。
                         </p>
                     </div>
                 </div>
@@ -149,7 +149,7 @@ export function CreateRecurringJobRuleForm({
                         <div className="space-y-2">
                             <div className="flex items-center gap-2">
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Cron Expression *
+                                    Cron表达式 *
                                 </label>
                                 <Button
                                     type="button"
@@ -174,10 +174,10 @@ export function CreateRecurringJobRuleForm({
                             {showCronHelp && (
                                 <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
                                     <div className="text-sm text-blue-800 dark:text-blue-200 mb-2">
-                                        <strong>Format:</strong> minute hour day month dayOfWeek
+                                        <strong>格式：</strong> 分钟 小时 日 月 星期
                                     </div>
                                     <div className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                                        <strong>Examples:</strong>
+                                        <strong>示例：</strong>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                         {commonCronExamples.map((example, index) => (
@@ -192,7 +192,7 @@ export function CreateRecurringJobRuleForm({
                                         ))}
                                     </div>
                                     <div className="text-xs text-blue-600 dark:text-blue-300 mt-2">
-                                        <strong>Note:</strong> All times are in UTC timezone
+                                        <strong>注意：</strong> 所有时间均为UTC时区
                                     </div>
                                 </div>
                             )}
@@ -202,7 +202,7 @@ export function CreateRecurringJobRuleForm({
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Messages *
+                                    消息 *
                                 </label>
                                 <Button
                                     type="button"
@@ -212,7 +212,7 @@ export function CreateRecurringJobRuleForm({
                                     startContent={<PlusIcon className="w-4 h-4" />}
                                     className="whitespace-nowrap"
                                 >
-                                    Add Message
+                                    添加消息
                                 </Button>
                             </div>
                             
@@ -225,9 +225,9 @@ export function CreateRecurringJobRuleForm({
                                                 onChange={(e) => updateMessage(index, "role", e.target.value)}
                                                 className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-700 dark:text-white"
                                             >
-                                                <option value="system">System</option>
-                                                <option value="user">User</option>
-                                                <option value="assistant">Assistant</option>
+                                                <option value="system">系统</option>
+                                                <option value="user">用户</option>
+                                                <option value="assistant">助手</option>
                                             </select>
                                             {messages.length > 1 && (
                                                 <Button
@@ -244,7 +244,7 @@ export function CreateRecurringJobRuleForm({
                                         <textarea
                                             value={message.content}
                                             onChange={(e) => updateMessage(index, "content", e.target.value)}
-                                            placeholder={`Enter ${message.role} message...`}
+                                            placeholder={`输入${message.role === 'system' ? '系统' : message.role === 'user' ? '用户' : '助手'}消息...`}
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                                             rows={3}
                                             required
@@ -262,7 +262,7 @@ export function CreateRecurringJobRuleForm({
                                 isLoading={loading}
                                 className="px-6 py-2 whitespace-nowrap"
                             >
-                                {loading ? "Creating..." : "Create Rule"}
+                                {loading ? "创建中..." : "创建规则"}
                             </Button>
                         </div>
                     </form>

@@ -76,7 +76,7 @@ export function RecurringJobRulesList({ projectId }: { projectId: string }) {
     };
 
     const handleDeleteRule = async (ruleId: string) => {
-        if (!window.confirm('Are you sure you want to delete this recurring trigger?')) {
+        if (!window.confirm('确定要删除此重复触发器吗？')) {
             return;
         }
 
@@ -87,7 +87,7 @@ export function RecurringJobRulesList({ projectId }: { projectId: string }) {
             setItems(prev => prev.filter(item => item.id !== ruleId));
         } catch (err: any) {
             console.error('Error deleting recurring trigger:', err);
-            alert('Failed to delete recurring trigger. Please try again.');
+            alert('删除重复触发器失败。请重试。');
         } finally {
             setDeletingRule(null);
         }
@@ -95,17 +95,17 @@ export function RecurringJobRulesList({ projectId }: { projectId: string }) {
 
     const sections = useMemo(() => {
         const groups: Record<string, ListedItem[]> = {
-            Today: [],
-            'This week': [],
-            'This month': [],
-            Older: [],
+            今天: [],
+            本周: [],
+            本月: [],
+            更早: [],
         };
         for (const item of items) {
             const d = new Date(item.nextRunAt);
-            if (isToday(d)) groups['Today'].push(item);
-            else if (isThisWeek(d)) groups['This week'].push(item);
-            else if (isThisMonth(d)) groups['This month'].push(item);
-            else groups['Older'].push(item);
+            if (isToday(d)) groups['今天'].push(item);
+            else if (isThisWeek(d)) groups['本周'].push(item);
+            else if (isThisMonth(d)) groups['本月'].push(item);
+            else groups['更早'].push(item);
         }
         return groups;
     }, [items]);
@@ -117,9 +117,9 @@ export function RecurringJobRulesList({ projectId }: { projectId: string }) {
     };
 
     const getStatusText = (disabled: boolean, lastError: string | null) => {
-        if (disabled) return 'Disabled';
-        if (lastError) return 'Error';
-        return 'Active';
+        if (disabled) return '已禁用';
+        if (lastError) return '错误';
+        return '激活';
     };
 
     const formatNextRunAt = (dateString: string) => {
@@ -133,19 +133,19 @@ export function RecurringJobRulesList({ projectId }: { projectId: string }) {
         if (parts.length === 5) {
             const [minute, hour, day, month, dayOfWeek] = parts;
             if (minute === '*' && hour === '*' && day === '*' && month === '*' && dayOfWeek === '*') {
-                return 'Every minute';
+                return '每分钟';
             }
             if (minute === '0' && hour === '*' && day === '*' && month === '*' && dayOfWeek === '*') {
-                return 'Every hour';
+                return '每小时';
             }
             if (minute === '0' && hour === '0' && day === '*' && month === '*' && dayOfWeek === '*') {
-                return 'Daily at midnight';
+                return '每天午夜';
             }
             if (minute === '0' && hour === '0' && day === '1' && month === '*' && dayOfWeek === '*') {
-                return 'Monthly on the 1st';
+                return '每月1日';
             }
             if (minute === '0' && hour === '0' && day === '*' && month === '*' && dayOfWeek === '0') {
-                return 'Weekly on Sunday';
+                return '每周日';
             }
         }
         return cron;
@@ -159,7 +159,7 @@ export function RecurringJobRulesList({ projectId }: { projectId: string }) {
         <Panel
             title={
                 <div className="text-base font-normal text-gray-900 dark:text-gray-100">
-                    Run your assistant workflow on an automated repeating schedule (cron jobs).
+                    在自动化重复计划（cron任务）上运行您的助手工作流。
                 </div>
             }
             rightActions={
@@ -170,7 +170,7 @@ export function RecurringJobRulesList({ projectId }: { projectId: string }) {
                         startContent={<PlusIcon className="w-4 h-4" />}
                         onClick={handleCreateNew}
                     >
-                        New Recurring Trigger
+                        新建重复触发器
                     </Button>
                 </div>
             }
@@ -180,7 +180,7 @@ export function RecurringJobRulesList({ projectId }: { projectId: string }) {
                     {loading && (
                         <div className="flex items-center gap-2">
                             <Spinner size="sm" />
-                            <div>Loading...</div>
+                            <div>加载中...</div>
                         </div>
                     )}
                     {!loading && (
@@ -209,18 +209,18 @@ export function RecurringJobRulesList({ projectId }: { projectId: string }) {
                                                                         {getStatusText(item.disabled, item.lastError || null)}
                                                                     </span>
                                                                     <span className="text-sm text-gray-500 dark:text-gray-400">
-                                                                        Next run: {formatNextRunAt(item.nextRunAt)}
+                                                                        下次运行: {formatNextRunAt(item.nextRunAt)}
                                                                     </span>
                                                                 </div>
                                                                 <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                                                                    Schedule: {formatCronExpression(item.cron)}
+                                                                    计划: {formatCronExpression(item.cron)}
                                                                 </div>
                                                                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                                                                    Created: {new Date(item.createdAt).toLocaleDateString()}
+                                                                    创建时间: {new Date(item.createdAt).toLocaleDateString()}
                                                                 </div>
                                                                 {item.lastError && (
                                                                     <div className="text-sm text-red-600 dark:text-red-400 mt-1">
-                                                                        Last error: {item.lastError}
+                                                                        最后错误: {item.lastError}
                                                                     </div>
                                                                 )}
                                                             </Link>
@@ -243,7 +243,7 @@ export function RecurringJobRulesList({ projectId }: { projectId: string }) {
                             })}
                             {items.length === 0 && !loading && (
                                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                                    No recurring triggers yet. Create your first recurring trigger to get started.
+                                    还没有重复触发器。创建您的第一个重复触发器以开始。
                                 </div>
                             )}
                             {hasMore && (
@@ -256,7 +256,7 @@ export function RecurringJobRulesList({ projectId }: { projectId: string }) {
                                         isLoading={loadingMore}
                                         className="whitespace-nowrap"
                                     >
-                                        {loadingMore ? 'Loading...' : 'Load More'}
+                                        {loadingMore ? '加载中...' : '加载更多'}
                                     </Button>
                                 </div>
                             )}

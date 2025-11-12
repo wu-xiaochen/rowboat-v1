@@ -49,7 +49,7 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
             setRule(updatedRule);
         } catch (error) {
             console.error("Failed to update rule:", error);
-            alert("Failed to update rule status");
+            alert("更新规则状态失败");
         } finally {
             setUpdating(false);
         }
@@ -68,7 +68,7 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
             router.push(`/projects/${projectId}/manage-triggers?tab=recurring`);
         } catch (error) {
             console.error("Failed to delete rule:", error);
-            alert("Failed to delete rule");
+            alert("删除规则失败");
         } finally {
             setDeleting(false);
             setShowDeleteConfirm(false);
@@ -81,19 +81,19 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
         if (parts.length === 5) {
             const [minute, hour, day, month, dayOfWeek] = parts;
             if (minute === '*' && hour === '*' && day === '*' && month === '*' && dayOfWeek === '*') {
-                return 'Every minute';
+                return '每分钟';
             }
             if (minute === '0' && hour === '*' && day === '*' && month === '*' && dayOfWeek === '*') {
-                return 'Every hour';
+                return '每小时';
             }
             if (minute === '0' && hour === '0' && day === '*' && month === '*' && dayOfWeek === '*') {
-                return 'Daily at midnight';
+                return '每天午夜';
             }
             if (minute === '0' && hour === '0' && day === '1' && month === '*' && dayOfWeek === '*') {
-                return 'Monthly on the 1st';
+                return '每月1日';
             }
             if (minute === '0' && hour === '0' && day === '*' && month === '*' && dayOfWeek === '0') {
-                return 'Weekly on Sunday';
+                return '每周日';
             }
         }
         return cron;
@@ -105,7 +105,7 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
 
     if (loading) {
         return (
-            <Panel title="Loading...">
+            <Panel title="加载中...">
                 <div className="flex items-center justify-center h-64">
                     <Spinner size="lg" />
                 </div>
@@ -115,12 +115,12 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
 
     if (!rule) {
         return (
-            <Panel title="Rule Not Found">
+            <Panel title="未找到规则">
                 <div className="text-center py-8">
-                    <p className="text-gray-500 dark:text-gray-400">The requested rule could not be found.</p>
+                    <p className="text-gray-500 dark:text-gray-400">未找到请求的规则。</p>
                     <Link href={`/projects/${projectId}/manage-triggers`}>
                         <Button variant="secondary" className="mt-4">
-                            Back to Job Rules
+                            返回任务规则
                         </Button>
                     </Link>
                 </div>
@@ -135,11 +135,11 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
                     <div className="flex items-center gap-3">
                         <Link href={`/projects/${projectId}/manage-triggers?tab=recurring`}>
                             <Button variant="secondary" size="sm" startContent={<ArrowLeftIcon className="w-4 h-4" />} className="whitespace-nowrap">
-                                Back
+                                返回
                             </Button>
                         </Link>
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            RECURRING JOB RULE
+                            重复任务规则
                         </div>
                     </div>
                 }
@@ -154,7 +154,7 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
                             startContent={rule.disabled ? <PlayIcon className="w-4 h-4" /> : <PauseIcon className="w-4 h-4" />}
                             className="whitespace-nowrap"
                         >
-                            {rule.disabled ? 'Activate' : 'Pause'}
+                            {rule.disabled ? '恢复' : '暂停'}
                         </Button>
                         <Button
                             onClick={() => setShowDeleteConfirm(true)}
@@ -163,7 +163,7 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
                             startContent={<Trash2Icon className="w-4 h-4" />}
                             className="bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-950 dark:hover:bg-red-900 dark:text-red-400 border border-red-200 dark:border-red-800 whitespace-nowrap"
                         >
-                            Delete
+                            删除
                         </Button>
                     </div>
                 }
@@ -175,14 +175,14 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
                             <div className="flex items-center gap-2 mb-2">
                                 <div className={`w-3 h-3 rounded-full ${rule.disabled ? 'bg-red-500' : 'bg-green-500'}`} />
                                 <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    Status: {rule.disabled ? 'Disabled' : 'Active'}
+                                    状态：{rule.disabled ? '已禁用' : '激活'}
                                 </span>
                             </div>
                             {rule.lastError && (
                                 <div className="flex items-start gap-2 mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
                                     <AlertCircleIcon className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
                                     <div className="text-sm text-red-700 dark:text-red-300">
-                                        <strong>Last Error:</strong> {rule.lastError}
+                                        <strong>上次错误：</strong> {rule.lastError}
                                     </div>
                                 </div>
                             )}
@@ -191,25 +191,25 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
                         {/* Schedule Information */}
                         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
                             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-3">
-                                Schedule Information
+                                计划信息
                             </h3>
                             <div className="space-y-3">
                                 <div className="flex items-center gap-2">
                                     <ClockIcon className="w-4 h-4 text-gray-500" />
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">Cron Expression:</span>
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">Cron表达式：</span>
                                     <code className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm font-mono">
                                         {rule.cron}
                                     </code>
                                 </div>
                                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                                    <strong>Human Readable:</strong> {formatCronExpression(rule.cron)}
+                                    <strong>可读格式：</strong> {formatCronExpression(rule.cron)}
                                 </div>
                                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                                    <strong>Next Run:</strong> {formatDate(rule.nextRunAt)}
+                                    <strong>下次运行：</strong> {formatDate(rule.nextRunAt)}
                                 </div>
                                 {rule.lastProcessedAt && (
                                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                                        <strong>Last Processed:</strong> {formatDate(rule.lastProcessedAt)}
+                                        <strong>上次运行：</strong> {formatDate(rule.lastProcessedAt)}
                                     </div>
                                 )}
                             </div>
@@ -218,9 +218,12 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
                         {/* Messages */}
                         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
                             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-3">
-                                Messages
+                                规则输入
                             </h3>
                             <div className="space-y-3">
+                                <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                    消息 ({rule.input.messages.length})
+                                </div>
                                 {rule.input.messages.map((message, index) => (
                                     <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
                                         <div className="flex items-center gap-2 mb-2">
@@ -231,7 +234,7 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
                                                     ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                                                     : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
                                             }`}>
-                                                {message.role.charAt(0).toUpperCase() + message.role.slice(1)}
+                                                {message.role === 'system' ? '系统' : message.role === 'user' ? '用户' : '助手'}
                                             </span>
                                         </div>
                                         <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
@@ -245,21 +248,21 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
                         {/* Metadata */}
                         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
                             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-3">
-                                Metadata
+                                元数据
                             </h3>
                             <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                                <div><strong>Created:</strong> {formatDate(rule.createdAt)}</div>
+                                <div><strong>创建时间：</strong> {formatDate(rule.createdAt)}</div>
                                 {rule.updatedAt && (
-                                    <div><strong>Last Updated:</strong> {formatDate(rule.updatedAt)}</div>
+                                    <div><strong>更新时间：</strong> {formatDate(rule.updatedAt)}</div>
                                 )}
-                                <div><strong>Rule ID:</strong> <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{rule.id}</code></div>
+                                <div><strong>规则ID：</strong> <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{rule.id}</code></div>
                             </div>
                         </div>
 
                         {/* Jobs Created by This Rule */}
                         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
                             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-3">
-                                Jobs Created by This Rule
+                                最近任务
                             </h3>
                             <JobsList 
                                 projectId={projectId} 
@@ -276,10 +279,10 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4">
                         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
-                            Delete Recurring Job Rule
+                            确认删除规则
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                            Are you sure you want to delete this recurring job rule? This action cannot be undone and will permanently remove the rule and all its associated data.
+                            确定要删除此重复任务规则吗？此操作无法撤销，将永久删除该规则及其所有相关数据。
                         </p>
                         <div className="flex gap-3 justify-end">
                             <Button
@@ -288,7 +291,7 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
                                 disabled={deleting}
                                 className="whitespace-nowrap"
                             >
-                                Cancel
+                                取消
                             </Button>
                             <Button
                                 variant="secondary"
@@ -298,7 +301,7 @@ export function RecurringJobRuleView({ projectId, ruleId }: { projectId: string;
                                 startContent={<Trash2Icon className="w-4 h-4" />}
                                 className="bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-950 dark:hover:bg-red-900 dark:text-red-400 border border-red-200 dark:border-red-800 whitespace-nowrap"
                             >
-                                {deleting ? 'Deleting...' : 'Delete'}
+                                {deleting ? '删除中...' : '确认并删除'}
                             </Button>
                         </div>
                     </div>

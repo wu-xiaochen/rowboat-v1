@@ -32,8 +32,8 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
     }, [ruleId]);
 
     const title = useMemo(() => {
-        if (!rule) return 'Scheduled Job Rule';
-        return `Scheduled Job Rule ${rule.id}`;
+        if (!rule) return '计划任务规则';
+        return `计划任务规则 ${rule.id}`;
     }, [rule]);
 
     const handleDelete = async () => {
@@ -49,7 +49,7 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
             router.push(`/projects/${projectId}/manage-triggers?tab=scheduled`);
         } catch (error) {
             console.error("Failed to delete rule:", error);
-            alert("Failed to delete rule");
+            alert("删除规则失败");
         } finally {
             setDeleting(false);
             setShowDeleteConfirm(false);
@@ -64,10 +64,10 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
     };
 
     const getStatusText = (status: string, processedAt: string | null) => {
-        if (processedAt) return 'Completed';
-        if (status === 'processing') return 'Processing';
-        if (status === 'triggered') return 'Triggered';
-        return 'Pending';
+        if (processedAt) return '已完成';
+        if (status === 'processing') return '处理中';
+        if (status === 'triggered') return '已触发';
+        return '等待中';
     };
 
     const formatDateTime = (dateString: string) => {
@@ -82,7 +82,7 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
                     <div className="flex items-center gap-3">
                         <Link href={`/projects/${projectId}/manage-triggers?tab=scheduled`}>
                             <Button variant="secondary" size="sm" startContent={<ArrowLeftIcon className="w-4 h-4" />} className="whitespace-nowrap">
-                                Back
+                                返回
                             </Button>
                         </Link>
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -99,7 +99,7 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
                             startContent={<Trash2Icon className="w-4 h-4" />}
                             className="bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-950 dark:hover:bg-red-900 dark:text-red-400 border border-red-200 dark:border-red-800 whitespace-nowrap"
                         >
-                            Delete
+                            删除
                         </Button>
                     </div>
                 }
@@ -109,7 +109,7 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
                         {loading && (
                             <div className="flex items-center gap-2">
                                 <Spinner size="sm" />
-                                <div>Loading...</div>
+                                <div>加载中...</div>
                             </div>
                         )}
                         {!loading && rule && (
@@ -118,30 +118,30 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
                                 <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                                     <div className="grid grid-cols-2 gap-4 text-sm">
                                         <div>
-                                            <span className="font-semibold text-gray-700 dark:text-gray-300">Rule ID:</span>
+                                            <span className="font-semibold text-gray-700 dark:text-gray-300">规则ID：</span>
                                             <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">{rule.id}</span>
                                         </div>
                                         <div>
-                                            <span className="font-semibold text-gray-700 dark:text-gray-300">Status:</span>
+                                            <span className="font-semibold text-gray-700 dark:text-gray-300">状态：</span>
                                             <span className={`ml-2 font-mono ${getStatusColor(rule.status, rule.processedAt || null)}`}>
                                                 {getStatusText(rule.status, rule.processedAt || null)}
                                             </span>
                                         </div>
                                         <div>
-                                            <span className="font-semibold text-gray-700 dark:text-gray-300">Next Run:</span>
+                                            <span className="font-semibold text-gray-700 dark:text-gray-300">下次运行：</span>
                                             <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">
                                                 {formatDateTime(rule.nextRunAt)}
                                             </span>
                                         </div>
                                         <div>
-                                            <span className="font-semibold text-gray-700 dark:text-gray-300">Created:</span>
+                                            <span className="font-semibold text-gray-700 dark:text-gray-300">创建时间：</span>
                                             <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">
                                                 {formatDateTime(rule.createdAt)}
                                             </span>
                                         </div>
                                         {rule.processedAt && (
                                             <div>
-                                                <span className="font-semibold text-gray-700 dark:text-gray-300">Processed:</span>
+                                                <span className="font-semibold text-gray-700 dark:text-gray-300">处理时间：</span>
                                                 <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">
                                                     {formatDateTime(rule.processedAt)}
                                                 </span>
@@ -149,7 +149,7 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
                                         )}
                                         {rule.output?.jobId && (
                                             <div>
-                                                <span className="font-semibold text-gray-700 dark:text-gray-300">Job ID:</span>
+                                                <span className="font-semibold text-gray-700 dark:text-gray-300">任务ID：</span>
                                                 <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">
                                                     <Link 
                                                         href={`/projects/${projectId}/jobs/${rule.output.jobId}`}
@@ -162,7 +162,7 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
                                         )}
                                         {rule.workerId && (
                                             <div>
-                                                <span className="font-semibold text-gray-700 dark:text-gray-300">Worker ID:</span>
+                                                <span className="font-semibold text-gray-700 dark:text-gray-300">Worker ID：</span>
                                                 <span className="ml-2 font-mono text-gray-600 dark:text-gray-400">{rule.workerId}</span>
                                             </div>
                                         )}
@@ -172,9 +172,12 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
                                 {/* Messages */}
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                        Messages
+                                        规则输入
                                     </h3>
                                     <div className="space-y-4">
+                                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                                            消息 ({rule.input.messages.length})
+                                        </div>
                                         {rule.input.messages.map((message, index) => (
                                             <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                                                 <MessageDisplay message={message} index={index} />
@@ -182,6 +185,31 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
                                         ))}
                                     </div>
                                 </div>
+                                {rule.output && (
+                                    <div className="space-y-4">
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                            规则输出
+                                        </h3>
+                                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                                            {rule.output.jobId && (
+                                                <div className="text-sm">
+                                                    <span className="font-semibold text-gray-700 dark:text-gray-300">任务ID：</span>
+                                                    <Link 
+                                                        href={`/projects/${projectId}/jobs/${rule.output.jobId}`}
+                                                        className="ml-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                                    >
+                                                        {rule.output.jobId}
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        {!loading && !rule && (
+                            <div className="text-center text-gray-500 dark:text-gray-400">
+                                未找到任务。
                             </div>
                         )}
                     </div>
@@ -193,10 +221,10 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4">
                         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
-                            Delete Scheduled Job Rule
+                            删除计划任务规则
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                            Are you sure you want to delete this scheduled job rule? This action cannot be undone and will permanently remove the rule and all its associated data.
+                            确定要删除此计划任务规则吗？此操作无法撤销，将永久删除该规则及其所有相关数据。
                         </p>
                         <div className="flex gap-3 justify-end">
                             <Button
@@ -205,7 +233,7 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
                                 disabled={deleting}
                                 className="whitespace-nowrap"
                             >
-                                Cancel
+                                取消
                             </Button>
                             <Button
                                 variant="secondary"
@@ -215,7 +243,7 @@ export function ScheduledJobRuleView({ projectId, ruleId }: { projectId: string;
                                 startContent={<Trash2Icon className="w-4 h-4" />}
                                 className="bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-950 dark:hover:bg-red-900 dark:text-red-400 border border-red-200 dark:border-red-800 whitespace-nowrap"
                             >
-                                {deleting ? 'Deleting...' : 'Delete'}
+                                {deleting ? '删除中...' : '删除'}
                             </Button>
                         </div>
                     </div>

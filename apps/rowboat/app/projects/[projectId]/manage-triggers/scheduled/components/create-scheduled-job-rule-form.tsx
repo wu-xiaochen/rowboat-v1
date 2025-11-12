@@ -53,12 +53,12 @@ export function CreateScheduledJobRuleForm({ projectId, onBack, hasExistingTrigg
         
         // Validate required fields
         if (!scheduledDateTime) {
-            alert("Please select date and time");
+            alert("请选择日期和时间");
             return;
         }
 
         if (messages.some(msg => !msg.content?.trim())) {
-            alert("Please fill in all message content");
+            alert("请填写所有消息内容");
             return;
         }
 
@@ -97,7 +97,7 @@ export function CreateScheduledJobRuleForm({ projectId, onBack, hasExistingTrigg
             }
         } catch (error) {
             console.error("Failed to create scheduled job rule:", error);
-            alert("Failed to create scheduled job rule");
+            alert("创建计划任务规则失败");
         } finally {
             setLoading(false);
         }
@@ -111,21 +111,21 @@ export function CreateScheduledJobRuleForm({ projectId, onBack, hasExistingTrigg
                 <div className="flex items-center gap-3">
                     {hasExistingTriggers && onBack ? (
                         <Button variant="secondary" size="sm" startContent={<ArrowLeftIcon className="w-4 h-4" />} className="whitespace-nowrap" onClick={onBack}>
-                            Back
+                            返回
                         </Button>
                     ) : hasExistingTriggers ? (
                         <Link href={`/projects/${projectId}/manage-triggers?tab=scheduled`}>
                             <Button variant="secondary" size="sm" startContent={<ArrowLeftIcon className="w-4 h-4" />} className="whitespace-nowrap">
-                                Back
+                                返回
                             </Button>
                         </Link>
                     ) : null}
                     <div>
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            CREATE SCHEDULED JOB RULE
+                            创建计划任务规则
                         </div>
                         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            Note: Triggers run only on the published version of your workflow. Publish any changes to make them active.
+                            注意：触发器仅在已发布的工作流版本上运行。发布任何更改以使它们激活。
                         </p>
                     </div>
                 </div>
@@ -137,7 +137,7 @@ export function CreateScheduledJobRuleForm({ projectId, onBack, hasExistingTrigg
                         {/* Scheduled Date & Time */}
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Scheduled Date & Time *
+                                计划日期和时间 *
                             </label>
                             <DatePicker
                                 value={scheduledDateTime}
@@ -154,7 +154,7 @@ export function CreateScheduledJobRuleForm({ projectId, onBack, hasExistingTrigg
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Messages *
+                                    消息 *
                                 </label>
                                 <Button
                                     type="button"
@@ -164,7 +164,7 @@ export function CreateScheduledJobRuleForm({ projectId, onBack, hasExistingTrigg
                                     startContent={<PlusIcon className="w-4 h-4" />}
                                     className="whitespace-nowrap"
                                 >
-                                    Add Message
+                                    添加消息
                                 </Button>
                             </div>
                             
@@ -177,9 +177,9 @@ export function CreateScheduledJobRuleForm({ projectId, onBack, hasExistingTrigg
                                                 onChange={(e) => updateMessage(index, "role", e.target.value)}
                                                 className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-700 dark:text-white"
                                             >
-                                                <option value="system">System</option>
-                                                <option value="user">User</option>
-                                                <option value="assistant">Assistant</option>
+                                                <option value="system">系统</option>
+                                                <option value="user">用户</option>
+                                                <option value="assistant">助手</option>
                                             </select>
                                             {messages.length > 1 && (
                                                 <Button
@@ -196,7 +196,7 @@ export function CreateScheduledJobRuleForm({ projectId, onBack, hasExistingTrigg
                                         <textarea
                                             value={message.content}
                                             onChange={(e) => updateMessage(index, "content", e.target.value)}
-                                            placeholder={`Enter ${message.role} message...`}
+                                            placeholder={`输入${message.role === 'system' ? '系统' : message.role === 'user' ? '用户' : '助手'}消息...`}
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                                             rows={3}
                                             required
@@ -214,7 +214,7 @@ export function CreateScheduledJobRuleForm({ projectId, onBack, hasExistingTrigg
                                 isLoading={loading}
                                 className="px-6 py-2 whitespace-nowrap"
                             >
-                                {loading ? "Creating..." : "Create Rule"}
+                                {loading ? "创建中..." : "创建规则"}
                             </Button>
                         </div>
                     </form>

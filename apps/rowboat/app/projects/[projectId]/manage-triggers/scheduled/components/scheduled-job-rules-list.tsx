@@ -58,7 +58,7 @@ export function ScheduledJobRulesList({ projectId }: { projectId: string }) {
     }, [cursor, fetchPage]);
 
     const handleDeleteRule = async (ruleId: string) => {
-        if (!window.confirm('Are you sure you want to delete this one-time trigger?')) {
+        if (!window.confirm('确定要删除此一次性触发器吗？')) {
             return;
         }
 
@@ -69,7 +69,7 @@ export function ScheduledJobRulesList({ projectId }: { projectId: string }) {
             setItems(prev => prev.filter(item => item.id !== ruleId));
         } catch (err: any) {
             console.error('Error deleting one-time trigger:', err);
-            alert('Failed to delete one-time trigger. Please try again.');
+            alert('删除一次性触发器失败。请重试。');
         } finally {
             setDeletingRule(null);
         }
@@ -100,17 +100,17 @@ export function ScheduledJobRulesList({ projectId }: { projectId: string }) {
 
     const sections = useMemo(() => {
         const groups: Record<string, ListedItem[]> = {
-            Today: [],
-            'This week': [],
-            'This month': [],
-            Older: [],
+            今天: [],
+            本周: [],
+            本月: [],
+            更早: [],
         };
         for (const item of items) {
             const d = new Date(item.nextRunAt);
-            if (isToday(d)) groups['Today'].push(item);
-            else if (isThisWeek(d)) groups['This week'].push(item);
-            else if (isThisMonth(d)) groups['This month'].push(item);
-            else groups['Older'].push(item);
+            if (isToday(d)) groups['今天'].push(item);
+            else if (isThisWeek(d)) groups['本周'].push(item);
+            else if (isThisMonth(d)) groups['本月'].push(item);
+            else groups['更早'].push(item);
         }
         return groups;
     }, [items]);
@@ -123,10 +123,10 @@ export function ScheduledJobRulesList({ projectId }: { projectId: string }) {
     };
 
     const getStatusText = (status: string, processedAt: string | null) => {
-        if (processedAt) return 'Completed';
-        if (status === 'processing') return 'Processing';
-        if (status === 'triggered') return 'Triggered';
-        return 'Pending';
+        if (processedAt) return '已完成';
+        if (status === 'processing') return '处理中';
+        if (status === 'triggered') return '已触发';
+        return '等待中';
     };
 
     const formatNextRunAt = (dateString: string) => {
@@ -142,13 +142,13 @@ export function ScheduledJobRulesList({ projectId }: { projectId: string }) {
         <Panel
             title={
                 <div className="text-base font-normal text-gray-900 dark:text-gray-100">
-                    Schedule a single job to run your assistant workflow at a specific date and time.
+                    计划在特定日期和时间运行您的助手工作流的单个任务。
                 </div>
             }
             rightActions={
                 <div className="flex items-center gap-3">
                     <Button size="sm" className="whitespace-nowrap" startContent={<PlusIcon className="w-4 h-4" />} onClick={handleCreateNew}>
-                        New One-time Trigger
+                        新建一次性触发器
                     </Button>
                 </div>
             }
@@ -158,7 +158,7 @@ export function ScheduledJobRulesList({ projectId }: { projectId: string }) {
                     {loading && (
                         <div className="flex items-center gap-2">
                             <Spinner size="sm" />
-                            <div>Loading...</div>
+                            <div>加载中...</div>
                         </div>
                     )}
                     {!loading && (
@@ -187,11 +187,11 @@ export function ScheduledJobRulesList({ projectId }: { projectId: string }) {
                                                                         {getStatusText(item.status, item.processedAt || null)}
                                                                     </span>
                                                                     <span className="text-sm text-gray-500 dark:text-gray-400">
-                                                                        Next run: {formatNextRunAt(item.nextRunAt)}
+                                                                        下次运行: {formatNextRunAt(item.nextRunAt)}
                                                                     </span>
                                                                 </div>
                                                                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                                                                    Created: {new Date(item.createdAt).toLocaleDateString()}
+                                                                    创建时间: {new Date(item.createdAt).toLocaleDateString()}
                                                                 </div>
                                                             </Link>
                                                         </div>
@@ -213,7 +213,7 @@ export function ScheduledJobRulesList({ projectId }: { projectId: string }) {
                             })}
                             {items.length === 0 && !loading && (
                                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                                    No one-time triggers yet. Create your first one-time trigger to get started.
+                                    还没有一次性触发器。创建您的第一个一次性触发器以开始。
                                 </div>
                             )}
                             {hasMore && (
@@ -226,7 +226,7 @@ export function ScheduledJobRulesList({ projectId }: { projectId: string }) {
                                         isLoading={loadingMore}
                                         className="whitespace-nowrap"
                                     >
-                                        {loadingMore ? 'Loading...' : 'Load More'}
+                                        {loadingMore ? '加载中...' : '加载更多'}
                                     </Button>
                                 </div>
                             )}
