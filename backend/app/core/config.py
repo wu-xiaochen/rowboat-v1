@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     use_composio_tools: bool = Field(default=True, description="是否启用Composio工具")
     
     # CORS配置
-    cors_origins: List[str] = Field(
+    cors_origins: str | List[str] = Field(
         default=["http://localhost:3001", "http://localhost:3000"],
         description="允许的CORS源"
     )
@@ -61,18 +61,13 @@ class Settings(BaseSettings):
         extra="ignore"
     )
     
-    @field_validator("cors_origins", mode="before")
+    @field_validator("cors_origins", mode="after")
     @classmethod
     def parse_cors_origins(cls, v):
-        """解析CORS origins，支持字符串或列表"""
+        """解析CORS origins，确保返回列表"""
         if isinstance(v, str):
-            # 如果是字符串，尝试解析为列表
-            import json
-            try:
-                return json.loads(v)
-            except json.JSONDecodeError:
-                # 如果不是JSON格式，按逗号分割
-                return [origin.strip() for origin in v.split(",")]
+            # 按逗号分割
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
     
     def validate_config(self) -> None:
@@ -103,6 +98,26 @@ class Settings(BaseSettings):
             )
 
 
-# 创建全局配置实例
-settings = Settings()
+# 全局配置实例（延迟初始化）
+_settings: Settings | None = None
+
+
+def get_settings() -> Settings:
+    """
+    获取配置实例（单例模式）
+    Get settings instance (singleton pattern)
+    """
+    global _settings
+    if _settings is None:
+        _settings = Settings()
+    return _settings
+
+
+# 为了向后兼容，提供一个便捷的访问方式
+# 注意：在测试环境中不要在模块级别访问 settings
+try:
+    settings = get_settings()
+except Exception:
+    # 在测试环境或配置未就绪时，不创建实例
+    settings = None  # type: ignore
 
