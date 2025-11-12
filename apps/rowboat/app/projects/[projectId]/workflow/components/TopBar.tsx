@@ -326,7 +326,7 @@ export function TopBar({
                             return (
                         <Dropdown>
                             <DropdownTrigger>
-                                <Button variant="light" size="sm" aria-label="Layout options" className="h-8 min-w-0 bg-transparent text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/50 border border-transparent gap-1 px-2">
+                                <Button variant="light" size="sm" aria-label="布局选项" className="h-8 min-w-0 bg-transparent text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/50 border border-transparent gap-1 px-2">
                                     {/* 3-pane layout icon */}
                                     <svg width="26" height="18" viewBox="0 0 18 12" aria-hidden="true">
                                         <rect x="0.5" y="0.5" width="17" height="11" rx="1" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.6" />
