@@ -1,3 +1,16 @@
+/**
+ * @deprecated 此文件中的函数已迁移到Python后端
+ * @deprecated Functions in this file have been migrated to Python backend
+ * 
+ * 聊天功能现在通过以下方式使用：
+ * Chat functionality is now accessed via:
+ * - API: POST /api/v1/{project_id}/chat
+ * - Client: chatApiClient (src/application/lib/chat-api-client.ts)
+ * 
+ * 此文件保留仅用于向后兼容，将在未来版本中删除
+ * This file is kept for backward compatibility only and will be removed in a future version
+ */
+
 'use server';
 import { z } from 'zod';
 import { Workflow } from "../lib/types/workflow_types";
@@ -8,6 +21,10 @@ import { Conversation } from '@/src/entities/models/conversation';
 import { ICreatePlaygroundConversationController } from '@/src/interface-adapters/controllers/conversations/create-playground-conversation.controller';
 import { ICreateCachedTurnController } from '@/src/interface-adapters/controllers/conversations/create-cached-turn.controller';
 
+/**
+ * @deprecated 已迁移到Python后端 POST /api/v1/{project_id}/chat
+ * @deprecated Migrated to Python backend POST /api/v1/{project_id}/chat
+ */
 export async function createConversation({
     projectId,
     workflow,
@@ -29,6 +46,10 @@ export async function createConversation({
     });
 }
 
+/**
+ * @deprecated 已迁移到Python后端 POST /api/v1/{project_id}/chat
+ * @deprecated Migrated to Python backend POST /api/v1/{project_id}/chat
+ */
 export async function createCachedTurn({
     conversationId,
     messages,
