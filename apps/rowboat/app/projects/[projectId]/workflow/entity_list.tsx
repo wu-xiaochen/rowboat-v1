@@ -431,11 +431,11 @@ const PipelineCard = ({
                         >
                             {startAgentName !== pipeline.name ? (
                                 <>
-                                    <DropdownItem key="set-main-agent">Set as start agent</DropdownItem>
-                                    <DropdownItem key="delete" className="text-danger">Delete Pipeline</DropdownItem>
+                                    <DropdownItem key="set-main-agent">设置为起始智能体</DropdownItem>
+                                    <DropdownItem key="delete" className="text-danger">删除管道</DropdownItem>
                                 </>
                             ) : (
-                                <DropdownItem key="delete" className="text-danger">Delete Pipeline</DropdownItem>
+                                <DropdownItem key="delete" className="text-danger">删除管道</DropdownItem>
                             )}
                         </DropdownMenu>
                     </Dropdown>
