@@ -27,7 +27,7 @@ export function ProjectList({ projects, isLoading, searchQuery }: ProjectListPro
     if (isLoading) {
         return (
             <div className="px-4 py-6 text-center text-sm text-gray-500">
-                Loading projects...
+                加载项目中...
             </div>
         );
     }
@@ -36,8 +36,8 @@ export function ProjectList({ projects, isLoading, searchQuery }: ProjectListPro
         return (
             <div className="px-4 py-6 text-center text-sm text-gray-500">
                 {searchQuery
-                    ? "No projects match your search"
-                    : "You haven't created any projects yet"}
+                    ? "没有匹配您搜索的项目"
+                    : "您还没有创建任何项目"}
             </div>
         );
     }
@@ -75,7 +75,7 @@ export function ProjectList({ projects, isLoading, searchQuery }: ProjectListPro
                                     tokens.colors.light.text.muted,
                                     tokens.colors.dark.text.muted
                                 )}>
-                                    Created <RelativeTime date={new Date(project.createdAt)} />
+                                    创建于 <RelativeTime date={new Date(project.createdAt)} />
                                 </p>
                             </div>
                             <ChevronRightIcon className={clsx(
@@ -108,7 +108,7 @@ export function ProjectList({ projects, isLoading, searchQuery }: ProjectListPro
                         tokens.colors.light.text.secondary,
                         tokens.colors.dark.text.secondary
                     )}>
-                        Page {currentPage} of {totalPages}
+                        第 {currentPage} 页，共 {totalPages} 页
                     </span>
                     <button
                         onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}

@@ -305,7 +305,7 @@ export function CreateProject({ defaultName, onOpenProjectPane, isProjectPaneOpe
             }
             
             if (!customPrompt.trim()) {
-                setPromptError("Prompt cannot be empty");
+                setPromptError("提示词不能为空");
                 return;
             }
             
@@ -355,7 +355,7 @@ export function CreateProject({ defaultName, onOpenProjectPane, isProjectPaneOpe
                         <>
                             <div className="px-4 pt-4 pb-6 flex justify-between items-center">
                                 <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                                    Create new assistant
+                                    创建新助手
                                 </h1>
                                 {!isProjectPaneOpen && (
                                     <Button
@@ -364,7 +364,7 @@ export function CreateProject({ defaultName, onOpenProjectPane, isProjectPaneOpe
                                         size="md"
                                         startContent={<FolderOpenIcon className="w-4 h-4" />}
                                     >
-                                        View Existing Projects
+                                        查看现有项目
                                     </Button>
                                 )}
                             </div>
@@ -377,7 +377,7 @@ export function CreateProject({ defaultName, onOpenProjectPane, isProjectPaneOpe
                         <div className="flex flex-col items-center justify-center py-12">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mb-4"></div>
                             <p className="text-gray-600 dark:text-gray-400">
-                                Creating your assistant...
+                                正在创建您的助手...
                             </p>
                         </div>
                     )}
@@ -417,7 +417,7 @@ export function CreateProject({ defaultName, onOpenProjectPane, isProjectPaneOpe
                                                             type="button"
                                                             onClick={handleRemoveImportedFile}
                                                             className="ml-1 p-1 rounded-full transition-colors text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 focus:outline-none"
-                                                            aria-label="Remove imported file"
+                                                            aria-label="移除导入的文件"
                                                         >
                                                             <X size={16} />
                                                         </button>
@@ -429,7 +429,7 @@ export function CreateProject({ defaultName, onOpenProjectPane, isProjectPaneOpe
                                                     size="lg"
                                                     className="mt-2"
                                                 >
-                                                    Create assistant
+                                                    创建助手
                                                 </Button>
                                             </div>
                                         ) : (
@@ -442,7 +442,7 @@ export function CreateProject({ defaultName, onOpenProjectPane, isProjectPaneOpe
                                                                 setCustomPrompt(e.target.value);
                                                                 setPromptError(null);
                                                             }}
-                                                            placeholder="Example: Create a customer support assistant that can handle product inquiries and returns"
+                                                            placeholder="例如：创建一个可以处理产品咨询和退货的客户支持助手"
                                                             className={clsx(
                                                                 textareaStyles,
                                                                 "text-base",
@@ -491,7 +491,7 @@ export function CreateProject({ defaultName, onOpenProjectPane, isProjectPaneOpe
                                                         <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
                                                     </div>
                                                     <div className="relative flex justify-center text-sm">
-                                                        <span className="bg-white dark:bg-gray-900 px-3 text-gray-500 dark:text-gray-400">OR</span>
+                                                        <span className="bg-white dark:bg-gray-900 px-3 text-gray-500 dark:text-gray-400">或</span>
                                                     </div>
                                                 </div>
 
@@ -505,7 +505,7 @@ export function CreateProject({ defaultName, onOpenProjectPane, isProjectPaneOpe
                                                         startContent={<Upload size={14} />}
                                                         className="bg-white dark:bg-white text-gray-900 hover:bg-gray-50 border border-gray-300 dark:border-gray-300"
                                                     >
-                                                        Import JSON
+                                                        导入JSON
                                                     </Button>
                                                     <Button
                                                         variant="primary"
@@ -516,7 +516,7 @@ export function CreateProject({ defaultName, onOpenProjectPane, isProjectPaneOpe
                                                         type="button"
                                                         className="bg-white dark:bg-white text-gray-900 hover:bg-gray-50 border border-gray-300 dark:border-gray-300"
                                                     >
-                                                        I&apos;ll build it myself
+                                                        我自己构建
                                                     </Button>
                                                 </div>
                                             </>
@@ -536,7 +536,7 @@ export function CreateProject({ defaultName, onOpenProjectPane, isProjectPaneOpe
             <Modal
                 isOpen={importModalOpen}
                 onClose={() => setImportModalOpen(false)}
-                title="Import Error"
+                title="导入错误"
             >
                 <div className="text-red-500 text-sm whitespace-pre-wrap">
                     {importError}

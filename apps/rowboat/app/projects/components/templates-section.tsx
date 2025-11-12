@@ -44,7 +44,7 @@ export function TemplatesSection({}: TemplatesSectionProps) {
             setTemplates(templatesArray);
         } catch (error) {
             console.error('Error fetching templates:', error);
-            setTemplatesError(error instanceof Error ? error.message : 'Failed to load templates');
+            setTemplatesError(error instanceof Error ? error.message : '加载模板失败');
         } finally {
             setTemplatesLoading(false);
         }
@@ -64,21 +64,21 @@ export function TemplatesSection({}: TemplatesSectionProps) {
             <div className="max-w-7xl mx-auto w-full flex flex-col h-full">
                 <div className="px-6 pb-4">
                     <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                        Pre-built agents
+                        预构建智能体
                     </h2>
                 </div>
                 <div className="px-6 flex-1 overflow-hidden">
                         {templatesLoading ? (
                             <div className="flex items-center justify-center h-full text-sm text-gray-500 dark:text-gray-400">
-                                Loading templates...
+                                加载模板中...
                             </div>
                         ) : templatesError ? (
                             <div className="flex items-center justify-center h-full text-sm text-red-500 dark:text-red-400">
-                                Error: {templatesError}
+                                错误：{templatesError}
                             </div>
                         ) : templates.length === 0 ? (
                             <div className="flex items-center justify-center h-full text-sm text-gray-500 dark:text-gray-400">
-                                No templates available
+                                没有可用的模板
                             </div>
                         ) : (
                             <div className="h-full overflow-y-auto">
@@ -103,7 +103,7 @@ export function TemplatesSection({}: TemplatesSectionProps) {
                                                 return tools.length > 0 && (
                                                     <div className="flex items-center gap-2 mt-2">
                                                         <div className="text-xs text-gray-400 dark:text-gray-500">
-                                                            Tools:
+                                                            工具：
                                                         </div>
                                                         <div className="flex items-center gap-1">
                                                             {tools.slice(0, 4).map((tool) => (
