@@ -121,7 +121,7 @@ export async function getAssistantTemplate(templateId: string) {
         const originalTemplate = prebuiltTemplates[key as keyof typeof prebuiltTemplates];
         if (!originalTemplate) throw new Error('Template not found');
 
-        const defaultModel = process.env.PROVIDER_DEFAULT_MODEL || 'gpt-4.1';
+        const defaultModel = process.env.LLM_MODEL_ID || 'gpt-4.1';
         const transformedWorkflow = JSON.parse(JSON.stringify(originalTemplate));
         if (transformedWorkflow.agents && Array.isArray(transformedWorkflow.agents)) {
             transformedWorkflow.agents.forEach((agent: any) => {

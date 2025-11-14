@@ -357,17 +357,34 @@ export function BuildAssistantSection() {
     }, [searchParams, router]);
 
     const handleCreateAssistant = async () => {
+        if (!userPrompt.trim()) {
+            setPromptError('请输入提示词');
+            return;
+        }
+        
         setIsCreating(true);
+        setPromptError(null);
+        
         try {
             await createProjectWithOptions({
                 prompt: userPrompt.trim(),
                 router,
                 onError: (error) => {
                     console.error('Error creating project:', error);
+                    const errorMessage = error instanceof Error ? error.message : String(error);
+                    setPromptError(errorMessage || '创建项目失败，请重试');
+                    setIsCreating(false);
+                },
+                onSuccess: () => {
+                    // 成功时清空输入框
+                    setUserPrompt('');
+                    setIsCreating(false);
                 }
             });
         } catch (error) {
             console.error('Error creating project:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            setPromptError(errorMessage || '创建项目失败，请重试');
             setIsCreating(false);
         }
     };

@@ -228,4 +228,180 @@ class ProjectsRepository:
         collection = db[self.collection_name]
         
         return await collection.count_documents({"createdByUserId": user_id})
+    
+    async def update_secret(self, project_id: str, new_secret: str) -> Optional[str]:
+        """
+        更新项目Secret（旋转Secret）
+        Update project secret (rotate secret)
+        
+        Args:
+            project_id: 项目ID
+            new_secret: 新的secret值
+            
+        Returns:
+            新的secret值，如果项目不存在则返回None
+        """
+        db = await get_mongodb_db()
+        collection = db[self.collection_name]
+        
+        # 更新secret字段
+        result = await collection.update_one(
+            {"id": project_id},
+            {
+                "$set": {
+                    "secret": new_secret,
+                    "lastUpdatedAt": datetime.now()
+                }
+            }
+        )
+        
+        if result.matched_count == 0:
+            return None
+        
+        # 清除缓存
+        cache_key = self.cache_service.get_project_key(project_id)
+        await self.cache_service.delete(cache_key)
+        
+        return new_secret
+    
+    async def update_name(self, project_id: str, new_name: str) -> Optional[Project]:
+        """
+        更新项目名称
+        Update project name
+        
+        Args:
+            project_id: 项目ID
+            new_name: 新名称
+            
+        Returns:
+            更新后的项目对象，如果不存在则返回None
+        """
+        db = await get_mongodb_db()
+        collection = db[self.collection_name]
+        
+        # 更新名称
+        result = await collection.update_one(
+            {"id": project_id},
+            {
+                "$set": {
+                    "name": new_name,
+                    "lastUpdatedAt": datetime.now()
+                }
+            }
+        )
+        
+        if result.matched_count == 0:
+            return None
+        
+        # 清除缓存
+        cache_key = self.cache_service.get_project_key(project_id)
+        await self.cache_service.delete(cache_key)
+        
+        # 返回更新后的项目（会重新缓存）
+        return await self.get_by_id(project_id)
+    
+    async def update_draft_workflow(self, project_id: str, workflow: 'Workflow') -> Optional[Project]:
+        """
+        更新草稿工作流
+        Update draft workflow
+        
+        Args:
+            project_id: 项目ID
+            workflow: 新的工作流对象
+            
+        Returns:
+            更新后的项目对象，如果不存在则返回None
+        """
+        from app.models.schemas import Workflow
+        
+        db = await get_mongodb_db()
+        collection = db[self.collection_name]
+        
+        # 将workflow转换为字典
+        workflow_dict = workflow.model_dump(by_alias=True)
+        
+        # 更新draftWorkflow
+        result = await collection.update_one(
+            {"id": project_id},
+            {
+                "$set": {
+                    "draftWorkflow": workflow_dict,
+                    "lastUpdatedAt": datetime.now()
+                }
+            }
+        )
+        
+        if result.matched_count == 0:
+            return None
+        
+        # 清除缓存
+        cache_key = self.cache_service.get_project_key(project_id)
+        await self.cache_service.delete(cache_key)
+        
+        # 返回更新后的项目（会重新缓存）
+        return await self.get_by_id(project_id)
+    
+    async def update_live_workflow(self, project_id: str, workflow: 'Workflow') -> Optional[Project]:
+        """
+        更新生产工作流（发布工作流）
+        Update live workflow (publish workflow)
+        
+        Args:
+            project_id: 项目ID
+            workflow: 新的工作流对象
+            
+        Returns:
+            更新后的项目对象，如果不存在则返回None
+        """
+        from app.models.schemas import Workflow
+        
+        db = await get_mongodb_db()
+        collection = db[self.collection_name]
+        
+        # 将workflow转换为字典
+        workflow_dict = workflow.model_dump(by_alias=True)
+        
+        # 更新liveWorkflow
+        result = await collection.update_one(
+            {"id": project_id},
+            {
+                "$set": {
+                    "liveWorkflow": workflow_dict,
+                    "lastUpdatedAt": datetime.now()
+                }
+            }
+        )
+        
+        if result.matched_count == 0:
+            return None
+        
+        # 清除缓存
+        cache_key = self.cache_service.get_project_key(project_id)
+        await self.cache_service.delete(cache_key)
+        
+        # 返回更新后的项目（会重新缓存）
+        return await self.get_by_id(project_id)
+    
+    async def revert_to_live_workflow(self, project_id: str) -> Optional[Project]:
+        """
+        回滚到生产工作流（将draftWorkflow设置为liveWorkflow的副本）
+        Revert to live workflow (set draftWorkflow to a copy of liveWorkflow)
+        
+        Args:
+            project_id: 项目ID
+            
+        Returns:
+            更新后的项目对象，如果不存在则返回None
+        """
+        # 先获取当前项目
+        project = await self.get_by_id(project_id)
+        if project is None:
+            return None
+        
+        # 将liveWorkflow复制到draftWorkflow
+        from app.models.schemas import Workflow
+        draft_workflow = project.live_workflow.model_copy()
+        
+        # 更新draftWorkflow
+        return await self.update_draft_workflow(project_id, draft_workflow)
 

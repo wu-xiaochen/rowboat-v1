@@ -234,13 +234,13 @@ export default function MentionEditor({
     }, [value]);
 
     return <div className="relative">
-        <button className="absolute top-2 right-2 z-10">
+        <div className="absolute top-2 right-2 z-10">
             <CopyButton
                 onCopy={copyHandler}
                 label="Copy"
                 successLabel="Copied!"
             />
-        </button>
+        </div>
         <div ref={containerRef} />
     </div>;
 }

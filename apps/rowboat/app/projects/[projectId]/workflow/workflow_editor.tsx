@@ -130,6 +130,7 @@ export type Action = {
 } | {
     type: "add_agent";
     agent: Partial<z.infer<typeof WorkflowAgent>>;
+    defaultModel?: string;
     fromCopilot?: boolean;
 } | {
     type: "add_tool";
@@ -423,6 +424,11 @@ function reducer(state: State, action: Action): State {
                             }
                             
                             const finalAgentName = action.agent.name || newAgentName;
+                            // 使用传入的模型，如果没有则使用默认模型（从 action.defaultModel 获取）
+                            // 注意：action.agent 可能已经包含 model，优先使用它
+                            const agentModel = action.agent.model && action.agent.model.trim() 
+                                ? action.agent.model 
+                                : (action.defaultModel || "");
                             
                             draft.workflow?.agents.push({
                                 name: newAgentName,
@@ -430,7 +436,7 @@ function reducer(state: State, action: Action): State {
                                 description: "",
                                 disabled: false,
                                 instructions: "",
-                                model: "",
+                                model: agentModel,
                                 locked: false,
                                 toggleAble: true,
                                 ragReturnType: "chunks",
@@ -438,7 +444,11 @@ function reducer(state: State, action: Action): State {
                                 controlType: "retain",
                                 outputVisibility: "user_facing",
                                 maxCallsPerParentAgent: 3,
-                                ...action.agent
+                                ...action.agent,
+                                // 确保 model 使用我们计算的值（如果 action.agent.model 为空，使用 defaultModel）
+                                model: (action.agent.model && action.agent.model.trim()) 
+                                    ? action.agent.model 
+                                    : (action.defaultModel || agentModel)
                             });
                             
                             // If this is the first agent or there's no start agent, set it as start agent
@@ -533,7 +543,7 @@ function reducer(state: State, action: Action): State {
                                     description: `Default agent for ${pipelineName} pipeline`,
                                     disabled: false,
                                     instructions: `You are the first step in the ${pipelineName} pipeline. Focus on your specific role.`,
-                                    model: action.defaultModel || "gpt-4.1",
+                                    model: action.defaultModel || "",
                                     locked: false,
                                     toggleAble: true,
                                     ragReturnType: "chunks",
@@ -554,7 +564,7 @@ function reducer(state: State, action: Action): State {
                                             description: `Agent for ${pipelineName} pipeline`,
                                             disabled: false,
                                             instructions: `You are part of the ${pipelineName} pipeline. Focus on your specific role.`,
-                                            model: action.defaultModel || "gpt-4.1",
+                                            model: action.defaultModel || "",
                                             locked: false,
                                             toggleAble: true,
                                             ragReturnType: "chunks",
@@ -1151,28 +1161,21 @@ export function WorkflowEditor({
     const [pendingProjectName, setPendingProjectName] = useState<string | null>(null);
     
     // Build progress tracking - persists once set to true (guard SSR)
-    const [hasAgentInstructionChanges, setHasAgentInstructionChanges] = useState<boolean>(() => {
-        if (typeof window === 'undefined') return false;
-        return localStorage.getItem(`agent_instructions_changed_${projectId}`) === 'true';
-    });
-
-    // Test progress tracking - persists once set to true (guard SSR)
-    const [hasPlaygroundTested, setHasPlaygroundTested] = useState<boolean>(() => {
-        if (typeof window === 'undefined') return false;
-        return localStorage.getItem(`playground_tested_${projectId}`) === 'true';
-    });
-
-    // Publish progress tracking - persists once set to true (guard SSR)
-    const [hasPublished, setHasPublished] = useState<boolean>(() => {
-        if (typeof window === 'undefined') return false;
-        return localStorage.getItem(`has_published_${projectId}`) === 'true';
-    });
-
-    // Use progress tracking - persists once set to true (guard SSR)
-    const [hasClickedUse, setHasClickedUse] = useState<boolean>(() => {
-        if (typeof window === 'undefined') return false;
-        return localStorage.getItem(`has_clicked_use_${projectId}`) === 'true';
-    });
+    // Initialize to false for SSR, then sync from localStorage on client mount
+    const [hasAgentInstructionChanges, setHasAgentInstructionChanges] = useState<boolean>(false);
+    const [hasPlaygroundTested, setHasPlaygroundTested] = useState<boolean>(false);
+    const [hasPublished, setHasPublished] = useState<boolean>(false);
+    const [hasClickedUse, setHasClickedUse] = useState<boolean>(false);
+    
+    // Sync from localStorage on client mount to avoid hydration mismatch
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setHasAgentInstructionChanges(localStorage.getItem(`agent_instructions_changed_${projectId}`) === 'true');
+            setHasPlaygroundTested(localStorage.getItem(`playground_tested_${projectId}`) === 'true');
+            setHasPublished(localStorage.getItem(`has_published_${projectId}`) === 'true');
+            setHasClickedUse(localStorage.getItem(`has_clicked_use_${projectId}`) === 'true');
+        }
+    }, [projectId]);
 
     // Function to mark agent instructions as changed (persists in localStorage)
     const markAgentInstructionsChanged = useCallback(() => {
@@ -1353,9 +1356,10 @@ export function WorkflowEditor({
     function handleAddAgent(agent: Partial<z.infer<typeof WorkflowAgent>> = {}) {
         const agentWithModel = {
             ...agent,
-            model: agent.model || defaultModel || "gpt-4.1"
+            // 如果 agent 没有指定 model，使用 defaultModel（来自 .env 的 LLM_MODEL_ID）
+            model: agent.model || defaultModel || ""
         };
-        dispatchGuarded({ type: "add_agent", agent: agentWithModel });
+        dispatchGuarded({ type: "add_agent", agent: agentWithModel, defaultModel });
     }
 
     function handleAddTool(tool: Partial<z.infer<typeof WorkflowTool>> = {}) {
@@ -1404,11 +1408,11 @@ export function WorkflowEditor({
             name: newAgentName,
             type: 'pipeline' as const,
             outputVisibility: 'internal' as const,
-            model: defaultModel || "gpt-4.1"
+            model: defaultModel || ""
         };
         
         // First add the agent
-        dispatchGuarded({ type: "add_agent", agent: agentWithModel });
+        dispatchGuarded({ type: "add_agent", agent: agentWithModel, defaultModel });
         
         // Then add it to the pipeline
         const pipeline = state.present.workflow.pipelines?.find(p => p.name === pipelineName);

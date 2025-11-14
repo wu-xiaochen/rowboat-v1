@@ -1,3 +1,4 @@
+import "server-only";
 import { z } from "zod";
 import { auth0 } from "./auth0";
 import { User } from "@/src/entities/models/user";
@@ -5,20 +6,10 @@ import { USE_AUTH } from "./feature_flags";
 import { redirect } from "next/navigation";
 import { container } from "@/di/container";
 import { IUsersRepository } from "@/src/application/repositories/users.repository.interface";
+import { GUEST_DB_USER, GUEST_SESSION } from "./auth-client";
 
-export const GUEST_SESSION = {
-    email: "wuxiaochen0802@gmail.com",
-    email_verified: true,
-    sub: "guest_user",
-}
-
-export const GUEST_DB_USER: z.infer<typeof User> = {
-    id: "guest_user",
-    auth0Id: "guest_user",
-    name: "Guest",
-    email: "wuxiaochen0802@gmail.com",
-    createdAt: new Date().toISOString(),
-}
+// Re-export for server-side use (but clients should use auth-client.ts)
+export { GUEST_DB_USER, GUEST_SESSION };
 
 /**
  * This function should be used as an initial check in server page components to ensure

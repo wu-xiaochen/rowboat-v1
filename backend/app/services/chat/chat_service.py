@@ -34,6 +34,9 @@ class ChatService:
         self.projects_repo = ProjectsRepository()
         self.conversations_repo = ConversationsRepository()
         self.agents_service = get_agents_service()
+        # 保存 settings 引用以便在错误处理中使用
+        from app.core.config import get_settings
+        self.settings = get_settings()
     
     async def run_turn(
         self,
@@ -78,20 +81,16 @@ class ChatService:
             # 注意：原项目的Conversation的reason使用Turn的Reason类型（chat/api/job）
             conversation_reason = {"type": "api"}  # API调用使用api类型
             
-            # 创建对话
-            conversation = Conversation(
-                id=str(uuid.uuid4()),
-                project_id=project_id,
-                workflow=workflow,
-                reason=conversation_reason,
-                is_live_workflow=True,
-                turns=[],
-                created_at=datetime.now(),
-                updated_at=None,
-            )
+            # 创建对话数据（原项目create方法接受字典）
+            conversation_data = {
+                "projectId": project_id,
+                "workflow": workflow.model_dump(by_alias=True),
+                "reason": conversation_reason,
+                "isLiveWorkflow": True,
+            }
             
-            # 保存对话
-            created_conversation = await self.conversations_repo.create(conversation)
+            # 保存对话（Repository的create方法接受字典，返回Conversation对象）
+            created_conversation = await self.conversations_repo.create(conversation_data)
             conversation_id = created_conversation.id
         else:
             # 验证对话是否存在
@@ -164,10 +163,24 @@ class ChatService:
             )
             
         except Exception as e:
+            # 处理不同类型的错误
+            error_message = str(e)
+            is_billing_error = False
+            
+            # 检查是否是模型不存在的错误
+            if "Model does not exist" in error_message or "20012" in error_message:
+                # 提取模型名称（如果可能）
+                error_message = f"模型不存在或配置错误。请检查智能体的模型配置。\n\n" \
+                              f"建议：使用有效的模型名称，如 '{self.settings.effective_agent_model}'\n\n" \
+                              f"原始错误: {error_message}"
+            elif "BadRequestError" in str(type(e).__name__):
+                # OpenAI API 错误
+                error_message = f"API 请求错误: {error_message}"
+            
             # 返回错误事件
             yield ErrorTurnEvent(
-                error=str(e),
-                is_billing_error=False,
+                error=error_message,
+                is_billing_error=is_billing_error,
             )
 
 

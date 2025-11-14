@@ -11,7 +11,12 @@ import uuid
 from app.api import ResponseModel
 from app.api.dependencies import verify_api_key, get_optional_api_key
 from app.models.schemas import Project, Workflow
-from app.models.project_requests import ProjectCreateRequest, ProjectUpdateRequest
+from app.models.project_requests import (
+    ProjectCreateRequest,
+    ProjectUpdateRequest,
+    ProjectNameUpdateRequest,
+    WorkflowUpdateRequest,
+)
 from app.repositories.projects import ProjectsRepository
 from app.core.security import generate_project_secret
 
@@ -296,5 +301,228 @@ async def delete_project(
     
     return ResponseModel.success(
         message="项目删除成功"
+    )
+
+
+@router.post("/{project_id}/rotate-secret", response_model=dict)
+async def rotate_secret(
+    project_id: str,
+    # 验证API Key（可选）
+    # verified_project_id: Optional[str] = Depends(get_optional_api_key)
+):
+    """
+    旋转项目Secret
+    Rotate project secret
+    
+    Args:
+        project_id: 项目ID
+        
+    Returns:
+        新的secret值（仅此一次返回）
+    """
+    repo = ProjectsRepository()
+    
+    # 验证项目是否存在
+    if not await repo.exists(project_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"项目 {project_id} 不存在"
+        )
+    
+    # 生成新的secret
+    new_secret = generate_project_secret()
+    
+    # 更新secret
+    result = await repo.update_secret(project_id, new_secret)
+    
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Secret旋转失败"
+        )
+    
+    return ResponseModel.success(
+        data={"secret": new_secret},
+        message="Secret已成功旋转"
+    )
+
+
+@router.put("/{project_id}/name", response_model=dict)
+async def update_project_name(
+    project_id: str,
+    request: ProjectNameUpdateRequest,
+    # 验证API Key（可选）
+    # verified_project_id: Optional[str] = Depends(get_optional_api_key)
+):
+    """
+    更新项目名称
+    Update project name
+    
+    Args:
+        project_id: 项目ID
+        request: 项目名称更新请求
+        
+    Returns:
+        更新后的项目
+    """
+    repo = ProjectsRepository()
+    
+    # 更新名称
+    updated_project = await repo.update_name(project_id, request.name)
+    
+    if updated_project is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"项目 {project_id} 不存在"
+        )
+    
+    return ResponseModel.success(
+        data={
+            "id": updated_project.id,
+            "name": updated_project.name,
+        },
+        message="项目名称已更新"
+    )
+
+
+@router.put("/{project_id}/draft-workflow", response_model=dict)
+async def update_draft_workflow(
+    project_id: str,
+    request: WorkflowUpdateRequest,
+    # 验证API Key（可选）
+    # verified_project_id: Optional[str] = Depends(get_optional_api_key)
+):
+    """
+    保存草稿工作流
+    Save draft workflow
+    
+    Args:
+        project_id: 项目ID
+        request: 工作流更新请求
+        
+    Returns:
+        更新后的项目
+    """
+    # 验证并转换为Workflow对象
+    try:
+        workflow = Workflow(**request.workflow)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"工作流格式无效: {str(e)}"
+        )
+    
+    repo = ProjectsRepository()
+    
+    # 更新草稿工作流
+    updated_project = await repo.update_draft_workflow(project_id, workflow)
+    
+    if updated_project is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"项目 {project_id} 不存在"
+        )
+    
+    return ResponseModel.success(
+        data={
+            "id": updated_project.id,
+            "draftWorkflow": updated_project.draft_workflow.model_dump(by_alias=True),
+        },
+        message="草稿工作流已保存"
+    )
+
+
+@router.put("/{project_id}/live-workflow", response_model=dict)
+async def publish_workflow(
+    project_id: str,
+    request: Optional[WorkflowUpdateRequest] = None,  # 可选，如果不提供则使用当前draftWorkflow
+    # 验证API Key（可选）
+    # verified_project_id: Optional[str] = Depends(get_optional_api_key)
+):
+    """
+    发布工作流（将工作流设置为生产版本）
+    Publish workflow (set workflow as live)
+    
+    Args:
+        project_id: 项目ID
+        request: 工作流更新请求（可选，如果不提供则使用当前draftWorkflow）
+        
+    Returns:
+        更新后的项目
+    """
+    repo = ProjectsRepository()
+    
+    # 获取当前项目
+    project = await repo.get_by_id(project_id)
+    if project is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"项目 {project_id} 不存在"
+        )
+    
+    # 如果提供了workflow，使用提供的；否则使用当前draftWorkflow
+    if request and request.workflow:
+        try:
+            workflow = Workflow(**request.workflow)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"工作流格式无效: {str(e)}"
+            )
+    else:
+        # 使用当前draftWorkflow
+        workflow = project.draft_workflow
+    
+    # 更新生产工作流
+    updated_project = await repo.update_live_workflow(project_id, workflow)
+    
+    if updated_project is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="工作流发布失败"
+        )
+    
+    return ResponseModel.success(
+        data={
+            "id": updated_project.id,
+            "liveWorkflow": updated_project.live_workflow.model_dump(by_alias=True),
+        },
+        message="工作流已发布"
+    )
+
+
+@router.post("/{project_id}/revert-to-live", response_model=dict)
+async def revert_to_live_workflow(
+    project_id: str,
+    # 验证API Key（可选）
+    # verified_project_id: Optional[str] = Depends(get_optional_api_key)
+):
+    """
+    回滚到生产工作流（将draftWorkflow设置为liveWorkflow的副本）
+    Revert to live workflow (set draftWorkflow to a copy of liveWorkflow)
+    
+    Args:
+        project_id: 项目ID
+        
+    Returns:
+        更新后的项目
+    """
+    repo = ProjectsRepository()
+    
+    # 回滚到生产工作流
+    updated_project = await repo.revert_to_live_workflow(project_id)
+    
+    if updated_project is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"项目 {project_id} 不存在"
+        )
+    
+    return ResponseModel.success(
+        data={
+            "id": updated_project.id,
+            "draftWorkflow": updated_project.draft_workflow.model_dump(by_alias=True),
+        },
+        message="已回滚到生产工作流"
     )
 

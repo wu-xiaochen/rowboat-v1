@@ -58,32 +58,77 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
       clearTimeout(adjustHeightTimeoutRef.current);
     }
 
-    // Debounce the height adjustment to prevent interference during rapid changes
-    adjustHeightTimeoutRef.current = setTimeout(() => {
-      // Store current focus state
-      const hadFocus = document.activeElement === textarea;
-      const selectionStart = textarea.selectionStart;
-      const selectionEnd = textarea.selectionEnd;
-      
-      // Only adjust if the textarea is properly mounted and not currently being focused
-      if (textarea.offsetParent === null) return;
-      
-      // Prevent adjustment during focus events to avoid disruption
-      requestAnimationFrame(() => {
-        textarea.style.height = 'auto';
-        const scrollHeight = textarea.scrollHeight;
-        textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
+      // Debounce the height adjustment to prevent interference during rapid changes
+      adjustHeightTimeoutRef.current = setTimeout(() => {
+        // Re-check textarea reference (may have changed)
+        const currentTextarea = textareaRef.current;
+        if (!currentTextarea) return;
         
-        // Add scrolling if content exceeds maxHeight
-        textarea.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
-        
-        // Restore focus and selection if it was focused before
-        if (hadFocus && document.activeElement !== textarea) {
-          textarea.focus();
-          textarea.setSelectionRange(selectionStart, selectionEnd);
+        // Check if textarea still exists and is mounted
+        if (currentTextarea.offsetParent === null || !document.body.contains(currentTextarea)) {
+          return;
         }
-      });
-    }, 10); // Small debounce delay
+        
+        // Store current focus state and selection
+        let hadFocus = false;
+        let selectionStart = 0;
+        let selectionEnd = 0;
+        
+        // Safely get focus state and selection range (may fail if textarea is detached)
+        try {
+          hadFocus = document.activeElement === currentTextarea;
+          if (hadFocus) {
+            selectionStart = currentTextarea.selectionStart ?? 0;
+            selectionEnd = currentTextarea.selectionEnd ?? 0;
+          }
+        } catch (e) {
+          // If selection access fails, textarea may be detached, skip adjustment
+          return;
+        }
+        
+        // Prevent adjustment during focus events to avoid disruption
+        requestAnimationFrame(() => {
+          // Re-check textarea reference again (may have been unmounted)
+          const textareaInFrame = textareaRef.current;
+          if (!textareaInFrame) return;
+          
+          // Triple-check textarea still exists and is mounted before accessing it
+          if (!document.body.contains(textareaInFrame) || textareaInFrame.offsetParent === null) {
+            return;
+          }
+          
+          try {
+            // Verify textarea is still accessible
+            if (typeof textareaInFrame.style === 'undefined' || 
+                typeof textareaInFrame.scrollHeight === 'undefined') {
+              return;
+            }
+            
+            textareaInFrame.style.height = 'auto';
+            const scrollHeight = textareaInFrame.scrollHeight;
+            textareaInFrame.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
+            
+            // Add scrolling if content exceeds maxHeight
+            textareaInFrame.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
+            
+            // Restore focus and selection if it was focused before
+            if (hadFocus && document.activeElement !== textareaInFrame) {
+              try {
+                textareaInFrame.focus();
+                // Safely restore selection (may fail if textarea is detached or in wrong state)
+                if (typeof textareaInFrame.setSelectionRange === 'function') {
+                  textareaInFrame.setSelectionRange(selectionStart, selectionEnd);
+                }
+              } catch (e) {
+                // Ignore selection restoration errors if textarea is detached
+              }
+            }
+          } catch (e) {
+            // Ignore errors if textarea is no longer accessible
+            // This can happen if component unmounts during animation frame
+          }
+        });
+      }, 10); // Small debounce delay
   }, [autoResize, maxHeight, textareaRef]);
 
   useEffect(() => {

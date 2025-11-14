@@ -1,97 +1,141 @@
-![ui](/assets/banner.png)
+# 质信智购 - AI多智能体平台
 
-<h2 align="center">质信智购 - AI多智能体平台</h2>
+> **质信智购**是基于Rowboat改造的中文版本，已进行前后端分离改造，后端使用Python技术栈（FastAPI + LangChain + OpenAI Agent SDK）。
 
-> **注意**：本项目是Rowboat的中文版本，已进行前后端分离改造，后端使用Python技术栈。
+## 🚀 快速开始
 
-## 📚 文档导航
+### 1. 配置环境变量
 
-- [项目开发规则](.cursor/rules/project-rules.mdc) - 核心开发规范
-- [开发计划](DEVELOPMENT-PLAN.md) - 详细开发计划
-- [文档索引](DOCUMENTATION_INDEX.md) - 所有文档的索引
-- [优化总结](OPTIMIZATION_SUMMARY.md) - 项目优化总结
-- [E2E测试报告](E2E_TEST_FINAL_REPORT.md) - 端到端测试报告
+在项目根目录创建 `.env` 文件（已提供 `.env.example` 作为模板）：
 
-<h2 align="center">AI that builds and manages your agent swarms</h2>
-<h5 align="center">
+```bash
+# 复制模板文件
+cp .env.example .env
 
-<p align="center" style="display: flex; justify-content: center; gap: 20px; align-items: center;">
-  <a href="https://trendshift.io/repositories/13609" target="blank">
-    <img src="https://trendshift.io/api/badge/repositories/13609" alt="rowboatlabs%2Frowboat | Trendshift" width="250" height="55"/>
-  </a>
-</p>
+# 编辑配置文件，填写你的API密钥
+# 主要配置项：
+# - LLM_API_KEY: LLM服务API密钥
+# - LLM_BASE_URL: LLM服务基础URL
+# - MONGODB_CONNECTION_STRING: MongoDB连接字符串
+# - COMPOSIO_API_KEY: Composio API密钥（可选）
+```
 
-<p align="center">
-  <a href="https://docs.rowboatlabs.com/" target="_blank" rel="noopener">
-    <img alt="Docs" src="https://img.shields.io/badge/Docs-8b5cf6?labelColor=8b5cf6&logo=readthedocs&logoColor=white">
-  </a>
-  <a href="https://discord.gg/rxB8pzHxaS" target="_blank" rel="noopener">
-    <img alt="Discord" src="https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white&labelColor=5865F2">
-  </a>
-  <a href="https://www.rowboatlabs.com/" target="_blank" rel="noopener">
-    <img alt="Website" src="https://img.shields.io/badge/Website-10b981?labelColor=10b981&logo=window&logoColor=white">
-  </a>
-  <a href="https://www.youtube.com/@RowBoatLabs" target="_blank" rel="noopener">
-    <img alt="YouTube" src="https://img.shields.io/badge/YouTube-FF0000?labelColor=FF0000&logo=youtube&logoColor=white">
-  </a>
-  <a href="https://www.linkedin.com/company/rowboat-labs" target="_blank" rel="noopener">
-    <img alt="LinkedIn" src="https://custom-icon-badges.demolab.com/badge/LinkedIn-0A66C2?logo=linkedin-white&logoColor=fff">
-  </a>
-  <a href="https://x.com/intent/user?screen_name=rowboatlabshq" target="_blank" rel="noopener">
-    <img alt="Twitter" src="https://img.shields.io/twitter/follow/rowboatlabshq?style=social">
-  </a>
-  <a href="https://www.ycombinator.com" target="_blank" rel="noopener">
-    <img alt="Y Combinator" src="https://img.shields.io/badge/Y%20Combinator-S24-orange">
-  </a>
-</p>
+### 2. 启动服务
 
+#### 方式一：使用启动脚本（推荐）
 
-</h5>
-<p align="center">
-⚡ Build agent swarms instantly with natural language | 🔌 Connect tools with one-click integrations | 📂 Power with knowledge by adding documents for RAG | 🔄 Automate workflows by setting up triggers and actions | 🚀 Deploy anywhere via API or SDK<br><br>
-☁️ Prefer a hosted version? Use our <b><a href="https://rowboatlabs.com">cloud</a></b> to starting building agents right away!
-</p>
+```bash
+# 启动所有服务（包括数据库）
+./start.sh
+```
 
+#### 方式二：手动启动
 
-## Quick start
-1. Set your OpenAI key
-   ```bash
-   export OPENAI_API_KEY=your-openai-api-key  
-   ```
-      
-2. Clone the repository and start Rowboat (requires Docker)
-   ```bash
-   git clone git@github.com:rowboatlabs/rowboat.git
-   cd rowboat
-   ./start.sh
-   ```
+**启动后端服务**：
+```bash
+cd backend
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+```
 
-3. Access the app at [http://localhost:3000](http://localhost:3000).
+**启动前端服务**：
+```bash
+cd apps/rowboat
+npm install  # 首次运行需要安装依赖
+npm run dev
+```
 
-To add tools, RAG, more LLMs, and  triggers checkout the [Advanced](#advanced) section below.
+### 3. 访问应用
 
-## Demos
-#### Meeting-prep assistant
-Chat with the copilot to build a meeting-prep workflow, then add a calendar invite as a trigger. Watch the full demo [here](https://youtu.be/KZTP4xZM2DY).
-[![meeting-prep](https://github.com/user-attachments/assets/27755ef5-6549-476f-b9c0-50bef8770384)](https://youtu.be/KZTP4xZM2DY)
+- **前端应用**：http://localhost:3001
+- **后端API文档**：http://localhost:8001/docs
+- **后端API**：http://localhost:8001
 
-#### Customer support assistant
-Chat with the copilot to build a customer support assistant, then connect your MCP server, and data for RAG. Watch the full demo [here](https://youtu.be/Xfo-OfgOl8w).
-[![output](https://github.com/user-attachments/assets/97485fd7-64c3-4d60-a627-f756a89dee64)](https://youtu.be/Xfo-OfgOl8w)
+## 📚 文档
 
-#### Personal assistant
-Chat with the copilot to build a personal assistant. Watch the full demo [here](https://youtu.be/6r7P4Vlcn2g).
-[![personal-assistant](https://github.com/user-attachments/assets/0f1c0ffd-23ba-4b49-8bfb-ec7a846f1332)](https://youtu.be/6r7P4Vlcn2g)
+- [快速启动指南](QUICK_START.md) - 详细的启动和配置说明
+- [配置指南](CONFIGURATION_GUIDE.md) - 完整的配置说明
+- [开发计划](DEVELOPMENT-PLAN.md) - 项目开发计划
+- [认证和授权](AUTHENTICATION_AND_AUTHORIZATION.md) - 认证系统说明
+- [日志监控指南](LOG_MONITORING_GUIDE.md) - 日志查看和监控
 
-## Advanced
-1. Native RAG Support: Enable file uploads and URL scraping with Rowboat's built-in RAG capabilities – see [RAG Guide](https://docs.rowboatlabs.com/docs/using-rowboat/rag).
+## 🏗️ 技术栈
 
-2. Custom LLM Providers: Use any LLM provider, including aggregators like OpenRouter and LiteLLM - see [Using more LLM providers](https://docs.rowboatlabs.com/docs/using-rowboat/customise/custom-llms).
+### 前端
+- **框架**：Next.js 15.x
+- **语言**：TypeScript
+- **UI库**：React 19.x, HeroUI
+- **样式**：Tailwind CSS
+- **运行端口**：3001
 
-3. Tools & Triggers: Add tools and event triggers (e.g., Gmail, Slack) for automation – see [Tools](https://docs.rowboatlabs.com/docs/using-rowboat/tools) & [Triggers](https://docs.rowboatlabs.com/docs/using-rowboat/triggers).
+### 后端
+- **API框架**：FastAPI
+- **Copilot框架**：LangChain
+- **多智能体框架**：OpenAI Agent SDK Python版本
+- **数据库**：MongoDB, Redis, Qdrant
+- **运行端口**：8001
+- **Python版本**：3.11+
 
-4. API & SDK: Integrate Rowboat agents directly into your app – see [API](https://docs.rowboatlabs.com/docs/api-sdk/using_the_api) & [SDK](https://docs.rowboatlabs.com/docs/api-sdk/using_the_sdk) docs.
+## 📁 项目结构
 
-##
+```
+rowboat/
+├── .env                    # 统一配置文件（主要维护）
+├── apps/
+│   └── rowboat/           # 前端应用
+│       ├── .env.local     # 本地覆盖配置（可选）
+│       └── ...
+├── backend/               # 后端应用
+│   ├── .env               # 向后兼容配置（可选）
+│   └── ...
+└── scripts/               # 工具脚本
+```
 
-Refer to [Docs](https://docs.rowboatlabs.com/) to learn how to start building agents with Rowboat.
+## ⚙️ 配置管理
+
+项目使用**统一配置文件**管理环境变量：
+
+- **主要配置**：项目根目录的 `.env` 文件
+- **本地覆盖**：`apps/rowboat/.env.local`（不会被提交到Git）
+- **向后兼容**：`backend/.env`（可选）
+
+配置加载优先级：
+- **前端**：`.env.local` > 根目录 `.env` > `apps/rowboat/.env`
+- **后端**：根目录 `.env` > `backend/.env` > `.env`
+
+## 🔧 开发
+
+### 安装依赖
+
+**前端**：
+```bash
+cd apps/rowboat
+npm install
+```
+
+**后端**：
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 运行测试
+
+**后端测试**：
+```bash
+cd backend
+pytest
+```
+
+## 📝 许可证
+
+查看 [LICENSE](LICENSE) 文件了解详情。
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+---
+
+**注意**：本项目是Rowboat的中文版本，已进行前后端分离改造。所有配置已统一管理，便于维护和部署。

@@ -107,12 +107,23 @@ function convertBack(messages: z.infer<typeof AssistantMessage | typeof Assistan
     return result;
 }
 
+/**
+ * ⚠️ 已弃用：此路由已禁用
+ * ⚠️ DEPRECATED: This route has been disabled
+ * 
+ * 此路由应该通过新的 Python 后端实现
+ * 如果需要重新启用，应该调用后端 API: POST /api/v1/{project_id}/chat
+ * 
+ * This route should be implemented through the new Python backend
+ * If re-enabling, should call backend API: POST /api/v1/{project_id}/chat
+ */
+
 // get next turn / agent response
 export async function POST(
     req: NextRequest,
     { params }: { params: Promise<{ chatId: string }> }
 ): Promise<Response> {
-    return new Response('Not implemented', { status: 501 });
+    return new Response('Not implemented - This route has been migrated to Python backend', { status: 501 });
     /*
     return await authCheck(req, async (session) => {
         const { chatId } = await params;

@@ -1,3 +1,16 @@
+/**
+ * ⚠️ 已弃用：此路由已禁用
+ * ⚠️ DEPRECATED: This route has been disabled
+ * 
+ * 此路由应该通过新的 Python 后端实现
+ * 如果需要重新启用，应该调用后端 API: POST /api/v1/{project_id}/chat
+ * 
+ * This route should be implemented through the new Python backend
+ * If re-enabling, should call backend API: POST /api/v1/{project_id}/chat
+ */
+
+// ⚠️ 已弃用：使用旧的 agents runtime
+// ⚠️ DEPRECATED: Using old agents runtime
 import { getResponse } from "@/src/application/lib/agents-runtime/agents";
 import { twilioInboundCallsCollection } from "@/app/lib/mongodb";
 import { PrefixLogger } from "@/app/lib/utils";
@@ -15,7 +28,7 @@ export async function POST(
     request: Request,
     { params }: { params: Promise<{ callSid: string }> }
 ) {
-    return new Response('Not implemented', { status: 501 });
+    return new Response('Not implemented - This route has been migrated to Python backend', { status: 501 });
     /*
     const { callSid } = await params;
     let logger = new PrefixLogger(`turn:${callSid}`);

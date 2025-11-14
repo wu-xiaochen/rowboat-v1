@@ -30,3 +30,19 @@ class ProjectUpdateRequest(BaseModel):
     class Config:
         populate_by_name = True
 
+
+class ProjectNameUpdateRequest(BaseModel):
+    """项目名称更新请求模型"""
+    name: str = Field(..., description="新项目名称")
+    
+    class Config:
+        populate_by_name = True
+
+
+class WorkflowUpdateRequest(BaseModel):
+    """工作流更新请求模型"""
+    workflow: dict = Field(..., description="工作流对象")
+    
+    class Config:
+        populate_by_name = True
+

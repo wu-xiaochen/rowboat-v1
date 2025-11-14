@@ -12,6 +12,7 @@ const docSchema = Project
     })
     .extend({
         _id: z.string().uuid(),
+        id: z.string().uuid().optional(), // 允许 id 字段，用于索引
     });
 
 export class MongodbProjectsRepository implements IProjectsRepository {
@@ -42,10 +43,15 @@ export class MongodbProjectsRepository implements IProjectsRepository {
             draftWorkflow: wflow,
             createdAt: now.toISOString(),
         };
-        await this.collection.insertOne({
+        
+        // 插入文档时，同时设置 _id 和 id 字段
+        // MongoDB 索引在 id 字段上，所以必须设置 id 字段
+        const docToInsert = {
             ...doc,
             _id: id,
-        });
+            id: id,  // 确保 id 字段也被设置，以满足索引要求
+        } as z.infer<typeof docSchema>;
+        await this.collection.insertOne(docToInsert);
         return {
             ...doc,
             id,
@@ -53,14 +59,17 @@ export class MongodbProjectsRepository implements IProjectsRepository {
     }
 
     async fetch(id: string): Promise<z.infer<typeof Project> | null> {
-        const doc = await this.collection.findOne({ _id: id });
+        // 可以按 _id 或 id 字段查询
+        const doc = await this.collection.findOne({ $or: [{ _id: id }, { id: id }] });
         if (!doc) {
             return null;
         }
+        // 如果文档有 id 字段，使用它；否则使用 _id
+        const docId = doc.id || doc._id;
         const { _id, ...rest } = doc;
         return {
             ...rest,
-            id,
+            id: docId,
         };
     }
 
@@ -72,13 +81,20 @@ export class MongodbProjectsRepository implements IProjectsRepository {
         const memberships = await this.projectMembersRepository.findByUserId(userId, cursor, limit);
         const projectIds = memberships.items.map((m) => m.projectId);
         const projects = await this.collection.find({
-            _id: { $in: projectIds },
+            $or: [
+                { _id: { $in: projectIds } },
+                { id: { $in: projectIds } }
+            ],
         }).toArray();
         return {
-            items: projects.map((p) => ({
-                ...p,
-                id: p._id,
-            })),
+            items: projects.map((p) => {
+                const { _id, ...rest } = p;
+                const docId = p.id || p._id;
+                return {
+                    ...rest,
+                    id: docId,  // 确保 id 字段存在，并移除 _id
+                } as z.infer<typeof Project>;
+            }),
             nextCursor: memberships.nextCursor,
         };
     }
@@ -86,7 +102,7 @@ export class MongodbProjectsRepository implements IProjectsRepository {
     async addComposioConnectedAccount(projectId: string, data: z.infer<typeof AddComposioConnectedAccountSchema>): Promise<z.infer<typeof Project>> {
         const key = `composioConnectedAccounts.${data.toolkitSlug}`;
         const result = await this.collection.findOneAndUpdate(
-            { _id: projectId },
+            { $or: [{ _id: projectId }, { id: projectId }] },
             {
                 $set: {
                     [key]: data.data,
@@ -99,12 +115,12 @@ export class MongodbProjectsRepository implements IProjectsRepository {
             throw new NotFoundError('Project not found');
         }
         const { _id, ...rest } = result;
-        return { ...rest, id: _id };
+        return { ...rest, id: result.id || _id };
     }
 
     async deleteComposioConnectedAccount(projectId: string, toolkitSlug: string): Promise<boolean> {
         const result = await this.collection.updateOne({
-            _id: projectId,
+            $or: [{ _id: projectId }, { id: projectId }]
         }, {
             $unset: {
                 [`composioConnectedAccounts.${toolkitSlug}`]: "",
@@ -116,7 +132,7 @@ export class MongodbProjectsRepository implements IProjectsRepository {
     async addCustomMcpServer(projectId: string, data: z.infer<typeof AddCustomMcpServerSchema>): Promise<z.infer<typeof Project>> {
         const key = `customMcpServers.${data.name}`;
         const result = await this.collection.findOneAndUpdate(
-            { _id: projectId },
+            { $or: [{ _id: projectId }, { id: projectId }] },
             {
                 $set: {
                     [key]: data.data,
@@ -129,12 +145,12 @@ export class MongodbProjectsRepository implements IProjectsRepository {
             throw new NotFoundError('Project not found');
         }
         const { _id, ...rest } = result;
-        return { ...rest, id: _id };
+        return { ...rest, id: result.id || _id };
     }
 
     async deleteCustomMcpServer(projectId: string, name: string): Promise<boolean> {
         const result = await this.collection.updateOne({
-            _id: projectId,
+            $or: [{ _id: projectId }, { id: projectId }]
         }, {
             $unset: {
                 [`customMcpServers.${name}`]: "",
@@ -145,7 +161,7 @@ export class MongodbProjectsRepository implements IProjectsRepository {
 
     async updateSecret(projectId: string, secret: string): Promise<z.infer<typeof Project>> {
         const result = await this.collection.findOneAndUpdate(
-            { _id: projectId },
+            { $or: [{ _id: projectId }, { id: projectId }] },
             {
                 $set: {
                     secret,
@@ -158,12 +174,12 @@ export class MongodbProjectsRepository implements IProjectsRepository {
             throw new NotFoundError('Project not found');
         }
         const { _id, ...rest } = result;
-        return { ...rest, id: _id };
+        return { ...rest, id: result.id || _id };
     }
 
     async updateWebhookUrl(projectId: string, url: string): Promise<z.infer<typeof Project>> {
         const result = await this.collection.findOneAndUpdate(
-            { _id: projectId },
+            { $or: [{ _id: projectId }, { id: projectId }] },
             {
                 $set: {
                     webhookUrl: url,
@@ -176,12 +192,12 @@ export class MongodbProjectsRepository implements IProjectsRepository {
             throw new NotFoundError('Project not found');
         }
         const { _id, ...rest } = result;
-        return { ...rest, id: _id };
+        return { ...rest, id: result.id || _id };
     }
 
     async updateName(projectId: string, name: string): Promise<z.infer<typeof Project>> {
         const result = await this.collection.findOneAndUpdate(
-            { _id: projectId },
+            { $or: [{ _id: projectId }, { id: projectId }] },
             {
                 $set: {
                     name,
@@ -194,12 +210,12 @@ export class MongodbProjectsRepository implements IProjectsRepository {
             throw new NotFoundError('Project not found');
         }
         const { _id, ...rest } = result;
-        return { ...rest, id: _id };
+        return { ...rest, id: result.id || _id };
     }
 
     async updateDraftWorkflow(projectId: string, workflow: z.infer<typeof import("@/app/lib/types/workflow_types").Workflow>): Promise<z.infer<typeof Project>> {
         const result = await this.collection.findOneAndUpdate(
-            { _id: projectId },
+            { $or: [{ _id: projectId }, { id: projectId }] },
             {
                 $set: {
                     draftWorkflow: workflow,
@@ -212,12 +228,12 @@ export class MongodbProjectsRepository implements IProjectsRepository {
             throw new NotFoundError('Project not found');
         }
         const { _id, ...rest } = result;
-        return { ...rest, id: _id };
+        return { ...rest, id: result.id || _id };
     }
 
     async updateLiveWorkflow(projectId: string, workflow: z.infer<typeof import("@/app/lib/types/workflow_types").Workflow>): Promise<z.infer<typeof Project>> {
         const result = await this.collection.findOneAndUpdate(
-            { _id: projectId },
+            { $or: [{ _id: projectId }, { id: projectId }] },
             {
                 $set: {
                     liveWorkflow: workflow,
@@ -230,11 +246,11 @@ export class MongodbProjectsRepository implements IProjectsRepository {
             throw new NotFoundError('Project not found');
         }
         const { _id, ...rest } = result;
-        return { ...rest, id: _id };
+        return { ...rest, id: result.id || _id };
     }
 
     async delete(projectId: string): Promise<boolean> {
-        const result = await this.collection.deleteOne({ _id: projectId });
+        const result = await this.collection.deleteOne({ $or: [{ _id: projectId }, { id: projectId }] });
         return result.deletedCount > 0;
     }
 }

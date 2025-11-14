@@ -10,6 +10,7 @@ export interface ProgressStep {
   icon?: string; // The icon/symbol to show instead of number
   isCurrent?: boolean; // Whether this is the current step
   shortLabel?: string; // Optional short label to show inline on larger screens
+  tooltip?: string; // Optional tooltip text for hover explanation
 }
 
 interface ProgressBarProps {
@@ -33,7 +34,8 @@ export function ProgressBar({ steps, className, onStepClick }: ProgressBarProps)
       <ol role="list" className="flex items-center gap-1.5">
         {steps.map((step, index) => {
           const isLast = index === steps.length - 1;
-          const tooltipText = (() => {
+          // 使用步骤的 tooltip 属性，如果没有则使用默认的英文提示
+          const tooltipText = step.tooltip || (() => {
             switch (step.id) {
               case 1:
                 return 'Let skipper build your assistant for you';

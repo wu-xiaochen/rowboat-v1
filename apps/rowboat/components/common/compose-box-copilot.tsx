@@ -195,7 +195,8 @@ function CopilotStatusBar({
     hasPanelWarning,
     handleApplyAll,
     context,
-    onCloseContext
+    onCloseContext,
+    toolResult
 }: {
     allCardsLoaded?: boolean;
     allApplied?: boolean;
@@ -207,6 +208,7 @@ function CopilotStatusBar({
     handleApplyAll?: () => void;
     context?: any;
     onCloseContext?: () => void;
+    toolResult?: string | null;
 }) {
     // Context label rendering
     const renderContext = () => {
@@ -230,13 +232,19 @@ function CopilotStatusBar({
     };
     // Status/ticker rendering
     const renderStatus = () => {
-        if (!allCardsLoaded && !streamingLine && !hasPanelWarning && !completedSummary) return null;
+        if (!allCardsLoaded && !streamingLine && !hasPanelWarning && !completedSummary && !toolResult) return null;
         return (
             <div className="flex flex-col min-w-0">
                 {hasPanelWarning && (
                     <span className="text-xs text-yellow-600 dark:text-yellow-400 font-semibold flex items-center">
                         <span className="mr-1">⚠️</span> Some changes could not be applied
                     </span>
+                )}
+                {toolResult && (
+                    <div className="mb-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                        <div className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-1">工具搜索结果:</div>
+                        <div className="text-xs text-blue-600 dark:text-blue-400 line-clamp-3">{toolResult}</div>
+                    </div>
                 )}
                 {allCardsLoaded && completedSummary ? (
                     <span className="font-semibold text-xs text-gray-900 dark:text-gray-100 truncate">{completedSummary}</span>

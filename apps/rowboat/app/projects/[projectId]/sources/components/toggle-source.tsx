@@ -6,11 +6,13 @@ import { useState } from "react";
 export function ToggleSource({
     sourceId,
     active,
+    projectId,
     compact = false,
     className
 }: {
     sourceId: string;
     active: boolean;
+    projectId: string;
     compact?: boolean;
     className?: string;
 }) {
@@ -20,7 +22,7 @@ export function ToggleSource({
     async function handleToggle() {
         setLoading(true);
         try {
-            await toggleDataSource(sourceId, !isActive);
+            await toggleDataSource(sourceId, !isActive, projectId);
             setIsActive(!isActive);
         } finally {
             setLoading(false);

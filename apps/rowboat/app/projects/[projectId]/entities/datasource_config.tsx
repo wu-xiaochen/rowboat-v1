@@ -43,7 +43,7 @@ export function DataSourceConfig({
                 const currentProjectId = pathParts[2]; // /projects/[projectId]/workflow
                 setProjectId(currentProjectId);
                 
-                const ds = await getDataSource(dataSourceId);
+                const ds = await getDataSource(dataSourceId, currentProjectId);
                 setDataSource(ds);
                 
                 // Load files if it's a files data source
@@ -90,7 +90,7 @@ export function DataSourceConfig({
             }
             
             try {
-                const updatedSource = await getDataSource(dataSourceId);
+                const updatedSource = await getDataSource(dataSourceId, projectId);
                 if (!ignore) {
                     setDataSource(updatedSource);
                     onDataSourceUpdate?.(); // Notify parent of status change
@@ -123,13 +123,13 @@ export function DataSourceConfig({
     // Helper function to update data source and notify parent
     const updateDataSourceAndNotify = useCallback(async () => {
         try {
-            const updatedSource = await getDataSource(dataSourceId);
+            const updatedSource = await getDataSource(dataSourceId, projectId);
             setDataSource(updatedSource);
             onDataSourceUpdate?.();
         } catch (err) {
             console.error('Failed to reload data source:', err);
         }
-    }, [dataSourceId, onDataSourceUpdate]);
+    }, [dataSourceId, projectId, onDataSourceUpdate]);
 
     // Load files function
     const loadFiles = async (sourceId: string, page: number) => {

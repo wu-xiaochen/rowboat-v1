@@ -5,12 +5,14 @@ import { FormStatusButton } from "../../../../lib/components/form-status-button"
 
 export function DeleteSource({
     sourceId,
+    projectId,
 }: {
     sourceId: string;
+    projectId: string;
 }) {
     function handleDelete() {
         if (window.confirm('Are you sure you want to delete this data source?')) {
-            deleteDataSource(sourceId);
+            deleteDataSource(sourceId, projectId);
         }
     }
 

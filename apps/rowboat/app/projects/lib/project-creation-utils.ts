@@ -1,6 +1,10 @@
 "use client";
 
-import { createProject, createProjectFromWorkflowJson } from "@/app/actions/project.actions";
+// 使用动态导入避免在客户端打包时解析服务端依赖
+// 这些 actions 标记了 'use server'，会在服务端执行
+const getProjectActions = async () => {
+  return await import("@/app/actions/project.actions");
+};
 
 export interface CreateProjectOptions {
   template?: string;
@@ -22,6 +26,7 @@ export interface CreateProjectFromJsonOptions {
  */
 export async function createProjectWithOptions(options: CreateProjectOptions): Promise<void> {
   try {
+    const { createProject } = await getProjectActions();
     const formData = new FormData();
     
     if (options.template) {
@@ -41,13 +46,22 @@ export async function createProjectWithOptions(options: CreateProjectOptions): P
         localStorage.setItem(`agent_instructions_changed_${response.id}`, 'true');
       }
       
-      // Call success callback if provided
+      // Call success callback if provided (before navigation)
       if (options.onSuccess) {
         options.onSuccess(response.id);
       }
       
       // Navigate to workflow page
-      options.router.push(`/projects/${response.id}/workflow`);
+      try {
+        options.router.push(`/projects/${response.id}/workflow`);
+      } catch (navError) {
+        console.error('Navigation error:', navError);
+        // If navigation fails, still call onSuccess if not already called
+        // (it should have been called above, but just in case)
+        if (options.onError) {
+          options.onError(new Error('项目创建成功，但页面跳转失败'));
+        }
+      }
     } else {
       // Handle error response
       const error = (response as any).billingError || 'Failed to create project';
@@ -72,6 +86,7 @@ export async function createProjectWithOptions(options: CreateProjectOptions): P
  */
 export async function createProjectFromJsonWithOptions(options: CreateProjectFromJsonOptions): Promise<void> {
   try {
+    const { createProjectFromWorkflowJson } = await getProjectActions();
     const formData = new FormData();
     formData.append('workflowJson', options.workflowJson);
 

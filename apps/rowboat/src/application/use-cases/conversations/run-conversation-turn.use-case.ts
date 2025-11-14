@@ -1,8 +1,21 @@
+/**
+ * ⚠️ 已弃用：此 Use Case 使用旧的 Agents Runtime
+ * ⚠️ DEPRECATED: This Use Case uses the old Agents Runtime
+ * 
+ * 注意：前端的 API 路由（/api/v1/[projectId]/chat/route.ts）已经改为代理到后端
+ * 此 Use Case 可能仍被某些内部代码使用，但新的请求应该通过后端 API
+ * 
+ * Note: Frontend API route (/api/v1/[projectId]/chat/route.ts) has been changed to proxy to backend
+ * This Use Case may still be used by some internal code, but new requests should go through backend API
+ */
+
 import { Reason, Turn, TurnEvent } from "@/src/entities/models/turn";
 import { USE_BILLING } from "@/app/lib/feature_flags";
 import { authorize, getCustomerIdForProject, logUsage, UsageTracker } from "@/app/lib/billing";
 import { NotFoundError } from '@/src/entities/errors/common';
 import { IConversationsRepository } from "@/src/application/repositories/conversations.repository.interface";
+// ⚠️ 已弃用：使用旧的 agents runtime
+// ⚠️ DEPRECATED: Using old agents runtime
 import { streamResponse } from "@/src/application/lib/agents-runtime/agents";
 import { z } from "zod";
 import { Message } from "@/app/lib/types/types";
@@ -129,7 +142,10 @@ export class RunConversationTurnUseCase implements IRunConversationTurnUseCase {
         // init usage tracker
         const usageTracker = new UsageTracker();
 
-        // call agents runtime and handle generated messages
+        // ⚠️ 已弃用：直接调用旧的 agents runtime
+        // ⚠️ DEPRECATED: Directly calling old agents runtime
+        // 新的实现应该调用后端 API: POST /api/v1/{project_id}/chat
+        // New implementation should call backend API: POST /api/v1/{project_id}/chat
         try {
             const outputMessages: z.infer<typeof Message>[] = [];
             for await (const event of streamResponse(projectId, conversation.workflow, inputMessages, usageTracker)) {

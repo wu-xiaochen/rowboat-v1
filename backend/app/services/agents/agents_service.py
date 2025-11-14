@@ -63,6 +63,12 @@ class AgentsService:
         Returns:
             OpenAI模型配置对象
         """
+        # 验证模型名称
+        if not model_name or not isinstance(model_name, str) or not model_name.strip():
+            # 如果模型名称为空，使用默认模型
+            model_name = self.settings.effective_agent_model
+            print(f"⚠️ 模型名称为空，使用默认模型: {model_name}")
+        
         # 创建OpenAI模型配置
         # 注意：openai-agents使用OpenAIChatCompletionsModel，需要AsyncOpenAI客户端
         from openai import AsyncOpenAI
@@ -75,6 +81,7 @@ class AgentsService:
         
         # 创建OpenAI模型
         # OpenAIChatCompletionsModel接受model和openai_client参数
+        print(f"🔧 创建模型配置: {model_name} (base_url: {self.settings.llm_base_url})")
         return OpenAIChatCompletionsModel(
             model=model_name,
             openai_client=openai_client,
@@ -252,8 +259,17 @@ class AgentsService:
             # 构建指令
             instructions = self._build_instructions(agent_config, workflow)
             
+            # 获取有效的模型名称
+            # 如果智能体没有配置模型或模型名称为空，使用默认模型
+            model_name = agent_config.model
+            if not model_name or not model_name.strip():
+                model_name = self.settings.effective_agent_model
+                print(f"⚠️ Agent '{agent_config.name}' 没有配置模型，使用默认模型: {model_name}")
+            else:
+                print(f"📋 Agent '{agent_config.name}' 使用模型: {model_name}")
+            
             # 创建OpenAI模型配置
-            model = self._create_openai_model(agent_config.model)
+            model = self._create_openai_model(model_name)
             
             # 创建Agent
             agent = Agent(
@@ -309,8 +325,13 @@ class AgentsService:
                 return
             start_agent_name = active_agents[0].name
         
+        print(f"🚀 开始执行智能体: {start_agent_name}")
+        print(f"📊 工作流中共有 {len(workflow.agents)} 个智能体")
+        
         # 创建所有agents
         agents = self._create_all_agents(project_id, workflow)
+        
+        print(f"✅ 成功创建 {len(agents)} 个智能体")
         
         if start_agent_name not in agents:
             yield AssistantMessage(
@@ -366,15 +387,85 @@ class AgentsService:
             )
             
             # 流式获取事件
+            event_count = 0
+            message_count = 0
             async for event in result.stream_events():
+                event_count += 1
                 # 处理事件
                 # 根据OpenAI Agent SDK的事件类型进行处理
                 event_type = getattr(event, "type", None)
                 
-                # 处理agent输出事件
-                if event_type in ["agent_output", "agent_span", "generation_span"]:
-                    output = getattr(event, "output", None) or getattr(event, "text", None) or getattr(event, "content", None)
+                # 调试：记录前几个事件的详细信息
+                if event_count <= 10:
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.info(f"🔍 Event #{event_count}: type={event_type}, event_class={type(event).__name__}, dir={[attr for attr in dir(event) if not attr.startswith('_')]}")
+                    # 打印所有属性值（用于调试）
+                    for attr in dir(event):
+                        if not attr.startswith('_') and not callable(getattr(event, attr, None)):
+                            try:
+                                value = getattr(event, attr, None)
+                                if value is not None:
+                                    logger.info(f"   {attr} = {value}")
+                            except:
+                                pass
+                
+                # 尝试多种方式获取输出内容
+                output = None
+                if hasattr(event, "output"):
+                    output = event.output
+                elif hasattr(event, "text"):
+                    output = event.text
+                elif hasattr(event, "content"):
+                    output = event.content
+                elif hasattr(event, "delta"):
+                    # 某些事件可能有delta字段
+                    delta = event.delta
+                    if hasattr(delta, "content"):
+                        output = delta.content
+                    elif isinstance(delta, str):
+                        output = delta
+                
+                # 处理agent输出事件 - 扩展事件类型匹配
+                # 添加更多可能的事件类型
+                if event_type in ["agent_output", "agent_span", "generation_span", "text", "text_delta", "message", "message_delta", "span", "run", "run_span"]:
                     if output:
+                        message_count += 1
+                        yield AssistantMessage(
+                            role="assistant",
+                            content=str(output),
+                            agent_name=start_agent_name,
+                            response_type="external",
+                        )
+                    elif event_type in ["text", "text_delta", "message", "message_delta"]:
+                        # 对于文本事件，即使没有output字段，也尝试从事件本身获取
+                        if hasattr(event, "text"):
+                            message_count += 1
+                            yield AssistantMessage(
+                                role="assistant",
+                                content=str(event.text),
+                                agent_name=start_agent_name,
+                                response_type="external",
+                            )
+                
+                # 尝试从事件的属性中直接获取内容（更宽松的匹配）
+                # 检查是否有任何包含文本内容的属性
+                if not output and event_type not in ["tool_call", "tool_span", "function_span", "function_call", "tool_result", "tool_output", "function_result", "handoff", "handoff_span"]:
+                    # 尝试从常见属性获取内容
+                    for attr_name in ["message", "response", "generation", "completion", "answer"]:
+                        if hasattr(event, attr_name):
+                            attr_value = getattr(event, attr_name)
+                            if attr_value:
+                                if isinstance(attr_value, str):
+                                    output = attr_value
+                                elif hasattr(attr_value, "content"):
+                                    output = attr_value.content
+                                elif hasattr(attr_value, "text"):
+                                    output = attr_value.text
+                                break
+                    
+                    if output:
+                        message_count += 1
                         yield AssistantMessage(
                             role="assistant",
                             content=str(output),
@@ -395,9 +486,9 @@ class AgentsService:
                         )
                 
                 # 处理工具调用事件
-                elif event_type in ["tool_call", "tool_span", "function_span"]:
-                    tool_name = getattr(event, "tool_name", None) or getattr(event, "name", None)
-                    tool_args = getattr(event, "tool_args", None) or getattr(event, "args", None) or getattr(event, "input", None) or {}
+                elif event_type in ["tool_call", "tool_span", "function_span", "function_call"]:
+                    tool_name = getattr(event, "tool_name", None) or getattr(event, "name", None) or getattr(event, "function_name", None)
+                    tool_args = getattr(event, "tool_args", None) or getattr(event, "args", None) or getattr(event, "input", None) or getattr(event, "arguments", None) or {}
                     if tool_name:
                         tool_call_id = str(uuid.uuid4())
                         import json
@@ -427,14 +518,65 @@ class AgentsService:
                             tool_call_id=tool_call_id,
                             tool_name=tool_name,
                         )
+                
+                # 如果事件有输出但类型未知，尝试直接使用
+                elif output:
+                    # 未知事件类型但有输出内容，尝试作为消息输出
+                    yield AssistantMessage(
+                        role="assistant",
+                        content=str(output),
+                        agent_name=start_agent_name,
+                        response_type="external",
+                    )
+            
+            # 如果没有生成任何消息，至少返回一个提示
+            print(f"📊 事件统计: 总事件数={event_count}, 生成的消息数={message_count}")
+            if message_count == 0:
+                if event_count == 0:
+                    yield AssistantMessage(
+                        role="assistant",
+                        content="抱歉，我没有收到任何响应事件。请检查配置和日志。",
+                        agent_name=start_agent_name,
+                        response_type="external",
+                    )
+                else:
+                    yield AssistantMessage(
+                        role="assistant",
+                        content=f"抱歉，我收到了 {event_count} 个事件，但没有生成任何消息。请检查事件类型和日志。",
+                        agent_name=start_agent_name,
+                        response_type="external",
+                    )
         
         except Exception as e:
             # 错误处理
             import traceback
+            error_str = str(e)
             error_details = traceback.format_exc()
+            
+            # 检查是否是模型不存在的错误
+            if "Model does not exist" in error_str or "20012" in error_str:
+                # 获取起始智能体的模型配置
+                start_agent_config = None
+                for agent_config in workflow.agents:
+                    if agent_config.name == start_agent_name:
+                        start_agent_config = agent_config
+                        break
+                
+                model_name = start_agent_config.model if start_agent_config else "未知"
+                error_message = (
+                    f"模型配置错误：智能体 '{start_agent_name}' 使用的模型 '{model_name}' 不存在。\n\n"
+                    f"请检查：\n"
+                    f"1. 模型名称是否正确（当前: {model_name}）\n"
+                    f"2. 模型是否在 API 提供商处可用\n"
+                    f"3. 建议使用默认模型: {self.settings.effective_agent_model}\n\n"
+                    f"原始错误: {error_str}"
+                )
+            else:
+                error_message = f"错误: {error_str}\n\n详细信息:\n{error_details}"
+            
             yield AssistantMessage(
                 role="assistant",
-                content=f"错误: {str(e)}\n\n详细信息:\n{error_details}",
+                content=error_message,
                 agent_name=start_agent_name,
                 response_type="external",
             )

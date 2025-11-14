@@ -8,19 +8,15 @@ import {
     Workflow} from "../lib/types/workflow_types";
 import { z } from 'zod';
 import { projectAuthCheck } from "./project.actions";
-import { authorizeUserAction, logUsage } from "./billing.actions";
-import { USE_BILLING } from "../lib/feature_flags";
-import { getEditAgentInstructionsResponse } from "../../src/application/lib/copilot/copilot";
-import { container } from "@/di/container";
-import { IUsageQuotaPolicy } from "@/src/application/policies/usage-quota.policy.interface";
-import { UsageTracker } from "../lib/billing";
 import { authCheck } from "./auth.actions";
-import { ICreateCopilotCachedTurnController } from "@/src/interface-adapters/controllers/copilot/create-copilot-cached-turn.controller";
-import { BillingError } from "@/src/entities/errors/common";
 
-const usageQuotaPolicy = container.resolve<IUsageQuotaPolicy>('usageQuotaPolicy');
-const createCopilotCachedTurnController = container.resolve<ICreateCopilotCachedTurnController>('createCopilotCachedTurnController');
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
 
+/**
+ * 获取Copilot流式响应
+ * 注意：现在前端直接调用API，这个函数主要用于验证和错误处理
+ * 返回一个简单的成功标识，实际流式响应由前端直接处理
+ */
 export async function getCopilotResponseStream(
     projectId: string,
     messages: z.infer<typeof CopilotMessage>[],
@@ -30,31 +26,21 @@ export async function getCopilotResponseStream(
 ): Promise<{
     streamId: string;
 } | { billingError: string }> {
-    const user = await authCheck();
-
-    try {
-        const { key } = await createCopilotCachedTurnController.execute({
-            caller: 'user',
-            userId: user.id,
-            data: {
-                projectId,
-                messages,
-                workflow: current_workflow_config,
-                context,
-                dataSources,
-            }
-        });
-        return {
-            streamId: key,
-        };
-    } catch (err) {
-        if (err instanceof BillingError) {
-            return { billingError: err.message };
+    // 验证用户认证
+    await authCheck();
+    
+    // 验证项目权限
+    await projectAuthCheck(projectId);
+    
+    // 返回成功标识（前端会直接调用API）
+    // streamId仅用于兼容性，不会被实际使用
+    return { streamId: 'direct-api-call' };
         }
-        throw err;
-    }
-}
 
+/**
+ * 获取编辑智能体提示词
+ * 直接调用后端API
+ */
 export async function getCopilotAgentInstructions(
     projectId: string,
     messages: z.infer<typeof CopilotMessage>[],
@@ -62,45 +48,45 @@ export async function getCopilotAgentInstructions(
     agentName: string,
 ): Promise<string | { billingError: string }> {
     await projectAuthCheck(projectId);
-    await usageQuotaPolicy.assertAndConsumeProjectAction(projectId);
 
-    // Check billing authorization
-    const authResponse = await authorizeUserAction({
-        type: 'use_credits',
-    });
-    if (!authResponse.success) {
-        return { billingError: authResponse.error || 'Billing error' };
-    }
+    const user = await authCheck();
 
-    // prepare request
-    const request: z.infer<typeof CopilotAPIRequest> = {
+    try {
+        // 构建请求体
+        const requestBody = {
         projectId,
         messages,
-        workflow: current_workflow_config,
+            workflow: current_workflow_config as any,
         context: {
-            type: 'agent',
+                type: 'agent' as const,
             name: agentName,
-        }
-    };
+            },
+        };
 
-    const usageTracker = new UsageTracker();
-
-    // call copilot api
-    const agent_instructions = await getEditAgentInstructionsResponse(
-        usageTracker,
-        projectId,
-        request.context,
-        request.messages,
-        request.workflow,
-    );
-
-    // log the billing usage
-    if (USE_BILLING) {
-        await logUsage({
-            items: usageTracker.flush(),
+        // 调用后端API
+        const response = await fetch(`${API_BASE_URL}/api/v1/${projectId}/copilot/edit-agent-instructions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.id}`, // 使用用户ID作为临时token
+            },
+            body: JSON.stringify(requestBody),
         });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            if (errorData.error?.includes('billing') || errorData.error?.includes('credits')) {
+                return { billingError: errorData.error || 'Billing error' };
+            }
+            throw new Error(errorData.error || `HTTP ${response.status}`);
     }
 
-    // return response
-    return agent_instructions;
+        const data = await response.json();
+        return data.agentInstructions || data.agent_instructions || '';
+    } catch (err: any) {
+        if (err.message?.includes('billing') || err.message?.includes('credits')) {
+            return { billingError: err.message };
+        }
+        throw err;
+    }
 }

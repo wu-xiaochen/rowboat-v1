@@ -159,6 +159,7 @@ export function SourcesList({ projectId }: { projectId: string }) {
                                                             <SelfUpdatingSourceStatus 
                                                                 sourceId={source.id} 
                                                                 initialStatus={source.status} 
+                                                                projectId={projectId}
                                                                 compact={true} 
                                                             />
                                                         </div>
@@ -168,6 +169,7 @@ export function SourcesList({ projectId }: { projectId: string }) {
                                                     <ToggleSource 
                                                         sourceId={source.id} 
                                                         active={source.active} 
+                                                        projectId={projectId}
                                                         compact={true} 
                                                         className="bg-default-100" 
                                                     />

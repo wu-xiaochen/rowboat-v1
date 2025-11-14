@@ -10,6 +10,7 @@ import { Action, StreamingAction } from './actions';
 import { useParsedBlocks } from "../use-parsed-blocks";
 import { validateConfigChanges } from "@/app/lib/client_utils";
 import { PreviewModalProvider } from '../../workflow/preview-modal';
+import { createAtMentions } from "@/app/lib/components/atmentions";
 
 const CopilotResponsePart = z.union([
     z.object({
@@ -27,8 +28,17 @@ const CopilotResponsePart = z.union([
 ]);
 
 function enrich(response: string): z.infer<typeof CopilotResponsePart> {
+    // Debug: Log the response to understand what we're receiving
+    console.log('🔍 [enrich] 处理内容:', {
+        length: response.length,
+        preview: response.substring(0, 100),
+        startsWithDoubleSlash: response.trim().startsWith('//'),
+        firstLines: response.trim().split('\n').slice(0, 3)
+    });
+    
     // If it's not a code block, return as text
     if (!response.trim().startsWith('//')) {
+        console.log('⚠️ [enrich] 不是代码块格式（不以 // 开头），返回文本');
         return {
             type: 'text',
             content: response
@@ -93,6 +103,8 @@ function enrich(response: string): z.infer<typeof CopilotResponsePart> {
         }
     } catch (e) {
         // JSON parsing failed - this is likely a streaming block
+        console.warn('⚠️ [enrich] JSON 解析失败:', e);
+        console.warn('⚠️ [enrich] 尝试解析的内容:', lines.slice(jsonStartIndex).join('\n').substring(0, 200));
     }
 
     // Return as streaming action with whatever metadata we have
@@ -199,6 +211,32 @@ function AssistantMessage({
         }
         return result;
     }, [blocks]);
+
+    // Create atValues for markdown mentions (includes existing workflow entities + pending actions)
+    const atValues = useMemo(() => {
+        // Collect all agents that will exist (existing + pending actions)
+        const allAgents = [...workflow.agents];
+        parsed.forEach((part) => {
+            if (part.type === 'action' && part.action.config_type === 'agent' && part.action.action === 'create_new') {
+                // This agent is being created, add it to the list
+                const agentName = part.action.name;
+                if (!allAgents.some(a => a.name === agentName)) {
+                    allAgents.push({
+                        name: agentName,
+                        disabled: false,
+                        type: (part.action.config_changes as any)?.type || 'conversation',
+                    } as any);
+                }
+            }
+        });
+        
+        return createAtMentions({
+            agents: allAgents,
+            prompts: workflow.prompts || [],
+            tools: workflow.tools || [],
+            pipelines: workflow.pipelines || [],
+        });
+    }, [workflow, parsed]);
 
     // Count action cards for tracking
     const actionParts = parsed.filter(part => part.type === 'action' || part.type === 'streaming_action');
@@ -449,7 +487,82 @@ function AssistantMessage({
                     {/* Render markdown and cards inline in order */}
                     {parsed.map((part, idx) => {
                         if (part.type === 'text' && isNonDividerMarkdown(part.content)) {
-                            return <MarkdownContent key={`text-${idx}`} content={part.content} />;
+                            // 原项目实现：过滤掉代码块内的内容（包括 copilot_change 代码块）
+                            // 这样可以避免显示原始 JSON 配置，只显示卡片
+                            const lines = part.content.split('\n');
+                            const filteredLines: string[] = [];
+                            let inFence = false;
+                            let inCopilotChange = false; // 跟踪是否在 copilot_change 块中（即使没有 ```）
+                            
+                            for (let i = 0; i < lines.length; i++) {
+                                const line = lines[i];
+                                const trimmed = line.trim();
+                                
+                                // 检测代码块开始/结束
+                                if (/^\s*```/.test(trimmed)) {
+                                    // 如果是 copilot_change 代码块，完全跳过
+                                    if (trimmed.includes('copilot_change')) {
+                                        inFence = true;
+                                        inCopilotChange = true;
+                                        continue;
+                                    }
+                                    inFence = !inFence;
+                                    if (!inFence) {
+                                        inCopilotChange = false;
+                                    }
+                                    continue;
+                                }
+                                
+                                // 检测 copilot_change 元数据模式（即使没有 ``` 标记）
+                                // 这处理流式输出时未闭合的代码块
+                                if (!inFence && !inCopilotChange) {
+                                    // 检查是否开始了一个新的 copilot_change 块
+                                    if (trimmed.startsWith('// action:') || 
+                                        (trimmed.startsWith('// config_type:') && i > 0 && lines[i-1]?.trim().startsWith('// action:')) ||
+                                        (trimmed.startsWith('// name:') && i > 1 && 
+                                         lines[i-1]?.trim().startsWith('// config_type:') && 
+                                         lines[i-2]?.trim().startsWith('// action:'))) {
+                                        inCopilotChange = true;
+                                        continue;
+                                    }
+                                }
+                                
+                                // 如果在代码块内或 copilot_change 块内，跳过
+                                if (inFence || inCopilotChange) {
+                                    // 检查是否到达 JSON 结束（对于未闭合的代码块）
+                                    if (inCopilotChange && !inFence) {
+                                        // 检查是否到达 JSON 对象的结束
+                                        const braceCount = (line.match(/\{/g) || []).length - (line.match(/\}/g) || []).length;
+                                        if (braceCount < 0 && trimmed.includes('}')) {
+                                            // 可能到达了 JSON 结束，但需要更精确的检测
+                                            // 简单检查：如果这行包含 } 且之前有 {，可能是结束
+                                            const hasOpenBrace = lines.slice(0, i).some(l => l.includes('{'));
+                                            if (hasOpenBrace) {
+                                                inCopilotChange = false;
+                                            }
+                                        }
+                                    }
+                                    continue;
+                                }
+                                
+                                // 过滤掉元数据注释行（即使不在代码块内）
+                                if (trimmed.startsWith('// action:') || 
+                                    trimmed.startsWith('// config_type:') || 
+                                    trimmed.startsWith('// name:') ||
+                                    trimmed.includes('copilot_change')) {
+                                    continue;
+                                }
+                                
+                                filteredLines.push(line);
+                            }
+                            
+                            const filteredContent = filteredLines.join('\n').trim();
+                            
+                            if (!filteredContent) {
+                                return null;
+                            }
+                            
+                            return <MarkdownContent key={`text-${idx}`} content={filteredContent} atValues={atValues} />;
                         }
                         if (part.type === 'action') {
                             return (
@@ -513,7 +626,8 @@ export function Messages({
     dispatch,
     onStatusBarChange,
     toolCalling,
-    toolQuery
+    toolQuery,
+    toolResult
 }: {
     messages: z.infer<typeof CopilotMessage>[];
     streamingResponse: string;
@@ -523,19 +637,25 @@ export function Messages({
     onStatusBarChange?: (status: any) => void;
     toolCalling?: boolean;
     toolQuery?: string | null;
+    toolResult?: string | null;
 }) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const [displayMessages, setDisplayMessages] = useState(messages);
-
-    useEffect(() => {
-        if (loadingResponse) {
-            setDisplayMessages([...messages, {
-                role: 'assistant',
+    // Combine messages with streaming response if available
+    // Avoid duplicate by checking if last message is already assistant message
+    const displayMessages = useMemo(() => {
+        if (loadingResponse && streamingResponse) {
+            // Check if last message is already an assistant message with same content
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage?.role === 'assistant' && lastMessage.content === streamingResponse) {
+                return messages;
+            }
+            // Add streaming response as assistant message
+            return [...messages, {
+                role: 'assistant' as const,
                 content: streamingResponse
-            }]);
-        } else {
-            setDisplayMessages(messages);
+            }];
         }
+        return messages;
     }, [messages, loadingResponse, streamingResponse]);
 
     useEffect(() => {

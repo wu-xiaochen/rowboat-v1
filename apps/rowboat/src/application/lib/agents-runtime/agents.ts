@@ -1,3 +1,27 @@
+/**
+ * ⚠️ 已弃用：此文件包含旧的 Agents Runtime 实现
+ * ⚠️ DEPRECATED: This file contains the old Agents Runtime implementation
+ * 
+ * 所有功能已迁移到新的 Python 后端（backend/app/services/agents/）
+ * All functionality has been migrated to the new Python backend (backend/app/services/agents/)
+ * 
+ * 此文件保留仅用于：
+ * - 向后兼容（如果某些旧代码仍在使用）
+ * - 参考实现（调试时参考）
+ * 
+ * 新代码应该使用后端 API：
+ * - 聊天：POST /api/v1/{project_id}/chat
+ * - Copilot：POST /api/v1/{project_id}/copilot/stream
+ * 
+ * This file is kept only for:
+ * - Backward compatibility (if some old code still uses it)
+ * - Reference implementation (for debugging)
+ * 
+ * New code should use backend API:
+ * - Chat: POST /api/v1/{project_id}/chat
+ * - Copilot: POST /api/v1/{project_id}/copilot/stream
+ */
+
 // External dependencies
 import { Agent, AgentInputItem, run, RunRawModelStreamEvent, Tool } from "@openai/agents";
 import { RECOMMENDED_PROMPT_PREFIX } from "@openai/agents-core/extensions";
@@ -19,10 +43,10 @@ import { UsageTracker } from "@/app/lib/billing";
 import { createAgentHandoff, getSchemaForAgent, createContextFilterForAgent } from "./agent-handoffs";
 import { PipelineStateManager } from "./pipeline-state-manager";
 
-// Provider configuration
-const PROVIDER_API_KEY = process.env.PROVIDER_API_KEY || process.env.OPENAI_API_KEY || '';
-const PROVIDER_BASE_URL = process.env.PROVIDER_BASE_URL || undefined;
-const MODEL = process.env.PROVIDER_DEFAULT_MODEL || 'gpt-4.1';
+// Provider configuration - 使用统一的 LLM 配置环境变量（只使用 LLM_* 前缀）
+const LLM_API_KEY = process.env.LLM_API_KEY || process.env.OPENAI_API_KEY || '';
+const LLM_BASE_URL = process.env.LLM_BASE_URL || undefined;
+const MODEL = process.env.LLM_MODEL_ID || 'gpt-4.1';
 
 // Feature flags
 const USE_NATIVE_HANDOFFS = process.env.USE_NATIVE_HANDOFFS === 'true';
@@ -77,8 +101,8 @@ interface AgentState {
 }
 
 const openai = createOpenAI({
-    apiKey: PROVIDER_API_KEY,
-    baseURL: PROVIDER_BASE_URL,
+    apiKey: LLM_API_KEY,
+    baseURL: LLM_BASE_URL,
     compatibility: "strict",
 });
 

@@ -49,9 +49,9 @@ export class ApiClient {
         const url = `${this.baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
         // 构建请求头
-        const headers: HeadersInit = {
+        const headers: Record<string, string> = {
             'Content-Type': 'application/json',
-            ...fetchConfig.headers,
+            ...(fetchConfig.headers as Record<string, string> || {}),
         };
 
         // 添加API Key（如果提供）
@@ -165,9 +165,9 @@ export class ApiClient {
         const url = `${this.baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
         // 构建请求头
-        const headers: HeadersInit = {
+        const headers: Record<string, string> = {
             'Content-Type': 'application/json',
-            ...fetchConfig.headers,
+            ...(fetchConfig.headers as Record<string, string> || {}),
         };
 
         // 添加API Key（如果提供）

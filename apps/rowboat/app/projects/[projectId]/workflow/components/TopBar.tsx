@@ -7,7 +7,8 @@ import { useParams, useRouter } from "next/navigation";
 import { ProgressBar, ProgressStep } from "@/components/ui/progress-bar";
 import { useUser } from '@auth0/nextjs-auth0';
 import { useState, useEffect } from "react";
-import { SHOW_COMMUNITY_PUBLISH } from "@/app/lib/feature_flags";
+import { SHOW_COMMUNITY_PUBLISH, USE_AUTH } from "@/app/lib/feature_flags";
+import { GUEST_DB_USER } from "@/app/lib/auth-client";
 
 interface TopBarProps {
     localProjectName: string;
@@ -138,7 +139,15 @@ export function TopBar({
         }
     }, [communityPublishSuccess, onShareModalClose]);
 
-    const { user } = useUser();
+    const { user: auth0User, error: auth0Error } = useUser();
+    
+    // Use guest user if auth is disabled or if there's an error
+    const user = !USE_AUTH || auth0Error ? {
+        sub: GUEST_DB_USER.auth0Id,
+        email: GUEST_DB_USER.email,
+        email_verified: true,
+        name: GUEST_DB_USER.name,
+    } : auth0User;
     
     const getUserDisplayName = () => {
         if (!user) return 'Anonymous';
@@ -156,10 +165,28 @@ export function TopBar({
     const currentStep = !step1Complete ? 1 : !step2Complete ? 2 : !step4Complete ? 4 : null;
     
     const progressSteps: ProgressStep[] = [
-        { id: 1, label: "构建：请AI助手创建你的助手。添加工具并连接数据源。", completed: step1Complete, isCurrent: currentStep === 1 },
-        { id: 2, label: "测试：通过聊天测试你的助手。使用'修复'和'解释'来改进它。", completed: step2Complete, isCurrent: currentStep === 2 },
+        { 
+            id: 1, 
+            label: "构建", 
+            tooltip: "请AI助手创建你的助手。添加工具并连接数据源。",
+            completed: step1Complete, 
+            isCurrent: currentStep === 1 
+        },
+        { 
+            id: 2, 
+            label: "测试", 
+            tooltip: "通过聊天测试你的助手。使用'修复'和'解释'来改进它。",
+            completed: step2Complete, 
+            isCurrent: currentStep === 2 
+        },
         // Removed the 'Publish' step from the progress bar
-        { id: 4, label: "使用：点击'使用助手'按钮进行聊天，设置触发器（如邮件），或通过API连接。", completed: step4Complete, isCurrent: currentStep === 4 },
+        { 
+            id: 4, 
+            label: "使用", 
+            tooltip: "点击'使用助手'按钮进行聊天，设置触发器（如邮件），或通过API连接。",
+            completed: step4Complete, 
+            isCurrent: currentStep === 4 
+        },
     ];
 
     return (

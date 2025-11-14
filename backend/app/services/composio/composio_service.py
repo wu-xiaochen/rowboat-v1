@@ -102,11 +102,97 @@ class ComposioService:
                     
             except (ImportError, AttributeError, TypeError) as e:
                 # 如果composio-core库不可用或API不同，使用HTTP调用
-                # 注意：Composio API的搜索端点可能需要根据实际API文档调整
-                # 这里暂时返回空列表，后续可以根据实际API文档实现
-                print(f"警告: composio-core库不可用或API不同: {e}")
-                # TODO: 实现HTTP调用（如果Composio API有搜索端点）
-                return []
+                # 使用 Composio API 的搜索端点
+                # 使用 debug 级别日志，而不是警告（这是正常情况）
+                import logging
+                logging.debug(f"composio-core库不可用或API不同: {e}，使用HTTP API")
+                try:
+                    # 尝试使用 Composio API 的搜索端点
+                    # 注意：Composio API 可能没有直接的搜索端点，这里尝试通过 toolkits 和 tools 端点来实现
+                    # 首先获取所有 toolkits，然后搜索相关工具
+                    print(f"🔍 [HTTP API] 开始搜索工具，查询: {query}")
+                    toolkit_response = await self.client.get("/toolkits", params={"sort_by": "usage"})
+                    print(f"📥 [HTTP API] toolkits 响应状态: {toolkit_response.status_code}")
+                    
+                    if toolkit_response.status_code == 200:
+                        toolkit_data = toolkit_response.json()
+                        toolkits = toolkit_data.get("items", [])
+                        print(f"📦 [HTTP API] 获取到 {len(toolkits)} 个 toolkits")
+                        
+                        # 在 toolkits 中搜索匹配的
+                        matching_tools = []
+                        query_lower = query.lower()
+                        
+                        # 遍历所有 toolkits，搜索工具
+                        # 优化：如果已经找到足够多的工具（>50个），提前返回，避免不必要的搜索
+                        max_tools_to_collect = 50  # 最多收集50个工具
+                        for i, toolkit in enumerate(toolkits[:10]):  # 限制前10个toolkit以提高性能
+                            # 如果已经找到足够多的工具，提前返回
+                            if len(matching_tools) >= max_tools_to_collect:
+                                print(f"✅ [HTTP API] 已找到 {len(matching_tools)} 个工具（达到上限），提前返回")
+                                return matching_tools[:10]
+                            
+                            toolkit_slug = toolkit.get("slug")
+                            if not toolkit_slug:
+                                continue
+                            
+                            print(f"🔍 [HTTP API] 搜索 toolkit {i+1}/10: {toolkit_slug}")
+                            # 搜索该 toolkit 中的工具
+                            try:
+                                tools_response = await self.client.get(
+                                    "/tools",
+                                    params={
+                                        "toolkit_slug": toolkit_slug,
+                                        "search": query
+                                    },
+                                    timeout=10.0  # 10秒超时
+                                )
+                                
+                                print(f"📥 [HTTP API] tools 响应状态 ({toolkit_slug}): {tools_response.status_code}")
+                                if tools_response.status_code == 200:
+                                    tools_data = tools_response.json()
+                                    tools = tools_data.get("items", [])
+                                    print(f"📦 [HTTP API] toolkit {toolkit_slug} 找到 {len(tools)} 个工具")
+                                    for tool in tools:
+                                        matching_tools.append(ComposioToolSuggestion(
+                                            toolkit=toolkit.get("name", toolkit_slug),
+                                            tool_slug=tool.get("slug", ""),
+                                            description=tool.get("description", "")
+                                        ))
+                                    # 如果找到大量工具（>20个），可以提前返回
+                                    if len(matching_tools) > 20:
+                                        print(f"✅ [HTTP API] 已找到 {len(matching_tools)} 个工具，提前返回（避免过度搜索）")
+                                        return matching_tools[:10]
+                                elif tools_response.status_code != 200:
+                                    error_text = tools_response.text[:200] if hasattr(tools_response, 'text') else str(tools_response)
+                                    print(f"⚠️ [HTTP API] toolkit {toolkit_slug} 搜索失败: {tools_response.status_code}, 错误: {error_text}")
+                            except Exception as toolkit_error:
+                                # 单个toolkit搜索失败，继续搜索其他toolkit
+                                print(f"⚠️ [HTTP API] toolkit {toolkit_slug} 搜索异常: {type(toolkit_error).__name__}: {str(toolkit_error)}")
+                                continue  # 继续下一个toolkit
+                        
+                        # 如果找到工具，返回（即使部分toolkit失败，只要有工具就返回）
+                        if matching_tools:
+                            print(f"✅ [HTTP API] 找到 {len(matching_tools)} 个匹配的工具（部分toolkit可能失败）")
+                            return matching_tools[:10]  # 限制返回数量
+                        else:
+                            print(f"⚠️ [HTTP API] 未找到匹配的工具")
+                    else:
+                        error_text = toolkit_response.text[:200] if hasattr(toolkit_response, 'text') else str(toolkit_response)
+                        print(f"⚠️ [HTTP API] toolkits 请求失败: {toolkit_response.status_code}, 错误: {error_text}")
+                    
+                    # 如果没有找到，返回空列表（而不是抛出异常）
+                    return []
+                except Exception as http_error:
+                    import traceback
+                    print(f"❌ [HTTP API] Composio HTTP API调用失败: {http_error}")
+                    print(f"❌ [HTTP API] 错误详情:\n{traceback.format_exc()}")
+                    # 即使出错，也返回已找到的工具（如果有）
+                    if matching_tools:
+                        print(f"⚠️ [HTTP API] 返回已找到的 {len(matching_tools)} 个工具（尽管出现错误）")
+                        return matching_tools[:10]
+                    # 如果没有工具，返回空列表，让调用方处理
+                    return []
             
         except Exception as e:
             # 错误处理

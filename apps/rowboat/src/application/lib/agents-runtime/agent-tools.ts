@@ -24,14 +24,14 @@ import { IDataSourceDocsRepository } from "@/src/application/repositories/data-s
 import { container } from "@/di/container";
 import { IProjectsRepository } from "@/src/application/repositories/projects.repository.interface";
 
-// Provider configuration
-const PROVIDER_API_KEY = process.env.PROVIDER_API_KEY || process.env.OPENAI_API_KEY || '';
-const PROVIDER_BASE_URL = process.env.PROVIDER_BASE_URL || undefined;
-const MODEL = process.env.PROVIDER_DEFAULT_MODEL || 'gpt-4.1';
+// Provider configuration - 使用统一的 LLM 配置环境变量（只使用 LLM_* 前缀）
+const LLM_API_KEY = process.env.LLM_API_KEY || process.env.OPENAI_API_KEY || '';
+const LLM_BASE_URL = process.env.LLM_BASE_URL || undefined;
+const MODEL = process.env.LLM_MODEL_ID || 'gpt-4.1';
 
 const openai = createOpenAI({
-    apiKey: PROVIDER_API_KEY,
-    baseURL: PROVIDER_BASE_URL,
+    apiKey: LLM_API_KEY,
+    baseURL: LLM_BASE_URL,
 });
 
 // Image generation (Gemini) defaults

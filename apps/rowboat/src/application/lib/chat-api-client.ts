@@ -5,13 +5,16 @@
 
 import { apiClient, ApiClient } from './api-client';
 import { Message } from '@/app/lib/types/types';
+import type { z } from 'zod';
+
+type MessageType = z.infer<typeof Message>;
 
 /**
  * 聊天请求
  */
 export interface ChatRequest {
     conversationId?: string;
-    messages: Message[];
+    messages: MessageType[];
     mockTools?: Record<string, string>;
     stream?: boolean;
 }
@@ -27,10 +30,10 @@ export interface ChatResponse {
             type: 'api' | 'chat' | 'job';
         };
         input: {
-            messages: Message[];
+            messages: MessageType[];
             mockTools?: Record<string, string>;
         };
-        output: Message[];
+        output: MessageType[];
         error?: string | null;
         isBillingError: boolean;
         createdAt: string;
@@ -43,7 +46,7 @@ export interface ChatResponse {
  */
 export interface TurnEvent {
     type: 'message' | 'done' | 'error';
-    data?: Message;
+    data?: MessageType;
     conversationId?: string;
     turn?: ChatResponse['turn'];
     error?: string;
@@ -98,7 +101,7 @@ export class ChatApiClient {
         const url = `${API_BASE_URL}/api/v1/${projectId}/chat`;
 
         // 构建请求头
-        const headers: HeadersInit = {
+        const headers: Record<string, string> = {
             'Content-Type': 'application/json',
         };
 

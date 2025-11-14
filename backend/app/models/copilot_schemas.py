@@ -3,8 +3,9 @@ Copilot相关数据模型
 Copilot-related data models
 """
 
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union, Annotated
 from pydantic import BaseModel, Field
+from pydantic import ConfigDict
 from datetime import datetime
 
 
@@ -73,45 +74,45 @@ class DataSourceForCopilot(BaseModel):
 
 class CopilotAPIRequest(BaseModel):
     """Copilot API请求"""
-    project_id: str = Field(alias="projectId")
+    model_config = ConfigDict(populate_by_name=True)
+    
+    project_id: Annotated[str, Field(alias="projectId")]
     messages: List[CopilotMessage]
     workflow: Dict[str, Any]  # Workflow对象
     context: Optional[CopilotChatContext] = None
-    data_sources: Optional[List[DataSourceForCopilot]] = Field(None, alias="dataSources")
-    
-    class Config:
-        populate_by_name = True
+    data_sources: Annotated[Optional[List[DataSourceForCopilot]], Field(default=None, alias="dataSources")]
 
 
 class CopilotStreamEvent(BaseModel):
     """Copilot流式事件"""
+    model_config = ConfigDict(populate_by_name=True)
+    
     content: Optional[str] = None
-    type: Optional[Literal["tool-call", "tool-result"]] = None
-    tool_name: Optional[str] = Field(None, alias="toolName")
-    tool_call_id: Optional[str] = Field(None, alias="toolCallId")
+    type: Optional[Literal["tool-call", "tool-result", "error", "done", "action-start"]] = None
+    tool_name: Annotated[Optional[str], Field(default=None, alias="toolName")]
+    tool_call_id: Annotated[Optional[str], Field(default=None, alias="toolCallId")]
     args: Optional[Dict[str, Any]] = None
     query: Optional[str] = None
     result: Optional[Any] = None
-    
-    class Config:
-        populate_by_name = True
+    # action-start事件字段
+    action: Annotated[Optional[str], Field(default=None)] = None
+    config_type: Annotated[Optional[str], Field(default=None, alias="configType")] = None
+    name: Annotated[Optional[str], Field(default=None)] = None
 
 
 class EditAgentInstructionsRequest(BaseModel):
     """编辑智能体提示词请求"""
-    project_id: str = Field(alias="projectId")
+    model_config = ConfigDict(populate_by_name=True)
+    
+    project_id: Annotated[str, Field(alias="projectId")]
     messages: List[CopilotMessage]
     workflow: Dict[str, Any]
     context: Optional[CopilotChatContext] = None
-    
-    class Config:
-        populate_by_name = True
 
 
 class EditAgentInstructionsResponse(BaseModel):
     """编辑智能体提示词响应"""
-    agent_instructions: str = Field(alias="agentInstructions")
+    model_config = ConfigDict(populate_by_name=True)
     
-    class Config:
-        populate_by_name = True
+    agent_instructions: Annotated[str, Field(alias="agentInstructions")]
 

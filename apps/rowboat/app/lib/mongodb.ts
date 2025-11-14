@@ -1,3 +1,8 @@
+// 运行时检查：确保只在服务端执行
+if (typeof window !== 'undefined') {
+  throw new Error('MongoDB client can only be used on the server side');
+}
+
 import { MongoClient } from "mongodb";
 import { TwilioConfig, TwilioInboundCall } from "./types/voice_types";
 import { z } from 'zod';

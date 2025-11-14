@@ -14,10 +14,10 @@ import { composio, getTool } from "../composio/composio";
 import { UsageTracker } from "@/app/lib/billing";
 import { CopilotStreamEvent } from "@/src/entities/models/copilot";
 
-const PROVIDER_API_KEY = process.env.PROVIDER_API_KEY || process.env.OPENAI_API_KEY || '';
-const PROVIDER_BASE_URL = process.env.PROVIDER_BASE_URL || undefined;
-const COPILOT_MODEL = process.env.PROVIDER_COPILOT_MODEL || 'gpt-4.1';
-const AGENT_MODEL = process.env.PROVIDER_DEFAULT_MODEL || 'gpt-4.1';
+// 使用统一的 LLM 配置环境变量（只使用 LLM_* 前缀）
+const LLM_API_KEY = process.env.LLM_API_KEY || process.env.OPENAI_API_KEY || '';
+const LLM_BASE_URL = process.env.LLM_BASE_URL || undefined;
+const LLM_MODEL_ID = process.env.LLM_MODEL_ID || 'gpt-4.1';
 
 const WORKFLOW_SCHEMA = JSON.stringify(zodToJsonSchema(Workflow));
 
@@ -27,12 +27,17 @@ const SYSTEM_PROMPT = [
     CURRENT_WORKFLOW_PROMPT,
 ]
     .join('\n\n')
-    .replace('{agent_model}', AGENT_MODEL)
+    .replace('{agent_model}', LLM_MODEL_ID)
     .replace('{workflow_schema}', WORKFLOW_SCHEMA);
 
+// 确保 baseURL 已设置，避免默认连接到 api.openai.com
+if (!LLM_BASE_URL) {
+    console.warn('⚠️ LLM_BASE_URL not set, copilot may fail to connect');
+}
+
 const openai = createOpenAI({
-    apiKey: PROVIDER_API_KEY,
-    baseURL: PROVIDER_BASE_URL,
+    apiKey: LLM_API_KEY,
+    baseURL: LLM_BASE_URL || undefined, // 如果未设置，createOpenAI 会使用默认值，但我们应该确保它被设置
     compatibility: "strict",
 });
 
@@ -219,12 +224,12 @@ export async function getEditAgentInstructionsResponse(
 
     // call model
     console.log("calling model", JSON.stringify({
-        model: COPILOT_MODEL,
+        model: LLM_MODEL_ID,
         system: COPILOT_INSTRUCTIONS_EDIT_AGENT,
         messages: messages,
     }));
     const { object, usage } = await generateObject({
-        model: openai(COPILOT_MODEL),
+        model: openai(LLM_MODEL_ID),
         messages: [
             {
                 role: 'system',
@@ -282,13 +287,13 @@ export async function* streamMultiAgentResponse(
 
     // call model
     console.log("🤖 AI MODEL CALL STARTED", {
-        model: COPILOT_MODEL,
+        model: LLM_MODEL_ID,
         maxSteps: 20,
         availableTools: ["search_relevant_tools"]
     });
     
-    const { fullStream } = streamText({
-        model: openai(COPILOT_MODEL),
+    const { fullStream, textStream } = streamText({
+        model: openai(LLM_MODEL_ID),
         maxSteps: 10,
         tools: {
             "search_relevant_tools": tool({
@@ -315,20 +320,47 @@ export async function* streamMultiAgentResponse(
             ...messages,
         ],
     });
+    
+    // Also track text stream for debugging
+    (async () => {
+        let textStreamCount = 0;
+        for await (const chunk of textStream) {
+            textStreamCount++;
+            if (textStreamCount <= 3) {
+                console.log(`📝 TEXT STREAM CHUNK #${textStreamCount}:`, chunk.substring(0, 100));
+            }
+        }
+        console.log(`📝 TEXT STREAM COMPLETED: ${textStreamCount} chunks`);
+    })();
 
     // emit response chunks
     let chunkCount = 0;
+    let textChunkCount = 0;
+    let toolCallCount = 0;
+    let toolResultCount = 0;
+    let stepFinishCount = 0;
+    let otherEventCount = 0;
+    let accumulatedText = '';
+    
     for await (const event of fullStream) {
         chunkCount++;
         if (chunkCount === 1) {
-            console.log("📤 FIRST RESPONSE CHUNK SENT");
+            console.log("📤 FIRST RESPONSE CHUNK SENT", { eventType: event.type });
+        }
+        
+        // Log all events for debugging
+        if (chunkCount <= 5) {
+            console.log(`📦 EVENT #${chunkCount}:`, { type: event.type, hasTextDelta: 'textDelta' in event });
         }
         
         if (event.type === "text-delta") {
+            textChunkCount++;
+            accumulatedText += event.textDelta;
             yield {
                 content: event.textDelta,
             };
         } else if (event.type === "tool-call") {
+            toolCallCount++;
             yield {
                 type: 'tool-call',
                 toolName: event.toolName,
@@ -336,26 +368,48 @@ export async function* streamMultiAgentResponse(
                 args: event.args,
                 query: event.args.query || undefined,
             };
-        } else if (event.type === "tool-result") { 
+        } else if (event.type === "tool-result") {
+            toolResultCount++;
             yield {
                 type: 'tool-result',
                 toolCallId: event.toolCallId,
                 result: event.result,
             };
         } else if (event.type === "step-finish") {
+            stepFinishCount++;
             // log usage
             usageTracker.track({
                 type: "LLM_USAGE",
-                modelName: COPILOT_MODEL,
+                modelName: LLM_MODEL_ID,
                 inputTokens: event.usage.promptTokens,
                 outputTokens: event.usage.completionTokens,
                 context: "copilot.llm_usage",
             });
+        } else {
+            otherEventCount++;
+            // Log unknown event types for debugging
+            console.log("⚠️ UNKNOWN EVENT TYPE:", event.type, event);
         }
     }
 
     console.log("✅ COPILOT STREAM COMPLETED", { 
         projectId, 
-        totalChunks: chunkCount 
+        totalChunks: chunkCount,
+        textChunks: textChunkCount,
+        toolCalls: toolCallCount,
+        toolResults: toolResultCount,
+        stepFinishes: stepFinishCount,
+        otherEvents: otherEventCount,
+        accumulatedTextLength: accumulatedText.length,
+        hasText: accumulatedText.length > 0
     });
+    
+    // If no text was generated, yield a default message
+    if (textChunkCount === 0 && accumulatedText.length === 0) {
+        console.warn("⚠️ NO TEXT GENERATED - yielding default response");
+        // Yield a default message if no text was generated
+        yield {
+            content: "抱歉，我没有生成任何回复。请重试或检查配置。",
+        };
+    }
 }

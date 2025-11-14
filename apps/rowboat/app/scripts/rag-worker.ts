@@ -20,9 +20,11 @@ import { IDataSourceDocsRepository } from '@/src/application/repositories/data-s
 import { IUploadsStorageService } from '@/src/application/services/uploads-storage.service.interface';
 import { container } from '@/di/container';
 
-const FILE_PARSING_PROVIDER_API_KEY = process.env.FILE_PARSING_PROVIDER_API_KEY || process.env.OPENAI_API_KEY || '';
-const FILE_PARSING_PROVIDER_BASE_URL = process.env.FILE_PARSING_PROVIDER_BASE_URL || undefined;
-const FILE_PARSING_MODEL = process.env.FILE_PARSING_MODEL || 'gpt-4.1';
+// 使用统一的 LLM 配置环境变量（只使用 LLM_* 前缀）
+// 如果设置了 FILE_PARSING_* 变量，则优先使用（向后兼容）
+const FILE_PARSING_API_KEY = process.env.FILE_PARSING_PROVIDER_API_KEY || process.env.LLM_API_KEY || process.env.OPENAI_API_KEY || '';
+const FILE_PARSING_BASE_URL = process.env.FILE_PARSING_PROVIDER_BASE_URL || process.env.LLM_BASE_URL || undefined;
+const FILE_PARSING_MODEL = process.env.FILE_PARSING_MODEL || process.env.LLM_MODEL_ID || 'gpt-4.1';
 
 const dataSourcesRepository = container.resolve<IDataSourcesRepository>('dataSourcesRepository');
 const dataSourceDocsRepository = container.resolve<IDataSourceDocsRepository>('dataSourceDocsRepository');
@@ -34,8 +36,8 @@ const firecrawl = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY || "t
 const geminiParsingModel = "gemini-2.5-flash";
 
 const openai = createOpenAI({
-    apiKey: FILE_PARSING_PROVIDER_API_KEY,
-    baseURL: FILE_PARSING_PROVIDER_BASE_URL,
+    apiKey: FILE_PARSING_API_KEY,
+    baseURL: FILE_PARSING_BASE_URL,
 });
 
 const splitter = new RecursiveCharacterTextSplitter({

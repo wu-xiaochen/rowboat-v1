@@ -14,7 +14,8 @@ import { z } from "zod";
 const fetchProjectController = container.resolve<IFetchProjectController>('fetchProjectController');
 const listDataSourcesController = container.resolve<IListDataSourcesController>('listDataSourcesController');
 
-const DEFAULT_MODEL = process.env.PROVIDER_DEFAULT_MODEL || "gpt-4.1";
+// 使用统一的 LLM 配置环境变量
+const DEFAULT_MODEL = process.env.LLM_MODEL_ID || "gpt-4.1";
 
 export const metadata: Metadata = {
     title: "Workflow"
@@ -25,44 +26,56 @@ export default async function Page(
         params: Promise<{ projectId: string }>;
     }
 ) {
-    const params = await props.params;
-    const user = await requireAuth();
-    const customer = await requireActiveBillingSubscription();
-    console.log('->>> workflow page being rendered');
+    try {
+        const params = await props.params;
+        const user = await requireAuth();
+        const customer = await requireActiveBillingSubscription();
+        console.log('->>> workflow page being rendered', { userId: user.id, projectId: params.projectId });
 
-    const project = await fetchProjectController.execute({
-        caller: "user",
-        userId: user.id,
-        projectId: params.projectId,
-    });
-    if (!project) {
-        notFound();
+        const project = await fetchProjectController.execute({
+            caller: "user",
+            userId: user.id,
+            projectId: params.projectId,
+        });
+        if (!project) {
+            console.log('Project not found:', params.projectId);
+            notFound();
+        }
+
+        const sources = await listDataSourcesController.execute({
+            caller: "user",
+            userId: user.id,
+            projectId: params.projectId,
+        });
+
+        let eligibleModels: z.infer<typeof ModelsResponse> | "*" = '*';
+        if (USE_BILLING) {
+            try {
+                eligibleModels = await getEligibleModels(customer.id);
+            } catch (error) {
+                console.error('Failed to get eligible models:', error);
+                // Fallback to '*' if billing API fails
+                eligibleModels = '*';
+            }
+        }
+
+        console.log('/workflow page.tsx serve', { projectId: params.projectId, sourcesCount: sources.length });
+
+        return (
+            <App
+                initialProjectData={project}
+                initialDataSources={sources}
+                eligibleModels={eligibleModels}
+                useRag={USE_RAG}
+                useRagUploads={USE_RAG_UPLOADS}
+                useRagS3Uploads={USE_RAG_S3_UPLOADS}
+                useRagScraping={USE_RAG_SCRAPING}
+                defaultModel={DEFAULT_MODEL}
+                chatWidgetHost={process.env.CHAT_WIDGET_HOST || ''}
+            />
+        );
+    } catch (error) {
+        console.error('Error in workflow page:', error);
+        throw error;
     }
-
-    const sources = await listDataSourcesController.execute({
-        caller: "user",
-        userId: user.id,
-        projectId: params.projectId,
-    });
-
-    let eligibleModels: z.infer<typeof ModelsResponse> | "*" = '*';
-    if (USE_BILLING) {
-        eligibleModels = await getEligibleModels(customer.id);
-    }
-
-    console.log('/workflow page.tsx serve');
-
-    return (
-        <App
-            initialProjectData={project}
-            initialDataSources={sources}
-            eligibleModels={eligibleModels}
-            useRag={USE_RAG}
-            useRagUploads={USE_RAG_UPLOADS}
-            useRagS3Uploads={USE_RAG_S3_UPLOADS}
-            useRagScraping={USE_RAG_SCRAPING}
-            defaultModel={DEFAULT_MODEL}
-            chatWidgetHost={process.env.CHAT_WIDGET_HOST || ''}
-        />
-    );
 }

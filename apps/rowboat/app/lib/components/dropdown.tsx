@@ -12,6 +12,7 @@ interface DropdownProps {
     onChange: (value: string) => void;
     className?: string;
     placeholder?: string;
+    'aria-label'?: string;
 }
 
 export function Dropdown({
@@ -19,7 +20,8 @@ export function Dropdown({
     value,
     onChange,
     className = "w-60",
-    placeholder
+    placeholder,
+    'aria-label': ariaLabel
 }: DropdownProps) {
     return (
         <Select
@@ -29,9 +31,10 @@ export function Dropdown({
             className={className}
             onSelectionChange={(keys) => onChange(keys.currentKey as string)}
             placeholder={placeholder}
+            aria-label={ariaLabel || placeholder}
         >
             {options.map((option) => (
-                <SelectItem key={option.key}>
+                <SelectItem key={option.key} textValue={option.label}>
                     {option.label}
                 </SelectItem>
             ))}

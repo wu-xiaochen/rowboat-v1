@@ -33,7 +33,7 @@ export function DataSourcesModal({
 
   const handleDataSourceCreated = async (sourceId: string) => {
     // Get the created data source
-    const source = await getDataSource(sourceId);
+    const source = await getDataSource(sourceId, projectId);
     
     // If it's a files data source, show the upload interface
     if (source.data.type === 'files_local' || source.data.type === 'files_s3') {

@@ -139,7 +139,7 @@ export async function ensureTemplateSeeded(prebuiltKey: string): Promise<void> {
 
         if (existing) {
             // Update existing template with current model configuration
-            const defaultModel = process.env.PROVIDER_DEFAULT_MODEL || 'gpt-4.1';
+            const defaultModel = process.env.LLM_MODEL_ID || 'gpt-4.1';
             const updatedWorkflow = JSON.parse(JSON.stringify(tpl));
             
             // Apply model transformation
@@ -163,7 +163,7 @@ export async function ensureTemplateSeeded(prebuiltKey: string): Promise<void> {
             console.log(`[PrebuiltTemplates] Updated template: ${name}`);
         } else {
             // Create new template with model transformation
-            const defaultModel = process.env.PROVIDER_DEFAULT_MODEL || 'gpt-4.1';
+            const defaultModel = process.env.LLM_MODEL_ID || 'gpt-4.1';
             const transformedWorkflow = JSON.parse(JSON.stringify(tpl));
             
             // Apply model transformation

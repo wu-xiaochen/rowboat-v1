@@ -2,10 +2,21 @@
 import { useUser } from '@auth0/nextjs-auth0';
 import { Avatar, Dropdown, DropdownItem, DropdownSection, DropdownTrigger, DropdownMenu } from "@heroui/react";
 import { useRouter } from 'next/navigation';
+import { USE_AUTH } from '@/app/lib/feature_flags';
+import { GUEST_DB_USER } from '@/app/lib/auth-client';
 
 export function UserButton({ useBilling, collapsed }: { useBilling?: boolean, collapsed?: boolean }) {
     const router = useRouter();
-    const { user } = useUser();
+    const { user: auth0User, error: auth0Error } = useUser();
+    
+    // Use guest user if auth is disabled or if there's an error
+    const user = !USE_AUTH || auth0Error ? {
+        sub: GUEST_DB_USER.auth0Id,
+        email: GUEST_DB_USER.email,
+        email_verified: true,
+        name: GUEST_DB_USER.name,
+    } : auth0User;
+    
     if (!user) {
         return <></>;
     }

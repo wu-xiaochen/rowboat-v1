@@ -3,9 +3,16 @@
 Configuration management module using pydantic-settings
 """
 
+import os
+from pathlib import Path
 from typing import List, Optional
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# 获取项目根目录的 .env 文件路径
+# 从 backend/app/core/config.py 到项目根目录
+_ROOT_DIR = Path(__file__).parent.parent.parent.parent
+_ROOT_ENV_FILE = _ROOT_DIR / ".env"
 
 
 class Settings(BaseSettings):
@@ -25,10 +32,10 @@ class Settings(BaseSettings):
     llm_base_url: str = Field(..., description="LLM API基础URL")
     llm_model_id: str = Field(..., description="LLM模型ID")
     
-    # Embedding配置
+    # Embedding配置（统一使用 EMBEDDING_* 前缀）
     embedding_model: str = Field(..., description="Embedding模型名称")
-    embedding_provider_base_url: str = Field(..., description="Embedding提供商基础URL")
-    embedding_provider_api_key: str = Field(..., description="Embedding API密钥")
+    embedding_base_url: str = Field(..., description="Embedding提供商基础URL")
+    embedding_api_key: str = Field(..., description="Embedding API密钥")
     
     # Composio配置
     composio_api_key: str = Field(..., description="Composio API密钥")
@@ -59,17 +66,19 @@ class Settings(BaseSettings):
         default="config/prompts",
         description="提示词文件目录"
     )
-    copilot_model: str = Field(
-        default="gpt-4.1",
-        description="Copilot模型名称"
+    # Copilot和Agent模型配置（可选，如果未设置则使用llm_model_id）
+    copilot_model: Optional[str] = Field(
+        default=None,
+        description="Copilot专用模型名称（如果未设置，将使用llm_model_id）"
     )
-    agent_model: str = Field(
-        default="gpt-4.1",
-        description="智能体默认模型名称"
+    agent_model: Optional[str] = Field(
+        default=None,
+        description="智能体默认模型名称（如果未设置，将使用llm_model_id）"
     )
     
     model_config = SettingsConfigDict(
-        env_file=".env",
+        # 从项目根目录的 .env 文件读取配置
+        env_file=str(_ROOT_ENV_FILE),
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore"
@@ -84,6 +93,16 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
     
+    @property
+    def effective_copilot_model(self) -> str:
+        """获取有效的Copilot模型名称"""
+        return self.copilot_model or self.llm_model_id
+    
+    @property
+    def effective_agent_model(self) -> str:
+        """获取有效的智能体模型名称"""
+        return self.agent_model or self.llm_model_id
+    
     def validate_config(self) -> None:
         """
         验证配置完整性
@@ -94,8 +113,8 @@ class Settings(BaseSettings):
             "llm_base_url",
             "llm_model_id",
             "embedding_model",
-            "embedding_provider_base_url",
-            "embedding_provider_api_key",
+            "embedding_base_url",
+            "embedding_api_key",
             "composio_api_key",
             "mongodb_connection_string",
         ]

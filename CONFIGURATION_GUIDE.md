@@ -1,220 +1,242 @@
 # 配置管理指南
 # Configuration Management Guide
 
-**创建日期**：2025-01-27  
+**最后更新**：2025-01-27  
 **目的**：统一管理项目配置，避免配置分散
 
-## 配置管理原则
+## 📁 配置文件结构
+
+项目使用**统一配置文件**管理环境变量：
+
+```
+rowboat/
+├── .env                    # ✅ 统一配置文件（主要维护）
+├── apps/rowboat/
+│   └── .env.local          # 本地覆盖配置（可选，不提交Git）
+└── backend/
+    └── .env                # 向后兼容配置（可选）
+```
+
+## 🔧 配置加载优先级
+
+### 前端（Next.js）
+1. `apps/rowboat/.env.local` - 本地覆盖（最高优先级）
+2. 根目录 `.env` - 统一配置
+3. `apps/rowboat/.env` - 向后兼容
+
+### 后端（FastAPI）
+1. 根目录 `.env` - 统一配置
+2. `backend/.env` - 向后兼容
+3. `.env` - 当前目录
+
+## ⚙️ 统一配置文件（.env）
+
+**位置**：项目根目录 `.env`
+
+这是项目的主要配置文件，包含前后端共享的所有配置。
+
+### 必需配置项
+
+```bash
+# ============================================
+# LLM Provider配置（OpenAI兼容）
+# ============================================
+LLM_API_KEY=your-api-key
+LLM_BASE_URL=https://api.siliconflow.cn/v1
+LLM_MODEL_ID=MiniMaxAI/MiniMax-M2
+
+# 兼容旧的环境变量名（向后兼容）
+PROVIDER_API_KEY=${LLM_API_KEY}
+PROVIDER_BASE_URL=${LLM_BASE_URL}
+PROVIDER_DEFAULT_MODEL=${LLM_MODEL_ID}
+PROVIDER_COPILOT_MODEL=${LLM_MODEL_ID}
+
+# ============================================
+# Embedding配置
+# ============================================
+EMBEDDING_MODEL=BAAI/bge-m3
+EMBEDDING_PROVIDER_BASE_URL=https://api.siliconflow.cn/v1
+EMBEDDING_PROVIDER_API_KEY=your-api-key
+
+# ============================================
+# Composio配置（可选）
+# ============================================
+COMPOSIO_API_KEY=your-composio-api-key
+
+# ============================================
+# 数据库配置
+# ============================================
+MONGODB_CONNECTION_STRING=mongodb://localhost:27017/zhixinzhigou
+REDIS_URL=redis://localhost:6379
+QDRANT_URL=http://localhost:6333
+QDRANT_API_KEY=
+
+# ============================================
+# 应用配置
+# ============================================
+APP_NAME=质信智购
+API_PORT=8001
+DEBUG=false
+ENVIRONMENT=development
+
+# ============================================
+# 功能开关
+# ============================================
+USE_RAG=true
+USE_COMPOSIO_TOOLS=true
+
+# ============================================
+# CORS配置
+# ============================================
+CORS_ORIGINS=http://localhost:3001,http://localhost:3000
+
+# ============================================
+# 前端专用配置（Next.js 需要 NEXT_PUBLIC_ 前缀）
+# ============================================
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8001
+NEXT_PUBLIC_COMPOSIO_API_KEY=${COMPOSIO_API_KEY}
+NEXT_PUBLIC_APP_NAME=${APP_NAME}
+NEXT_PUBLIC_PORT=3001
+```
+
+## 🔐 本地覆盖配置（.env.local）
+
+**位置**：`apps/rowboat/.env.local`
+
+用于个人本地开发环境的配置覆盖，**不会被提交到Git**。
+
+### 使用场景
+
+- 个人API密钥
+- 本地数据库连接
+- 开发环境特定配置
+
+### 示例
+
+```bash
+# 覆盖LLM配置
+LLM_API_KEY=my-personal-api-key
+
+# 覆盖数据库连接
+MONGODB_CONNECTION_STRING=mongodb://localhost:27017/my-dev-db
+```
+
+## 📝 配置管理原则
 
 1. **禁止硬编码**：所有配置值必须从环境变量或配置文件读取
-2. **配置外部化**：使用 `.env` 文件或环境变量管理配置
-3. **配置验证**：启动时验证所有必需配置项
-4. **敏感信息保护**：API密钥等敏感信息不得提交到版本控制
+2. **配置外部化**：使用 `.env` 文件管理配置
+3. **统一管理**：主要配置放在根目录 `.env` 文件中
+4. **本地覆盖**：个人配置使用 `.env.local`（不提交Git）
+5. **配置验证**：启动时验证所有必需配置项
+6. **敏感信息保护**：API密钥等敏感信息不得提交到版本控制
 
-## 后端配置
+## 🔍 配置验证
 
-### 配置文件位置
-- **主配置**：`backend/app/core/config.py`
-- **环境变量文件**：`backend/.env`
+### 后端配置验证
 
-### 配置类
-使用 `pydantic-settings` 的 `BaseSettings` 类管理所有配置：
+后端启动时会自动验证配置：
 
 ```python
 from app.core.config import get_settings
 
 settings = get_settings()
+settings.validate_config()  # 验证配置完整性
 ```
 
-### 必需的环境变量
+### 前端配置验证
 
-```bash
-# LLM Provider配置（OpenAI兼容）
-LLM_API_KEY=sk-xxx
-LLM_BASE_URL=https://api.siliconflow.cn/v1
-LLM_MODEL_ID=MiniMaxAI/MiniMax-M2
+前端在 `loadenv.ts` 中加载配置，Next.js 会自动处理环境变量。
 
-# Embedding配置
-EMBEDDING_MODEL=BAAI/bge-m3
-EMBEDDING_PROVIDER_BASE_URL=https://api.siliconflow.cn/v1
-EMBEDDING_PROVIDER_API_KEY=sk-xxx
+## 🛠️ 配置访问
 
-# Composio配置
-COMPOSIO_API_KEY=ak_xxx
+### 后端访问配置
 
-# 数据库配置
-MONGODB_CONNECTION_STRING=mongodb://localhost:27017/zhixinzhigou
-REDIS_URL=redis://localhost:6379
-QDRANT_URL=http://localhost:6333
-QDRANT_API_KEY=
+```python
+from app.core.config import get_settings
 
-# 功能开关
-USE_RAG=true
-USE_COMPOSIO_TOOLS=true
+settings = get_settings()
+api_key = settings.llm_api_key
+base_url = settings.llm_base_url
 ```
 
-### 配置验证
-启动时会自动验证所有必需配置项，缺失配置会抛出异常。
+### 前端访问配置
 
-## 前端配置
-
-### 配置文件位置
-- **环境变量文件**：`apps/rowboat/.env.local`
-- **API客户端**：`apps/rowboat/src/application/lib/api-client.ts`
-- **Composio客户端**：`apps/rowboat/src/application/lib/composio/composio.ts`
-
-### 必需的环境变量
-
-```bash
-# API配置
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8001
-
-# Composio配置
-NEXT_PUBLIC_COMPOSIO_API_KEY=ak_xxx
-
-# 应用配置
-NEXT_PUBLIC_APP_NAME=质信智购
-NEXT_PUBLIC_PORT=3001
-```
-
-### 配置使用
-
-#### API基础URL
+**服务端代码**：
 ```typescript
-// apps/rowboat/src/application/lib/api-client.ts
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
+const apiKey = process.env.LLM_API_KEY;
 ```
 
-#### Composio API Key
+**客户端代码**（需要 `NEXT_PUBLIC_` 前缀）：
 ```typescript
-// apps/rowboat/src/application/lib/composio/composio.ts
-const COMPOSIO_API_KEY = 
-  process.env.NEXT_PUBLIC_COMPOSIO_API_KEY || 
-  process.env.COMPOSIO_API_KEY || 
-  'test';
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 ```
 
-### 配置说明
-- `NEXT_PUBLIC_` 前缀：Next.js约定，用于在客户端代码中暴露环境变量
-- 默认值：提供合理的默认值，但生产环境必须配置
-- 类型安全：使用TypeScript确保配置类型正确
+## 📋 配置项说明
 
-## 配置统一性检查
+### LLM配置
 
-### ✅ 后端配置
-- ✅ 所有配置统一在 `backend/app/core/config.py`
-- ✅ 使用 `pydantic-settings` 管理
-- ✅ 配置验证机制完善
-- ✅ 无硬编码配置值
+| 配置项 | 说明 | 必需 |
+|--------|------|------|
+| `LLM_API_KEY` | LLM服务API密钥 | ✅ |
+| `LLM_BASE_URL` | LLM服务基础URL | ✅ |
+| `LLM_MODEL_ID` | LLM模型ID | ✅ |
 
-### ✅ 前端配置
-- ✅ API基础URL统一在 `api-client.ts`
-- ✅ Composio配置统一在 `composio.ts`
-- ✅ 使用环境变量管理
-- ✅ 提供合理的默认值
+### 数据库配置
 
-## 配置最佳实践
+| 配置项 | 说明 | 必需 |
+|--------|------|------|
+| `MONGODB_CONNECTION_STRING` | MongoDB连接字符串 | ✅ |
+| `REDIS_URL` | Redis连接URL | ✅ |
+| `QDRANT_URL` | Qdrant连接URL | ✅ |
+| `QDRANT_API_KEY` | Qdrant API密钥 | ❌ |
 
-### 1. 环境变量命名
-- **后端**：使用大写字母和下划线，如 `LLM_API_KEY`
-- **前端**：使用 `NEXT_PUBLIC_` 前缀，如 `NEXT_PUBLIC_API_BASE_URL`
+### 应用配置
 
-### 2. 默认值
-- 提供合理的默认值（开发环境）
-- 生产环境必须明确配置
-- 敏感信息不得有默认值
+| 配置项 | 说明 | 默认值 |
+|--------|------|--------|
+| `APP_NAME` | 应用名称 | 质信智购 |
+| `API_PORT` | 后端API端口 | 8001 |
+| `DEBUG` | 调试模式 | false |
+| `ENVIRONMENT` | 运行环境 | development |
 
-### 3. 配置验证
-- 启动时验证必需配置
-- 提供清晰的错误消息
-- 记录缺失的配置项
+## 🚀 快速配置
 
-### 4. 文档化
-- 在README中说明必需配置
-- 提供 `.env.example` 模板
-- 文档中说明配置用途
+### 首次配置
 
-## 配置模板
+1. 复制配置模板：
+   ```bash
+   cp .env.example .env
+   ```
 
-### 后端 `.env.example`
-```bash
-# 应用配置
-APP_NAME=质信智购
-API_PORT=8001
-DEBUG=false
+2. 编辑 `.env` 文件，填写你的配置值
 
-# LLM Provider配置
-LLM_API_KEY=your-llm-api-key
-LLM_BASE_URL=https://api.siliconflow.cn/v1
-LLM_MODEL_ID=MiniMaxAI/MiniMax-M2
+3. 如需本地覆盖，创建 `.env.local`：
+   ```bash
+   cd apps/rowboat
+   touch .env.local
+   # 编辑 .env.local，添加个人配置
+   ```
 
-# Embedding配置
-EMBEDDING_MODEL=BAAI/bge-m3
-EMBEDDING_PROVIDER_BASE_URL=https://api.siliconflow.cn/v1
-EMBEDDING_PROVIDER_API_KEY=your-embedding-api-key
+### 更新配置
 
-# Composio配置
-COMPOSIO_API_KEY=your-composio-api-key
+直接编辑根目录的 `.env` 文件，重启服务后生效。
 
-# 数据库配置
-MONGODB_CONNECTION_STRING=mongodb://localhost:27017/zhixinzhigou
-REDIS_URL=redis://localhost:6379
-QDRANT_URL=http://localhost:6333
-QDRANT_API_KEY=
+## ⚠️ 注意事项
 
-# 功能开关
-USE_RAG=true
-USE_COMPOSIO_TOOLS=true
-```
+1. **不要提交敏感信息**：`.env` 和 `.env.local` 都在 `.gitignore` 中
+2. **使用 .env.example**：作为配置模板，可以提交到Git
+3. **统一管理**：主要配置放在根目录 `.env`，便于团队协作
+4. **本地覆盖**：个人配置使用 `.env.local`，不影响团队
 
-### 前端 `.env.local.example`
-```bash
-# API配置
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8001
+## 🔗 相关文档
 
-# Composio配置
-NEXT_PUBLIC_COMPOSIO_API_KEY=your-composio-api-key
-
-# 应用配置
-NEXT_PUBLIC_APP_NAME=质信智购
-NEXT_PUBLIC_PORT=3001
-```
-
-## 配置检查清单
-
-### 开发环境
-- [ ] 后端 `.env` 文件已配置
-- [ ] 前端 `.env.local` 文件已配置
-- [ ] 所有必需配置项已填写
-- [ ] 配置验证通过
-
-### 生产环境
-- [ ] 环境变量已设置
-- [ ] 敏感信息已保护
-- [ ] 配置已文档化
-- [ ] 配置备份策略已制定
-
-## 常见问题
-
-### Q: 如何添加新配置？
-A: 
-1. 在 `backend/app/core/config.py` 中添加配置字段
-2. 在 `.env.example` 中添加示例值
-3. 更新本文档
-
-### Q: 前端配置在哪里管理？
-A: 
-- API配置：`apps/rowboat/src/application/lib/api-client.ts`
-- Composio配置：`apps/rowboat/src/application/lib/composio/composio.ts`
-- 其他配置：使用 `process.env.NEXT_PUBLIC_*`
-
-### Q: 如何验证配置？
-A: 
-- 后端：启动时会自动验证
-- 前端：检查环境变量是否正确加载
+- [快速启动指南](QUICK_START.md) - 启动和配置说明
+- [开发计划](DEVELOPMENT-PLAN.md) - 项目开发计划
+- [项目规则](.cursor/rules/project-rules.mdc) - 开发规范
 
 ---
 
-**维护者**：开发团队  
-**最后更新**：2025-01-27
-
+**配置文件位置**：
+- 主要配置：项目根目录 `.env`
+- 本地覆盖：`apps/rowboat/.env.local`（可选）
+- 向后兼容：`backend/.env`（可选）

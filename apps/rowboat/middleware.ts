@@ -17,9 +17,26 @@ async function authCheck(request: NextRequest) {
 }
 
 export async function middleware(request: NextRequest, event: NextFetchEvent) {
-  // Check if the request path starts with /api/auth/
+  // Redirect root path to /projects if auth is disabled
+  if (request.nextUrl.pathname === '/') {
+    if (!process.env.USE_AUTH || process.env.USE_AUTH !== 'true') {
+      return NextResponse.redirect(new URL('/projects', request.url));
+    }
+  }
+
+  // Check if the request path starts with /auth
+  // Skip Auth0 middleware if USE_AUTH is disabled, except for /auth/profile which we handle ourselves
   if (request.nextUrl.pathname.startsWith('/auth')) {
-    return await auth0.middleware(request);
+    // If auth is disabled, allow /auth/profile to be handled by our route handler
+    if (!process.env.USE_AUTH && request.nextUrl.pathname === '/auth/profile') {
+      return NextResponse.next();
+    }
+    // Otherwise, use Auth0 middleware
+    if (process.env.USE_AUTH === 'true') {
+      return await auth0.middleware(request);
+    }
+    // If auth is disabled and it's not /auth/profile, skip Auth0 middleware
+    return NextResponse.next();
   }
 
   // Check if the request path starts with /api/

@@ -34,7 +34,7 @@ export function SourcePage({
 
     async function handleReload() {
         setIsLoading(true);
-        const updatedSource = await getDataSource(sourceId);
+        const updatedSource = await getDataSource(sourceId, projectId);
         setSource(updatedSource);
         if ("billingError" in updatedSource && updatedSource.billingError) {
             setBillingError(updatedSource.billingError);
@@ -47,7 +47,7 @@ export function SourcePage({
         let ignore = false;
         async function fetchSource() {
             setIsLoading(true);
-            const source = await getDataSource(sourceId);
+            const source = await getDataSource(sourceId, projectId);
             if (!ignore) {
                 setSource(source);
                 if ("billingError" in source && source.billingError) {
@@ -60,7 +60,7 @@ export function SourcePage({
         return () => {
             ignore = true;
         };
-    }, [sourceId]);
+    }, [sourceId, projectId]);
 
     // refresh source data every 15 seconds
     // under certain conditions
@@ -79,7 +79,7 @@ export function SourcePage({
             if (timeout) {
                 clearTimeout(timeout);
             }
-            const updatedSource = await getDataSource(sourceId);
+            const updatedSource = await getDataSource(sourceId, projectId);
             if (!ignore) {
                 setSource(updatedSource);
                 if ("billingError" in updatedSource && updatedSource.billingError) {
@@ -131,6 +131,7 @@ export function SourcePage({
                                     <ToggleSource
                                         sourceId={sourceId}
                                         active={source.active}
+                                        projectId={projectId}
                                     />
                                 </SectionContent>
                             </SectionRow>
@@ -153,6 +154,7 @@ export function SourcePage({
                                             await updateDataSource({
                                                 sourceId,
                                                 description,
+                                                projectId,
                                             });
                                             handleReload();
                                             setShowSaveSuccess(true);
@@ -266,7 +268,7 @@ export function SourcePage({
                                     This action cannot be undone.
                                 </p>
                             </div>
-                            <DeleteSource sourceId={sourceId} />
+                            <DeleteSource sourceId={sourceId} projectId={projectId} />
                         </div>
                     </Section>
                 </div>

@@ -507,6 +507,7 @@ export function AgentConfig({
                                             {eligibleModels !== "*" && <Select
                                                 variant="bordered"
                                                 placeholder="选择模型"
+                                                aria-label="选择模型"
                                                 className="w-full max-w-64"
                                                 selectedKeys={[agent.model]}
                                                 onSelectionChange={(keys) => {
@@ -530,6 +531,7 @@ export function AgentConfig({
                                                     {eligibleModels.filter((model) => model.eligible).map((model) => (
                                                         <SelectItem
                                                             key={model.name}
+                                                            textValue={model.name}
                                                         >
                                                             {model.name}
                                                         </SelectItem>
@@ -539,6 +541,7 @@ export function AgentConfig({
                                                     {eligibleModels.filter((model) => !model.eligible).map((model) => (
                                                         <SelectItem
                                                             key={model.name}
+                                                            textValue={model.name}
                                                             endContent={<Chip
                                                                 color="warning"
                                                                 size="sm"
@@ -564,6 +567,7 @@ export function AgentConfig({
                                             <div className="flex-1">
                                                 <CustomDropdown
                                                     value={agent.controlType || 'retain'}
+                                                    aria-label="选择回合后行为"
                                                     options={
                                                         agent.type === "pipeline"
                                                             ? [
@@ -607,6 +611,7 @@ export function AgentConfig({
                                             <Select
                                                 variant="bordered"
                                                 placeholder="添加数据源"
+                                                aria-label="添加数据源"
                                                 size="sm"
                                                 className="w-64"
                                                 onSelectionChange={(keys) => {
@@ -627,12 +632,12 @@ export function AgentConfig({
                                                     dataSources
                                                         .filter((ds) => !(agent.ragDataSources || []).includes(ds.id))
                                                         .map((ds) => (
-                                                            <SelectItem key={ds.id}>
+                                                            <SelectItem key={ds.id} textValue={ds.name}>
                                                                 {ds.name}
                                                             </SelectItem>
                                                         ))
                                                 ) : (
-                                                    <SelectItem key="empty" isReadOnly>
+                                                    <SelectItem key="empty" isReadOnly textValue="没有可用的数据源">
                                                         <div className="flex flex-col items-center justify-center p-4 text-center">
                                                             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 mb-2">
                                                                 <DatabaseIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />

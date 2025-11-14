@@ -55,7 +55,7 @@ settings = get_settings()
 app = FastAPI(
     title=settings.app_name,
     description="质信智购 - AI智能体平台后端API\n\n"
-                "基于FastAPI、LangChain、CrewAI构建的智能体管理平台",
+                "基于FastAPI、LangChain、OpenAI Agent SDK构建的智能体管理平台",
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/docs",

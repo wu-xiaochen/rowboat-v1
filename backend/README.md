@@ -68,9 +68,22 @@ backend/
 
 ## 测试
 
+### 快速测试（不需要启动服务）
+后端API测试使用 `ASGITransport`，不需要实际运行服务：
+
 ```bash
-pytest
+cd backend
+python -m pytest tests/ -v --tb=short --timeout=60 --timeout-method=thread
 ```
+
+### 完整测试（需要启动前后端服务）
+使用测试脚本自动启动服务并运行测试：
+
+```bash
+./scripts/test_with_services.sh
+```
+
+更多测试信息请参考 [测试运行指南](../../docs/TESTING_WITH_SERVICES.md)。
 
 ## API文档
 

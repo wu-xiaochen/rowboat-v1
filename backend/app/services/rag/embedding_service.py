@@ -21,8 +21,8 @@ class EmbeddingService:
         
         # 初始化OpenAI客户端（兼容API）
         self.client = OpenAI(
-            api_key=self.settings.embedding_provider_api_key,
-            base_url=self.settings.embedding_provider_base_url,
+            api_key=self.settings.embedding_api_key,
+            base_url=self.settings.embedding_base_url,
         )
         self.model = self.settings.embedding_model
     

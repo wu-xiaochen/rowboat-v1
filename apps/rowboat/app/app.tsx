@@ -4,17 +4,28 @@ import logo from "@/public/logo.svg";
 import { useUser } from "@auth0/nextjs-auth0";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@heroui/react";
+import { USE_AUTH } from "@/app/lib/feature_flags";
+import { GUEST_DB_USER } from "@/app/lib/auth-client";
 
 export function App() {
     const router = useRouter();
-    const { user, isLoading } = useUser();
+    const { user: auth0User, isLoading: auth0Loading, error: auth0Error } = useUser();
+    
+    // Use guest user if auth is disabled or if there's an error
+    const user = !USE_AUTH || auth0Error ? {
+        sub: GUEST_DB_USER.auth0Id,
+        email: GUEST_DB_USER.email,
+        email_verified: true,
+        name: GUEST_DB_USER.name,
+    } : auth0User;
+    const isLoading = USE_AUTH ? auth0Loading : false;
 
     if (user) {
         router.push("/projects");
     }
 
-    // Add auto-redirect for non-authenticated users
-    if (!isLoading && !user) {
+    // Add auto-redirect for non-authenticated users (only if auth is enabled)
+    if (USE_AUTH && !isLoading && !user) {
         router.push("/auth/login");
     }
 

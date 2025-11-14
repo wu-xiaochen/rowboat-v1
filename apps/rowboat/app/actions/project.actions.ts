@@ -99,7 +99,7 @@ export async function createProjectFromWorkflowJson(formData: FormData): Promise
     try {
         // Parse workflow and apply default model to blank agent models
         const workflow = JSON.parse(workflowJson);
-        const defaultModel = process.env.PROVIDER_DEFAULT_MODEL || 'gpt-4o';
+        const defaultModel = process.env.LLM_MODEL_ID || 'gpt-4o';
         
         if (workflow.agents && Array.isArray(workflow.agents)) {
             workflow.agents.forEach((agent: any) => {

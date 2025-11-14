@@ -39,6 +39,8 @@ async def stream_turn_events(
     async def generate_events():
         """生成SSE事件"""
         try:
+            event_count = 0
+            has_messages = False
             async for event in chat_service.run_turn(
                 project_id=project_id,
                 conversation_id=request.conversation_id,
@@ -46,16 +48,29 @@ async def stream_turn_events(
                 mock_tools=request.mock_tools,
                 api_key=api_key,
             ):
+                event_count += 1
                 # 格式化事件
                 event_data = event.model_dump(by_alias=True)
+                
+                # 检查是否是消息事件
+                if event.type == "message":
+                    has_messages = True
                 
                 # 发送SSE事件
                 yield f"event: {event.type}\n"
                 yield f"data: {json.dumps(event_data, ensure_ascii=False, default=str)}\n\n"
             
-            # 发送完成事件
-            yield "event: done\n"
-            yield "data: {}\n\n"
+            # 注意：不需要发送额外的 done 事件，因为 chat_service.run_turn 已经发送了 DoneTurnEvent
+            # 如果没有任何事件（包括 done），说明可能出错了
+            if event_count == 0:
+                # 发送错误事件
+                error_event = {
+                    "type": "error",
+                    "error": "没有收到任何响应事件",
+                    "isBillingError": False,
+                }
+                yield f"event: error\n"
+                yield f"data: {json.dumps(error_event, ensure_ascii=False)}\n\n"
             
         except Exception as e:
             # 发送错误事件

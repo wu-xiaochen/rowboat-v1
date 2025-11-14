@@ -75,6 +75,7 @@ const App = forwardRef<{ handleCopyChat: () => void; handleUserMessage: (message
         loading: loadingResponse,
         toolCalling,
         toolQuery,
+        toolResult,
         error: responseError,
         clearError: clearResponseError,
         billingError,
@@ -128,13 +129,39 @@ const App = forwardRef<{ handleCopyChat: () => void; handleUserMessage: (message
 
         if (currentStart) {
             currentStart(messages, (finalResponse: string) => {
-                setMessages(prev => [
-                    ...prev,
-                    {
-                        role: 'assistant',
-                        content: finalResponse
-                    }
-                ]);
+                // Only add assistant message if there's content
+                // If empty, the UI should handle it gracefully
+                // 注意：流式响应已经在 Messages 组件中显示了，这里只需要在流结束时
+                // 将最终响应添加到 messages 中（如果 streamingResponse 中没有的话）
+                if (finalResponse && finalResponse.trim()) {
+                    setMessages(prev => {
+                        // 检查最后一条消息是否是助手消息且内容与 finalResponse 相同（避免重复）
+                        const lastMessage = prev[prev.length - 1];
+                        if (lastMessage?.role === 'assistant' && lastMessage.content === finalResponse) {
+                            // 内容已存在，不重复添加
+                            return prev;
+                        }
+                        // 添加新消息
+                        return [
+                            ...prev,
+                            {
+                                role: 'assistant',
+                                content: finalResponse
+                            }
+                        ];
+                    });
+                } else {
+                    // If no response, add a placeholder message or handle gracefully
+                    console.warn('⚠️ Copilot returned empty response');
+                    // Optionally add a message indicating no response
+                    // setMessages(prev => [
+                    //     ...prev,
+                    //     {
+                    //         role: 'assistant',
+                    //         content: '抱歉，我没有生成任何回复。请重试。'
+                    //     }
+                    // ]);
+                }
             });
         } else {
             // startRef not yet ready; no-op
@@ -188,7 +215,7 @@ const App = forwardRef<{ handleCopyChat: () => void; handleUserMessage: (message
     const handleStatusBarChange = useCallback((status: any) => {
         setStatusBar((prev: any) => {
             // Shallow compare previous and next status
-            const next = { ...status, context: lockedContext };
+            const next = { ...status, context: lockedContext, toolResult };
             const keys = Object.keys(next);
             if (
                 prev &&
@@ -198,7 +225,7 @@ const App = forwardRef<{ handleCopyChat: () => void; handleUserMessage: (message
             }
             return next;
         });
-    }, [lockedContext]);
+    }, [lockedContext, toolResult]);
 
     return (
         <CopilotContext.Provider value={{ workflow: workflowRef.current, dispatch }}>
@@ -263,6 +290,7 @@ const App = forwardRef<{ handleCopyChat: () => void; handleUserMessage: (message
                         onStatusBarChange={handleStatusBarChange}
                         toolCalling={toolCalling}
                         toolQuery={toolQuery}
+                        toolResult={toolResult}
                     />
                 </div>
                 <div className="shrink-0 px-0 pb-10">
@@ -296,7 +324,7 @@ const App = forwardRef<{ handleCopyChat: () => void; handleUserMessage: (message
                         shouldAutoFocus={isLastInteracted}
                         onFocus={() => setIsLastInteracted(true)}
                         onCancel={cancel}
-                        statusBar={statusBar || { context: lockedContext }}
+                        statusBar={statusBar || { context: lockedContext, toolResult }}
                     />
                 </div>
             </div>
@@ -330,12 +358,15 @@ export const Copilot = forwardRef<{ handleUserMessage: (message: string) => void
     activePanel,
     onTogglePanel,
 }, ref) => {
-    console.log('🎪 Copilot wrapper component mounted:', {
-        projectId,
-        isInitialState,
-        activePanel,
-        chatContextType: chatContext?.type
-    });
+    // 开发模式下可能会多次挂载（React StrictMode），这是正常的
+    useEffect(() => {
+        console.log('🎪 Copilot wrapper component mounted:', {
+            projectId,
+            isInitialState,
+            activePanel,
+            chatContextType: chatContext?.type
+        });
+    }, [projectId, isInitialState, activePanel, chatContext?.type]);
 
     const [copilotKey, setCopilotKey] = useState(0);
     const [showCopySuccess, setShowCopySuccess] = useState(false);

@@ -1,3 +1,16 @@
+/**
+ * ⚠️ 已弃用：此路由使用旧的 Agents Runtime
+ * ⚠️ DEPRECATED: This route uses the old Agents Runtime
+ * 
+ * 此路由应该通过新的 Python 后端实现
+ * 如果需要重新启用，应该调用后端 API: POST /api/v1/{project_id}/chat
+ * 
+ * This route should be implemented through the new Python backend
+ * If re-enabling, should call backend API: POST /api/v1/{project_id}/chat
+ */
+
+// ⚠️ 已弃用：使用旧的 agents runtime
+// ⚠️ DEPRECATED: Using old agents runtime
 import { getResponse } from "@/src/application/lib/agents-runtime/agents";
 import { twilioConfigsCollection, twilioInboundCallsCollection } from "@/app/lib/mongodb";
 import { PrefixLogger } from "@/app/lib/utils";

@@ -5,7 +5,7 @@ import { Project } from "@/src/entities/models/project";
 import { DataSource } from "@/src/entities/models/data-source";
 import { WithStringId } from "../../../lib/types/types";
 import { Dropdown, DropdownItem, DropdownTrigger, DropdownMenu } from "@heroui/react";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useId } from "react";
 import { EllipsisVerticalIcon, ImportIcon, PlusIcon, Brain, Boxes, Wrench, PenLine, Library, ChevronDown, ChevronRight, ServerIcon, Component, ScrollText, GripVertical, Users, Cog, CheckCircle2, LinkIcon, UnlinkIcon, MoreVertical, Eye, Trash2, AlertTriangle, Circle, Database, Image as ImageIcon } from "lucide-react";
 import { Tooltip } from "@heroui/react";
 import { DndContext, DragEndEvent, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -555,6 +555,10 @@ export const EntityList = forwardRef<
     onReorderAgents: (agents: z.infer<typeof WorkflowAgent>[]) => void,
     onReorderPipelines: (pipelines: z.infer<typeof WorkflowPipeline>[]) => void 
 }, ref) {
+    // 在组件顶层调用 useId，确保 hooks 顺序一致
+    const pipelinesDndId = useId();
+    const agentsDndId = useId();
+    
     const [showAgentTypeModal, setShowAgentTypeModal] = useState(false);
     const [showToolsModal, setShowToolsModal] = useState(false);
     const [showDataSourcesModal, setShowDataSourcesModal] = useState(false);
@@ -826,6 +830,7 @@ export const EntityList = forwardRef<
                                                     sensors={sensors}
                                                     collisionDetection={closestCenter}
                                                     onDragEnd={handleDragEnd}
+                                                    id={pipelinesDndId}
                                                 >
                                                     <SortableContext
                                                         items={pipelines.map(p => p.name)}
@@ -871,6 +876,7 @@ export const EntityList = forwardRef<
                                                         sensors={sensors}
                                                         collisionDetection={closestCenter}
                                                         onDragEnd={handleDragEnd}
+                                                        id={agentsDndId}
                                                     >
                                                         <SortableContext
                                                             items={individualAgents.map(a => a.name)}
@@ -1206,7 +1212,7 @@ export const EntityList = forwardRef<
                                                                         name={dataSource.name} 
                                                                         onDelete={async () => {
                                                                             if (window.confirm(`确定要删除数据源"${dataSource.name}"吗？`)) {
-                                                                                await deleteDataSource(dataSource.id);
+                                                                                await deleteDataSource(dataSource.id, projectId);
                                                                                 onDataSourcesUpdated?.();
                                                                             }
                                                                         }} 
@@ -1610,9 +1616,9 @@ const ComposioCard = ({
         <>
             <div className="mb-1 group">
                 <div className="flex items-center gap-2 px-2 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-md transition-colors">
-                    <button
+                    <div
                         onClick={() => setIsExpanded(!isExpanded)}
-                        className="flex-1 flex items-center gap-2 text-left min-h-[28px]"
+                        className="flex-1 flex items-center gap-2 text-left min-h-[28px] cursor-pointer"
                     >
                         {/* Chevron - only show on hover or when has tools */}
                         <div className={`w-4 h-4 flex items-center justify-center transition-opacity ${
@@ -1637,9 +1643,9 @@ const ComposioCard = ({
                                 <ImportIcon className="w-4 h-4 text-blue-600 dark:text-blue-500" />
                             )}
                             <span className="text-xs">{card.name}</span>
-                            {statusPill && <span className="ml-2">{statusPill}</span>}
+                            {statusPill && <span className="ml-2" onClick={(e) => e.stopPropagation()}>{statusPill}</span>}
                         </div>
-                    </button>
+                    </div>
                     <div className="ml-2">{toolkitMenu}</div>
                 </div>
                 {isExpanded && (

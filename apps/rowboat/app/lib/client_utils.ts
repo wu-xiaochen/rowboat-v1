@@ -69,13 +69,23 @@ export function validateConfigChanges(configType: string, configChanges: Record<
     // Validate each field and remove invalid ones
     const validatedChanges = { ...configChanges };
     for (const [key, value] of Object.entries(configChanges)) {
+        // Special handling for examples field: convert array to string if needed
+        let processedValue = value;
+        if (key === 'examples' && Array.isArray(value)) {
+            // Convert array to JSON string
+            processedValue = JSON.stringify(value, null, 2);
+        }
+        
         const result = schema.safeParse({
             ...testObject,
-            [key]: value,
+            [key]: processedValue,
         });
         if (!result.success) {
             console.log(`discarding field ${key} from ${configType}: ${name}`, result.error.message);
             delete validatedChanges[key];
+        } else if (key === 'examples' && Array.isArray(value)) {
+            // Update with processed value
+            validatedChanges[key] = processedValue;
         }
     }
 

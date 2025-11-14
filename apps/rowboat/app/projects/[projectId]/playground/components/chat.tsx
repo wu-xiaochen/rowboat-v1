@@ -259,7 +259,27 @@ export function Chat({
                                     });
 
                                     // Commit all streamed messages atomically to the source of truth
-                                    setMessages([...messages, ...turnEvent.turn.output]);
+                                    // 如果 turn.output 为空，使用 optimisticMessages 中的消息
+                                    const finalMessages = turnEvent.turn.output && turnEvent.turn.output.length > 0
+                                        ? turnEvent.turn.output
+                                        : optimisticMessages.filter(msg => msg.role === 'assistant' && !messages.some(m => m.id === msg.id));
+                                    
+                                    if (finalMessages.length > 0) {
+                                        setMessages([...messages, ...finalMessages]);
+                                    } else {
+                                        // 如果没有收到任何消息，显示错误提示
+                                        console.warn('⚠️ No messages received in done event');
+                                        setError('没有收到任何回复。请检查智能体配置和模型设置。');
+                                    }
+                                } else {
+                                    // 如果没有 turn 数据，使用 optimisticMessages
+                                    const newMessages = optimisticMessages.filter(msg => msg.role === 'assistant' && !messages.some(m => m.id === msg.id));
+                                    if (newMessages.length > 0) {
+                                        setMessages([...messages, ...newMessages]);
+                                    } else {
+                                        console.warn('⚠️ Done event has no turn data and no optimistic messages');
+                                        setError('没有收到任何回复。请检查智能体配置和模型设置。');
+                                    }
                                 }
                                 setLoading(false);
                                 break;

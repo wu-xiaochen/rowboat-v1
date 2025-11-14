@@ -114,7 +114,7 @@ class PromptLoader:
         Build complete system prompt
         
         Args:
-            agent_model: 智能体模型名称
+            agent_model: 智能体模型名称（如果未提供，将使用配置的默认值）
             workflow_schema: 工作流JSON schema
             using_rowboat_docs: 产品文档内容（可选）
             include_example: 是否包含示例（默认True）
@@ -151,10 +151,10 @@ class PromptLoader:
         
         system_prompt = "\n\n".join(filter(None, parts))
         
-        # 替换占位符
-        system_prompt = system_prompt.replace("{agent_model}", agent_model)
-        system_prompt = system_prompt.replace("{workflow_schema}", workflow_schema)
-        system_prompt = system_prompt.replace("{USING_ROWBOAT_DOCS}", using_rowboat_docs)
+        # 替换占位符（确保所有值都是字符串）
+        system_prompt = system_prompt.replace("{agent_model}", str(agent_model) if agent_model else "")
+        system_prompt = system_prompt.replace("{workflow_schema}", str(workflow_schema) if workflow_schema else "")
+        system_prompt = system_prompt.replace("{USING_ROWBOAT_DOCS}", str(using_rowboat_docs) if using_rowboat_docs else "")
         
         return system_prompt
     

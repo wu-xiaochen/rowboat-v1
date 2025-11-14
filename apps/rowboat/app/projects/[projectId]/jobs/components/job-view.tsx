@@ -17,13 +17,13 @@ export function JobView({ projectId, jobId }: { projectId: string; jobId: string
         let ignore = false;
         (async () => {
             setLoading(true);
-            const res = await fetchJob({ jobId });
+            const res = await fetchJob({ jobId, projectId });
             if (ignore) return;
             setJob(res);
             setLoading(false);
         })();
         return () => { ignore = true; };
-    }, [jobId]);
+    }, [jobId, projectId]);
 
     const title = useMemo(() => {
         if (!job) return '任务';

@@ -83,13 +83,13 @@ export function ConversationView({ projectId, conversationId }: { projectId: str
         let ignore = false;
         (async () => {
             setLoading(true);
-            const res = await fetchConversation({ conversationId });
+            const res = await fetchConversation({ conversationId, projectId });
             if (ignore) return;
             setConversation(res);
             setLoading(false);
         })();
         return () => { ignore = true; };
-    }, [conversationId]);
+    }, [conversationId, projectId]);
 
     const title = useMemo(() => {
         if (!conversation) return '对话';

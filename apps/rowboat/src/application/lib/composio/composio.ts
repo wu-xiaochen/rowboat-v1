@@ -7,9 +7,20 @@ const BASE_URL = 'https://backend.composio.dev/api/v3';
 // In Next.js, client-side code can only access NEXT_PUBLIC_ prefixed env vars
 // For server-side code, use process.env.COMPOSIO_API_KEY
 // For client-side code, we should use NEXT_PUBLIC_COMPOSIO_API_KEY or proxy through backend
+// 获取 Composio API Key
+// 服务器端：优先使用 COMPOSIO_API_KEY，其次 NEXT_PUBLIC_COMPOSIO_API_KEY
+// 客户端：只能使用 NEXT_PUBLIC_COMPOSIO_API_KEY
 const COMPOSIO_API_KEY = typeof window === 'undefined' 
-    ? (process.env.COMPOSIO_API_KEY || process.env.NEXT_PUBLIC_COMPOSIO_API_KEY || "test")
-    : (process.env.NEXT_PUBLIC_COMPOSIO_API_KEY || "test");
+    ? (process.env.COMPOSIO_API_KEY || process.env.NEXT_PUBLIC_COMPOSIO_API_KEY || "")
+    : (process.env.NEXT_PUBLIC_COMPOSIO_API_KEY || "");
+
+// 如果没有设置 API key，抛出明确的错误而不是使用 "test"
+if (!COMPOSIO_API_KEY || COMPOSIO_API_KEY === "test") {
+    const errorMsg = typeof window === 'undefined'
+        ? 'COMPOSIO_API_KEY or NEXT_PUBLIC_COMPOSIO_API_KEY must be set in environment variables for server-side usage'
+        : 'NEXT_PUBLIC_COMPOSIO_API_KEY must be set in .env.local for client-side usage';
+    throw new Error(`Composio API key not configured: ${errorMsg}`);
+}
 
 export const composio = new Composio({
     apiKey: COMPOSIO_API_KEY,
