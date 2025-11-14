@@ -124,10 +124,13 @@ class CopilotService:
         workflow_json = json.dumps(workflow, ensure_ascii=False, indent=2)
         return f"Context:\n\nThe current workflow config is:\n```json\n{workflow_json}\n```"
     
-    def _create_tools(self) -> List[StructuredTool]:
+    def _create_tools(self, workflow: Optional[Dict[str, Any]] = None) -> List[StructuredTool]:
         """
         创建工具列表
         Create tools list
+        
+        Args:
+            workflow: 工作流对象（可选，用于工具搜索时优先使用已有工具）
         
         Returns:
             工具列表
@@ -154,7 +157,8 @@ class CopilotService:
                 Returns:
                     找到的工具配置（JSON格式）
                 """
-                return await self.composio_service.search_relevant_tools(query)
+                # 传递workflow以便优先使用已有工具
+                return await self.composio_service.search_relevant_tools(query, workflow=workflow)
             
             search_tool = StructuredTool.from_function(
                 func=search_relevant_tools_func,
@@ -297,10 +301,13 @@ class CopilotService:
         # 调用LLM进行流式响应
         # 复刻原项目的 streamText 逻辑，支持多轮工具调用迭代
         try:
+            # 动态创建工具（传入workflow以便优先使用已有工具）
+            tools = self._create_tools(workflow=workflow)
+            
             # 如果启用了工具，使用带工具的LLM
-            if self.tools:
+            if tools:
                 # 绑定工具到LLM
-                llm_with_tools = self.llm.bind_tools(self.tools)
+                llm_with_tools = self.llm.bind_tools(tools)
                 
                 # 使用带工具的LLM进行流式响应
                 # 复刻原项目的 maxSteps: 10 逻辑，最多执行10轮工具调用
@@ -1153,6 +1160,33 @@ class CopilotService:
                             else:
                                 print(f"⚠️ [DEBUG] tool_call name 为空或 None，跳过: tc_name={tc_name}", flush=True)
                     
+                    # 检测响应中是否包含问题（询问用户）
+                    # 如果包含问题且没有copilot_change块，应该停止迭代等待用户回复
+                    question_patterns = [
+                        r'您是否希望',
+                        r'请告诉我',
+                        r'请选择',
+                        r'您希望',
+                        r'您想要',
+                        r'Do you wish',
+                        r'Please tell me',
+                        r'Please choose',
+                        r'Would you like',
+                        r'What would you like',
+                    ]
+                    has_question = any(re.search(pattern, assistant_message_content, re.IGNORECASE) for pattern in question_patterns)
+                    has_copilot_change = 'copilot_change' in assistant_message_content or '// action:' in assistant_message_content
+                    
+                    if has_question and not has_copilot_change and not complete_tool_calls:
+                        # 响应包含问题但没有配置更改，应该停止等待用户回复
+                        print(f"❓ [DEBUG] 检测到响应包含问题且没有配置更改，停止迭代等待用户回复", flush=True)
+                        if final_ai_chunk and isinstance(final_ai_chunk, AIMessage):
+                            current_messages.append(final_ai_chunk)
+                        else:
+                            current_messages.append(AIMessage(content=assistant_message_content))
+                        print(f"✅ [DEBUG] 迭代 {iteration} 完成（等待用户回复），退出循环", flush=True)
+                        break
+                    
                     # 如果没有从 final_ai_chunk 中提取到，使用流式收集的 tool_calls
                     if not complete_tool_calls and tool_calls_in_this_iteration:
                         print(f"⚠️ [DEBUG] 未从 final_ai_chunk 提取到 tool_calls，使用流式收集的 tool_calls（数量: {len(tool_calls_in_this_iteration)}）", flush=True)
@@ -1295,7 +1329,7 @@ class CopilotService:
                                 continue
                             
                             found_tool = None
-                            for tool in self.tools:
+                            for tool in tools:
                                 if tool.name == tool_name:
                                     found_tool = tool
                                     break

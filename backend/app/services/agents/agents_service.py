@@ -142,23 +142,37 @@ class AgentsService:
         pipeline_names = {pipeline.name for pipeline in workflow.pipelines}
         tool_names = {tool.name for tool in workflow.tools}
         
-        # 简化的mention解析：查找@entity_name模式
+        # 解析mentions：支持[@type:name](#mention)格式（与原项目一致）
         import re
-        # 匹配@entity_name模式
-        mention_pattern = r'@(\w+)'
+        # 匹配[@type:name](#mention)模式，其中type可以是agent、tool、pipeline、prompt、variable
+        # 原项目使用：/\[@(tool|prompt|agent|pipeline|variable):([^\]]+)\]\(#mention\)/g
+        mention_pattern = r'\[@(tool|prompt|agent|pipeline|variable):([^\]]+)\]\(#mention\)'
         matches = re.findall(mention_pattern, instructions)
         
         for match in matches:
-            entity_name = match
-            # 检查是否是agent
-            if entity_name in agent_names:
-                mentions.append({"type": "agent", "name": entity_name})
-            # 检查是否是pipeline
-            elif entity_name in pipeline_names:
-                mentions.append({"type": "pipeline", "name": entity_name})
-            # 检查是否是tool
-            elif entity_name in tool_names:
-                mentions.append({"type": "tool", "name": entity_name})
+            entity_type_str, entity_name = match
+            # variable类型在内部被视为prompt
+            entity_type = "prompt" if entity_type_str == "variable" else entity_type_str
+            
+            # 验证实体是否存在
+            if entity_type == "agent":
+                if entity_name in agent_names:
+                    # 过滤掉pipeline agents（它们不应该被引用）
+                    agent = next((a for a in workflow.agents if a.name == entity_name), None)
+                    if agent and not agent.disabled:
+                        agent_type_str = agent.type.value if hasattr(agent.type, 'value') else str(agent.type)
+                        if agent_type_str != "pipeline":
+                            mentions.append({"type": "agent", "name": entity_name})
+            elif entity_type == "pipeline":
+                if entity_name in pipeline_names:
+                    mentions.append({"type": "pipeline", "name": entity_name})
+            elif entity_type == "tool":
+                if entity_name in tool_names:
+                    mentions.append({"type": "tool", "name": entity_name})
+            elif entity_type == "prompt":
+                prompt_names = {prompt.name for prompt in workflow.prompts}
+                if entity_name in prompt_names:
+                    mentions.append({"type": "prompt", "name": entity_name})
         
         return mentions
     
@@ -417,7 +431,7 @@ class AgentsService:
                             except:
                                 pass
                 
-                # 尝试多种方式获取输出内容
+                # 尝试多种方式获取输出内容（更全面的提取）
                 output = None
                 # 优先检查常见的事件类型和属性
                 if hasattr(event, "output") and event.output:
@@ -443,6 +457,15 @@ class AgentsService:
                         output = output.content
                     elif hasattr(output, "text") and output.text:
                         output = output.text
+                    elif hasattr(output, "message") and output.message:
+                        # 某些事件可能有message字段
+                        msg = output.message
+                        if isinstance(msg, str):
+                            output = msg
+                        elif hasattr(msg, "content") and msg.content:
+                            output = msg.content
+                        elif hasattr(msg, "text") and msg.text:
+                            output = msg.text
                     else:
                         # 尝试转换为字符串
                         try:
@@ -450,20 +473,63 @@ class AgentsService:
                         except:
                             output = None
                 
+                # 如果还没有output，尝试从事件的所有属性中查找
+                if not output:
+                    # 检查事件的所有属性，寻找可能包含文本内容的属性
+                    for attr_name in dir(event):
+                        if attr_name.startswith('_') or attr_name in ['type', 'delta']:
+                            continue
+                        try:
+                            attr_value = getattr(event, attr_name, None)
+                            if attr_value and not callable(attr_value):
+                                # 如果是字符串且长度合理，可能是内容
+                                if isinstance(attr_value, str) and len(attr_value) > 10:
+                                    output = attr_value
+                                    break
+                                # 如果是对象，尝试提取content或text
+                                elif hasattr(attr_value, "content") and attr_value.content:
+                                    output = attr_value.content
+                                    break
+                                elif hasattr(attr_value, "text") and attr_value.text:
+                                    output = attr_value.text
+                                    break
+                        except:
+                            continue
+                
                 # 处理agent输出事件 - 扩展事件类型匹配
                 # 添加更多可能的事件类型
                 # 注意：OpenAI Agent SDK可能使用不同的事件类型名称
                 message_content = None
                 
-                if event_type in ["agent_output", "agent_span", "generation_span", "text", "text_delta", "message", "message_delta", "span", "run", "run_span", "agent.message", "agent.text"]:
+                # 扩展事件类型列表，包括更多可能的事件类型
+                message_event_types = [
+                    "agent_output", "agent_span", "generation_span", "text", "text_delta", 
+                    "message", "message_delta", "span", "run", "run_span", "agent.message", 
+                    "agent.text", "completion", "completion_delta", "response", "response_delta",
+                    "chunk", "chunk_delta", "output", "output_delta", "generation", "generation_delta"
+                ]
+                
+                if event_type in message_event_types:
                     if output:
                         message_content = str(output)
-                    elif event_type in ["text", "text_delta", "message", "message_delta"]:
+                    elif event_type in ["text", "text_delta", "message", "message_delta", "completion", "completion_delta"]:
                         # 对于文本事件，即使没有output字段，也尝试从事件本身获取
                         if hasattr(event, "text") and event.text:
                             message_content = str(event.text)
                         elif hasattr(event, "content") and event.content:
                             message_content = str(event.content)
+                        elif hasattr(event, "message") and event.message:
+                            msg = event.message
+                            if isinstance(msg, str):
+                                message_content = msg
+                            elif hasattr(msg, "content") and msg.content:
+                                message_content = str(msg.content)
+                            elif hasattr(msg, "text") and msg.text:
+                                message_content = str(msg.text)
+                
+                # 如果事件类型未知但output有值，也尝试作为消息内容
+                if not message_content and output and event_type not in ["tool_call", "tool_span", "function_span", "function_call", "tool_result", "tool_output", "function_result", "handoff", "handoff_span"]:
+                    message_content = str(output)
                 
                 # 如果找到了消息内容，累积并输出
                 if message_content:

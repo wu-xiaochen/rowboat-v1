@@ -69,63 +69,12 @@ class ComposioService:
             工具建议列表
         """
         try:
-            # 优先尝试使用 COMPOSIO_SEARCH_TOOLS 工具（通过HTTP API）
-            # 这是Composio提供的专门搜索工具，会返回最相关的工具
-            try:
-                print(f"🔍 [HTTP API] 使用 COMPOSIO_SEARCH_TOOLS 搜索工具，查询: {query}")
-                execute_response = await self.client.post(
-                    f"/tools/COMPOSIO_SEARCH_TOOLS/execute",
-                    json={
-                        "userId": user_id,
-                        "arguments": {"use_case": query},
-                    },
-                    timeout=30.0
-                )
-                
-                if execute_response.status_code == 200:
-                    result_data = execute_response.json()
-                    
-                    # 检查响应格式
-                    if isinstance(result_data, dict):
-                        # 可能包含 'data' 字段
-                        if "data" in result_data:
-                            data = result_data["data"]
-                        elif "result" in result_data:
-                            data = result_data["result"]
-                        else:
-                            data = result_data
-                        
-                        # 解析搜索响应
-                        if isinstance(data, dict):
-                            try:
-                                search_response = ComposioToolSearchResponse(**data)
-                                # 获取工具列表
-                                tools = (
-                                    search_response.main_tools or
-                                    search_response.results or
-                                    []
-                                )
-                                if tools:
-                                    print(f"✅ [HTTP API] COMPOSIO_SEARCH_TOOLS 找到 {len(tools)} 个工具")
-                                    return tools
-                            except Exception as parse_error:
-                                print(f"⚠️ [HTTP API] 解析 COMPOSIO_SEARCH_TOOLS 响应失败: {parse_error}")
-                                print(f"⚠️ [HTTP API] 响应数据: {json.dumps(data, indent=2)[:500]}")
-                
-                print(f"⚠️ [HTTP API] COMPOSIO_SEARCH_TOOLS 返回状态码: {execute_response.status_code}")
-                if execute_response.status_code != 200:
-                    error_text = execute_response.text[:500] if hasattr(execute_response, 'text') else str(execute_response)
-                    print(f"⚠️ [HTTP API] COMPOSIO_SEARCH_TOOLS 错误: {error_text}")
-                    
-            except Exception as search_tool_error:
-                print(f"⚠️ [HTTP API] COMPOSIO_SEARCH_TOOLS 调用失败: {type(search_tool_error).__name__}: {str(search_tool_error)}")
-                # 继续尝试其他方法
-            
-            # 回退方案：尝试使用composio-core库（如果可用）
+            # 优先使用composio-core库（与原项目一致）
             try:
                 from composio_core import Composio
                 composio_client = Composio(api_key=self.api_key)
                 
+                print(f"🔍 [composio-core] 使用 COMPOSIO_SEARCH_TOOLS 搜索工具，查询: {query}")
                 result = composio_client.tools.execute(
                     tool_name="COMPOSIO_SEARCH_TOOLS",
                     arguments={"use_case": query},
@@ -135,18 +84,29 @@ class ComposioService:
                 if result and hasattr(result, "successful") and result.successful:
                     data = result.data if hasattr(result, "data") else result
                     if isinstance(data, dict):
-                        search_response = ComposioToolSearchResponse(**data)
-                        tools = (
-                            search_response.main_tools or
-                            search_response.results or
-                            []
-                        )
-                        if tools:
-                            print(f"✅ [composio-core] 找到 {len(tools)} 个工具")
-                            return tools
+                        try:
+                            search_response = ComposioToolSearchResponse(**data)
+                            tools = (
+                                search_response.main_tools or
+                                search_response.results or
+                                []
+                            )
+                            if tools:
+                                print(f"✅ [composio-core] COMPOSIO_SEARCH_TOOLS 找到 {len(tools)} 个工具")
+                                return tools
+                        except Exception as parse_error:
+                            print(f"⚠️ [composio-core] 解析响应失败: {parse_error}")
+                            print(f"⚠️ [composio-core] 响应数据: {json.dumps(data, indent=2)[:500]}")
+                else:
+                    error_msg = result.error if hasattr(result, "error") else "Unknown error"
+                    print(f"⚠️ [composio-core] COMPOSIO_SEARCH_TOOLS 执行失败: {error_msg}")
                     
-            except (ImportError, AttributeError, TypeError) as e:
-                print(f"⚠️ [composio-core] 库不可用或API不同: {e}")
+            except ImportError as e:
+                print(f"⚠️ [composio-core] 库未安装: {e}")
+            except (AttributeError, TypeError) as e:
+                print(f"⚠️ [composio-core] API调用失败: {e}")
+                import traceback
+                print(f"⚠️ [composio-core] 错误详情:\n{traceback.format_exc()}")
             
             # 最后回退方案：遍历toolkits搜索（完整搜索，不提前返回）
             print(f"🔍 [HTTP API] 回退到遍历toolkits搜索，查询: {query}")
@@ -292,13 +252,14 @@ class ComposioService:
                 tools.append(tool)
         return tools
     
-    async def search_relevant_tools(self, query: str) -> str:
+    async def search_relevant_tools(self, query: str, workflow: Optional[Dict[str, Any]] = None) -> str:
         """
         搜索相关工具并返回格式化的响应
         Search for relevant tools and return formatted response
         
         Args:
             query: 搜索查询
+            workflow: 当前工作流配置（可选，用于优先使用已有工具）
             
         Returns:
             格式化的工具配置字符串
@@ -307,7 +268,37 @@ class ComposioService:
         if not self.settings.use_composio_tools:
             return "No tools found! (Composio tools disabled)"
         
-        # 搜索工具
+        # 优先检查workflow中已有的工具（与原项目逻辑一致）
+        existing_tools = []
+        if workflow and "tools" in workflow:
+            workflow_tools = workflow.get("tools", [])
+            query_lower = query.lower()
+            
+            # 检查已有工具是否匹配查询
+            for tool in workflow_tools:
+                tool_name = tool.get("name", "").lower()
+                tool_desc = tool.get("description", "").lower()
+                
+                # 简单的关键词匹配
+                query_keywords = query_lower.split()
+                if any(keyword in tool_name or keyword in tool_desc for keyword in query_keywords if len(keyword) > 2):
+                    existing_tools.append(tool)
+            
+            if existing_tools:
+                print(f"✅ [工具优先级] 在workflow中找到 {len(existing_tools)} 个匹配的已有工具")
+                # 格式化已有工具
+                from app.models.schemas import WorkflowTool
+                tool_configs = [
+                    f"**{tool.get('name', 'Unknown')}** (已存在于workflow):\n```json\n{json.dumps(tool, indent=2, ensure_ascii=False)}\n```"
+                    for tool in existing_tools
+                ]
+                response = f"The following tools were found in your workflow:\n\n{chr(10).join(tool_configs)}"
+                
+                # 如果已有工具足够，直接返回
+                if len(existing_tools) >= 3:
+                    return response
+        
+        # 搜索新工具
         tools = await self.search_tools(query)
         
         if not tools:
@@ -344,13 +335,31 @@ class ComposioService:
             )
             workflow_tools.append(workflow_tool)
         
-        # 格式化响应
-        tool_configs = [
-            f"**{tool.name}**:\n```json\n{json.dumps(tool.model_dump(by_alias=True), indent=2, ensure_ascii=False)}\n```"
-            for tool in workflow_tools
-        ]
+        # 合并已有工具和新搜索到的工具（去重）
+        all_tools = existing_tools.copy() if existing_tools else []
+        existing_tool_names = {tool.get("name", "") for tool in existing_tools} if existing_tools else set()
         
-        response = f"The following tools were found:\n\n{chr(10).join(tool_configs)}"
+        for tool in workflow_tools:
+            if tool.name not in existing_tool_names:
+                all_tools.append(tool.model_dump(by_alias=True))
+        
+        # 格式化响应
+        if existing_tools and workflow_tools:
+            tool_configs = []
+            for tool in all_tools:
+                if isinstance(tool, dict):
+                    tool_name = tool.get("name", "Unknown")
+                    is_existing = tool_name in existing_tool_names
+                    label = f"**{tool_name}**" + (" (已存在于workflow)" if is_existing else "")
+                    tool_configs.append(f"{label}:\n```json\n{json.dumps(tool, indent=2, ensure_ascii=False)}\n```")
+            response = f"The following tools were found:\n\n{chr(10).join(tool_configs)}"
+        else:
+            tool_configs = [
+                f"**{tool.name}**:\n```json\n{json.dumps(tool.model_dump(by_alias=True), indent=2, ensure_ascii=False)}\n```"
+                for tool in workflow_tools
+            ]
+            response = f"The following tools were found:\n\n{chr(10).join(tool_configs)}"
+        
         return response
     
     async def close(self):
