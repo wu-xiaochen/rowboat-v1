@@ -268,10 +268,12 @@ class AgentsService:
                 continue
             
             # 创建工具（已经是OpenAI Agent SDK格式）
+            # 传递workflow对象以便从instructions中提取工具mentions
             agent_tools = self.agent_tools_service.create_tools(
                 project_id=project_id,
                 workflow_tools=workflow.tools,
                 agent=agent_config,
+                workflow=workflow,
             )
             
             # 构建指令

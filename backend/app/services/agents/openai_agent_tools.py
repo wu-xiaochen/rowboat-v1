@@ -42,6 +42,7 @@ class OpenAIAgentToolsService:
         project_id: str,
         workflow_tools: List[WorkflowTool],
         agent: WorkflowAgent,
+        workflow: Optional[Any] = None,
     ) -> List[Tool]:
         """
         创建工具列表
@@ -51,6 +52,7 @@ class OpenAIAgentToolsService:
             project_id: 项目ID
             workflow_tools: 工作流工具列表
             agent: 智能体配置
+            workflow: 工作流对象（可选，用于提取mentions）
             
         Returns:
             工具列表（OpenAI Agent SDK Tool对象）
@@ -66,8 +68,24 @@ class OpenAIAgentToolsService:
             if rag_tool:
                 tools.append(rag_tool)
         
-        # 创建工作流工具
+        # 从agent的instructions中提取工具mentions（与原项目逻辑一致）
+        # 原项目通过sanitizeTextWithMentions从instructions中提取工具
+        tool_names_from_mentions = set()
+        if agent.instructions and workflow:
+            # 解析instructions中的[@tool:name](#mention)格式
+            import re
+            mention_pattern = r'\[@tool:([^\]]+)\]\(#mention\)'
+            matches = re.findall(mention_pattern, agent.instructions)
+            tool_names_from_mentions = {match.strip() for match in matches}
+        
+        # 创建工作流工具（只创建mentions中提到的工具，或如果没有mentions则创建所有工具）
+        # 注意：如果没有workflow对象，则创建所有工具（向后兼容）
         for workflow_tool in workflow_tools:
+            # 如果提取到了mentions，只创建mentions中提到的工具
+            if tool_names_from_mentions:
+                if workflow_tool.name not in tool_names_from_mentions:
+                    continue
+            
             tool = self._create_workflow_tool(
                 project_id=project_id,
                 workflow_tool=workflow_tool,
