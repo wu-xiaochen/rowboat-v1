@@ -40,15 +40,17 @@ class ConversationsRepository:
         # 生成ObjectId
         _id = ObjectId()
         
-        # 构建文档（排除id字段，因为使用_id）
+        # 构建文档（同时设置_id和id字段，以满足唯一索引要求）
         now = datetime.now()
         doc = {
             **data,
+            "_id": _id,
+            "id": str(_id),  # 同时设置id字段，避免唯一索引冲突
             "createdAt": now.isoformat(),
         }
         
-        # 插入数据库（使用_id）
-        await collection.insert_one({**doc, "_id": _id})
+        # 插入数据库（同时包含_id和id）
+        await collection.insert_one(doc)
         
         # 返回时添加id字段（_id转换为字符串）
         conversation_data = {
@@ -85,7 +87,17 @@ class ConversationsRepository:
         
         # 移除_id，添加id字段（_id转换为字符串）
         _id = doc.pop("_id")
-        doc["id"] = str(_id)
+        
+        # 如果文档中没有id字段或id为null，修复它
+        if "id" not in doc or doc.get("id") is None:
+            doc["id"] = str(_id)
+            # 更新数据库中的id字段
+            await collection.update_one(
+                {"_id": _id},
+                {"$set": {"id": str(_id)}}
+            )
+        else:
+            doc["id"] = str(_id)  # 确保id字段与_id一致
         
         # 转换为Pydantic模型
         return Conversation(**doc)
@@ -148,9 +160,19 @@ class ConversationsRepository:
         items = []
         for doc in items_docs:
             _id = doc.pop("_id")
+            
+            # 如果文档中没有id字段或id为null，修复它
+            if "id" not in doc or doc.get("id") is None:
+                doc["id"] = str(_id)
+                # 更新数据库中的id字段
+                await collection.update_one(
+                    {"_id": _id},
+                    {"$set": {"id": str(_id)}}
+                )
+            
             # 只保留ListedConversationItem的字段：id, projectId, createdAt, updatedAt, reason
             item = {
-                "id": str(_id),
+                "id": str(_id),  # 使用_id转换的字符串，确保一致性
                 "projectId": doc.get("projectId"),
                 "createdAt": doc.get("createdAt"),
                 "updatedAt": doc.get("updatedAt"),

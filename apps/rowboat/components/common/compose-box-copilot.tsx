@@ -240,12 +240,45 @@ function CopilotStatusBar({
                         <span className="mr-1">⚠️</span> Some changes could not be applied
                     </span>
                 )}
-                {toolResult && (
-                    <div className="mb-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-                        <div className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-1">工具搜索结果:</div>
-                        <div className="text-xs text-blue-600 dark:text-blue-400 line-clamp-3">{toolResult}</div>
-                    </div>
-                )}
+                {toolResult && (() => {
+                    // 解析工具搜索结果，提取工具名称并显示为标签
+                    const toolNames: string[] = [];
+                    try {
+                        // 尝试从工具搜索结果中提取工具名称
+                        // 格式可能是："The following tools were found:\n\n**Tool Name**:\n```json\n..."
+                        const lines = toolResult.split('\n');
+                        for (const line of lines) {
+                            // 匹配 **Tool Name**: 格式
+                            const match = line.match(/\*\*([^*]+)\*\*:/);
+                            if (match && match[1]) {
+                                toolNames.push(match[1].trim());
+                            }
+                        }
+                    } catch (e) {
+                        // 如果解析失败，显示原始文本
+                        console.warn('Failed to parse tool results:', e);
+                    }
+                    
+                    return (
+                        <div className="mb-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                            <div className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-1">工具搜索结果:</div>
+                            {toolNames.length > 0 ? (
+                                <div className="flex flex-wrap gap-1.5 mt-1">
+                                    {toolNames.map((toolName, idx) => (
+                                        <span
+                                            key={idx}
+                                            className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-medium border border-blue-200 dark:border-blue-700"
+                                        >
+                                            🛠️ {toolName}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-xs text-blue-600 dark:text-blue-400 line-clamp-3">{toolResult}</div>
+                            )}
+                        </div>
+                    );
+                })()}
                 {allCardsLoaded && completedSummary ? (
                     <span className="font-semibold text-xs text-gray-900 dark:text-gray-100 truncate">{completedSummary}</span>
                 ) : streamingLine && (

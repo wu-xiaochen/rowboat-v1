@@ -9,6 +9,10 @@ import uuid
 import sys
 import os
 
+# 禁用OpenAI Agent SDK的tracing功能（避免API key错误）
+# tracing功能需要OpenAI官方的API key，而我们使用的是第三方API
+os.environ.setdefault('OPENAI_AGENTS_DISABLE_TRACING', '1')
+
 # 解决命名冲突：确保导入openai-agents包而不是本地agents目录
 # 在导入前清理可能冲突的路径
 _original_path = sys.path.copy()
@@ -370,12 +374,14 @@ class AgentsService:
             from openai import OpenAI as OpenAIClient
             
             # 创建OpenAI客户端
+            # 注意：禁用tracing以避免API key错误（tracing功能需要OpenAI官方的API key）
             openai_client = OpenAIClient(
                 api_key=self.settings.llm_api_key,
                 base_url=self.settings.llm_base_url,
             )
             
             # 设置默认OpenAI客户端
+            # 注意：tracing已在文件开头通过环境变量禁用
             set_default_openai_client(openai_client)
             
             # 使用Runner.run_streamed进行流式响应
@@ -389,68 +395,101 @@ class AgentsService:
             # 流式获取事件
             event_count = 0
             message_count = 0
+            accumulated_content = ""  # 累积消息内容
             async for event in result.stream_events():
                 event_count += 1
                 # 处理事件
                 # 根据OpenAI Agent SDK的事件类型进行处理
                 event_type = getattr(event, "type", None)
                 
-                # 调试：记录前几个事件的详细信息
-                if event_count <= 10:
+                # 调试：记录前20个事件的详细信息，以及每100个事件记录一次
+                if event_count <= 20 or event_count % 100 == 0:
                     import logging
                     logger = logging.getLogger(__name__)
-                    logger.info(f"🔍 Event #{event_count}: type={event_type}, event_class={type(event).__name__}, dir={[attr for attr in dir(event) if not attr.startswith('_')]}")
-                    # 打印所有属性值（用于调试）
-                    for attr in dir(event):
-                        if not attr.startswith('_') and not callable(getattr(event, attr, None)):
+                    logger.info(f"🔍 Event #{event_count}: type={event_type}, event_class={type(event).__name__}")
+                    # 打印关键属性值（用于调试）
+                    for attr in ["output", "text", "content", "delta", "message", "response"]:
+                        if hasattr(event, attr):
                             try:
                                 value = getattr(event, attr, None)
                                 if value is not None:
-                                    logger.info(f"   {attr} = {value}")
+                                    logger.info(f"   {attr} = {str(value)[:200]}")  # 只打印前200个字符
                             except:
                                 pass
                 
                 # 尝试多种方式获取输出内容
                 output = None
-                if hasattr(event, "output"):
+                # 优先检查常见的事件类型和属性
+                if hasattr(event, "output") and event.output:
                     output = event.output
-                elif hasattr(event, "text"):
+                elif hasattr(event, "text") and event.text:
                     output = event.text
-                elif hasattr(event, "content"):
+                elif hasattr(event, "content") and event.content:
                     output = event.content
                 elif hasattr(event, "delta"):
                     # 某些事件可能有delta字段
                     delta = event.delta
-                    if hasattr(delta, "content"):
-                        output = delta.content
-                    elif isinstance(delta, str):
-                        output = delta
+                    if delta:
+                        if hasattr(delta, "content") and delta.content:
+                            output = delta.content
+                        elif isinstance(delta, str):
+                            output = delta
+                        elif hasattr(delta, "text") and delta.text:
+                            output = delta.text
+                
+                # 如果output是对象，尝试提取content或text属性
+                if output and not isinstance(output, str):
+                    if hasattr(output, "content") and output.content:
+                        output = output.content
+                    elif hasattr(output, "text") and output.text:
+                        output = output.text
+                    else:
+                        # 尝试转换为字符串
+                        try:
+                            output = str(output)
+                        except:
+                            output = None
                 
                 # 处理agent输出事件 - 扩展事件类型匹配
                 # 添加更多可能的事件类型
-                if event_type in ["agent_output", "agent_span", "generation_span", "text", "text_delta", "message", "message_delta", "span", "run", "run_span"]:
+                # 注意：OpenAI Agent SDK可能使用不同的事件类型名称
+                message_content = None
+                
+                if event_type in ["agent_output", "agent_span", "generation_span", "text", "text_delta", "message", "message_delta", "span", "run", "run_span", "agent.message", "agent.text"]:
                     if output:
-                        message_count += 1
-                        yield AssistantMessage(
-                            role="assistant",
-                            content=str(output),
-                            agent_name=start_agent_name,
-                            response_type="external",
-                        )
+                        message_content = str(output)
                     elif event_type in ["text", "text_delta", "message", "message_delta"]:
                         # 对于文本事件，即使没有output字段，也尝试从事件本身获取
-                        if hasattr(event, "text"):
-                            message_count += 1
-                            yield AssistantMessage(
-                                role="assistant",
-                                content=str(event.text),
-                                agent_name=start_agent_name,
-                                response_type="external",
-                            )
+                        if hasattr(event, "text") and event.text:
+                            message_content = str(event.text)
+                        elif hasattr(event, "content") and event.content:
+                            message_content = str(event.content)
                 
-                # 尝试从事件的属性中直接获取内容（更宽松的匹配）
-                # 检查是否有任何包含文本内容的属性
-                if not output and event_type not in ["tool_call", "tool_span", "function_span", "function_call", "tool_result", "tool_output", "function_result", "handoff", "handoff_span"]:
+                # 如果找到了消息内容，累积并输出
+                if message_content:
+                    accumulated_content += message_content
+                    # 对于流式输出，可以立即yield每个片段，或者累积后一次性输出
+                    # 这里选择立即输出，以支持流式显示
+                    message_count += 1
+                    yield AssistantMessage(
+                        role="assistant",
+                        content=message_content,
+                        agent_name=start_agent_name,
+                        response_type="external",
+                    )
+                # 如果没有找到消息内容，尝试从事件的属性中直接获取内容（更宽松的匹配）
+                elif not message_content and output:
+                    # 如果output有值但message_content没有，说明output可能是有效的
+                    accumulated_content += str(output)
+                    message_count += 1
+                    yield AssistantMessage(
+                        role="assistant",
+                        content=str(output),
+                        agent_name=start_agent_name,
+                        response_type="external",
+                    )
+                # 如果还是没有，尝试从其他属性获取
+                elif not message_content and not output and event_type not in ["tool_call", "tool_span", "function_span", "function_call", "tool_result", "tool_output", "function_result", "handoff", "handoff_span"]:
                     # 尝试从常见属性获取内容
                     for attr_name in ["message", "response", "generation", "completion", "answer"]:
                         if hasattr(event, attr_name):
@@ -458,13 +497,14 @@ class AgentsService:
                             if attr_value:
                                 if isinstance(attr_value, str):
                                     output = attr_value
-                                elif hasattr(attr_value, "content"):
+                                elif hasattr(attr_value, "content") and attr_value.content:
                                     output = attr_value.content
-                                elif hasattr(attr_value, "text"):
+                                elif hasattr(attr_value, "text") and attr_value.text:
                                     output = attr_value.text
                                 break
                     
                     if output:
+                        accumulated_content += str(output)
                         message_count += 1
                         yield AssistantMessage(
                             role="assistant",
@@ -529,9 +569,20 @@ class AgentsService:
                         response_type="external",
                     )
             
-            # 如果没有生成任何消息，至少返回一个提示
-            print(f"📊 事件统计: 总事件数={event_count}, 生成的消息数={message_count}")
-            if message_count == 0:
+            # 如果没有生成任何消息，尝试从累积内容中提取
+            print(f"📊 事件统计: 总事件数={event_count}, 生成的消息数={message_count}, 累积内容长度={len(accumulated_content)}")
+            
+            # 如果累积了内容但没有生成消息，输出累积内容
+            if message_count == 0 and accumulated_content:
+                print(f"⚠️ 使用累积内容作为消息: {accumulated_content[:200]}")
+                yield AssistantMessage(
+                    role="assistant",
+                    content=accumulated_content,
+                    agent_name=start_agent_name,
+                    response_type="external",
+                )
+            elif message_count == 0:
+                # 如果确实没有任何消息，输出错误提示
                 if event_count == 0:
                     yield AssistantMessage(
                         role="assistant",
@@ -540,9 +591,13 @@ class AgentsService:
                         response_type="external",
                     )
                 else:
+                    # 输出详细的调试信息
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"❌ 收到 {event_count} 个事件但没有生成消息。请检查后端日志中的事件详情。")
                     yield AssistantMessage(
                         role="assistant",
-                        content=f"抱歉，我收到了 {event_count} 个事件，但没有生成任何消息。请检查事件类型和日志。",
+                        content=f"抱歉，我收到了 {event_count} 个事件，但没有生成任何消息。请检查事件类型和日志。事件类型可能不匹配，请查看后端日志获取详细信息。",
                         agent_name=start_agent_name,
                         response_type="external",
                     )

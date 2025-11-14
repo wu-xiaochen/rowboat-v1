@@ -66,6 +66,56 @@ function enrich(response: string): z.infer<typeof CopilotResponsePart> {
     // Try to parse the JSON part
     try {
         const jsonContent = lines.slice(jsonStartIndex).join('\n');
+        
+        // 检查JSON是否完整（流式输出时可能不完整）
+        // 更严格的检查：确保JSON字符串是完整的（考虑字符串内的转义字符）
+        let openBraces = 0;
+        let closeBraces = 0;
+        let inString = false;
+        let escapeNext = false;
+        
+        for (let i = 0; i < jsonContent.length; i++) {
+            const char = jsonContent[i];
+            
+            if (escapeNext) {
+                escapeNext = false;
+                continue;
+            }
+            
+            if (char === '\\') {
+                escapeNext = true;
+                continue;
+            }
+            
+            if (char === '"') {
+                inString = !inString;
+                continue;
+            }
+            
+            if (!inString) {
+                if (char === '{') openBraces++;
+                if (char === '}') closeBraces++;
+            }
+        }
+        
+        // 如果JSON不完整（流式输出中），返回streaming_action
+        if (openBraces > closeBraces || inString) {
+            console.log('⚠️ [enrich] JSON不完整（流式输出中），返回streaming_action', {
+                openBraces,
+                closeBraces,
+                inString,
+                jsonLength: jsonContent.length
+            });
+            return {
+                type: 'streaming_action',
+                action: {
+                    action: (metadata.action as 'create_new' | 'edit' | 'delete') || undefined,
+                    config_type: (metadata.config_type as 'tool' | 'agent' | 'prompt' | 'pipeline' | 'start_agent') || undefined,
+                    name: metadata.name
+                }
+            };
+        }
+        
         const jsonData = JSON.parse(jsonContent);
 
         // If we have all required metadata, validate the config changes
@@ -214,17 +264,22 @@ function AssistantMessage({
 
     // Create atValues for markdown mentions (includes existing workflow entities + pending actions)
     const atValues = useMemo(() => {
-        // Collect all agents that will exist (existing + pending actions)
+        // Collect all agents that will exist (existing + pending actions, including streaming actions)
         const allAgents = [...workflow.agents];
         parsed.forEach((part) => {
-            if (part.type === 'action' && part.action.config_type === 'agent' && part.action.action === 'create_new') {
-                // This agent is being created, add it to the list
+            // 包含 action 和 streaming_action 中的智能体
+            if ((part.type === 'action' || part.type === 'streaming_action') && 
+                part.action.config_type === 'agent' && 
+                (part.action.action === 'create_new' || part.action.action === 'edit')) {
+                // This agent is being created or edited, add it to the list
                 const agentName = part.action.name;
-                if (!allAgents.some(a => a.name === agentName)) {
+                if (agentName && !allAgents.some(a => a.name === agentName)) {
                     allAgents.push({
                         name: agentName,
                         disabled: false,
-                        type: (part.action.config_changes as any)?.type || 'conversation',
+                        type: (part.type === 'action' && part.action.config_changes) 
+                            ? (part.action.config_changes as any)?.type || 'conversation'
+                            : 'conversation',
                     } as any);
                 }
             }
@@ -644,10 +699,22 @@ export function Messages({
     // Avoid duplicate by checking if last message is already assistant message
     const displayMessages = useMemo(() => {
         if (loadingResponse && streamingResponse) {
-            // Check if last message is already an assistant message with same content
+            // Check if last message is already an assistant message
             const lastMessage = messages[messages.length - 1];
-            if (lastMessage?.role === 'assistant' && lastMessage.content === streamingResponse) {
-                return messages;
+            if (lastMessage?.role === 'assistant') {
+                // 如果最后一条消息是助手消息，检查内容是否匹配
+                // 如果内容相同或streamingResponse是lastMessage.content的子串，不重复添加
+                if (lastMessage.content === streamingResponse || 
+                    streamingResponse.startsWith(lastMessage.content)) {
+                    // 更新最后一条消息的内容为最新的streamingResponse
+                    return [
+                        ...messages.slice(0, -1),
+                        {
+                            ...lastMessage,
+                            content: streamingResponse
+                        }
+                    ];
+                }
             }
             // Add streaming response as assistant message
             return [...messages, {
