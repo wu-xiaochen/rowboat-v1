@@ -52,11 +52,16 @@ npm run dev
 
 ## 📚 文档
 
+### 主要文档
 - [快速启动指南](QUICK_START.md) - 详细的启动和配置说明
 - [配置指南](CONFIGURATION_GUIDE.md) - 完整的配置说明
 - [开发计划](DEVELOPMENT-PLAN.md) - 项目开发计划
 - [认证和授权](AUTHENTICATION_AND_AUTHORIZATION.md) - 认证系统说明
 - [日志监控指南](LOG_MONITORING_GUIDE.md) - 日志查看和监控
+
+### 开发文档
+- [文档目录](docs/README.md) - 查看所有开发文档
+- [脚本目录](scripts/README.md) - 查看所有工具脚本
 
 ## 🏗️ 技术栈
 
@@ -87,7 +92,12 @@ rowboat/
 ├── backend/               # 后端应用
 │   ├── .env               # 向后兼容配置（可选）
 │   └── ...
+├── docs/                  # 开发文档
+│   ├── README.md          # 文档目录说明
+│   └── ...
 └── scripts/               # 工具脚本
+    ├── README.md          # 脚本目录说明
+    └── ...
 ```
 
 ## ⚙️ 配置管理
@@ -126,6 +136,17 @@ pip install -r requirements.txt
 ```bash
 cd backend
 pytest
+```
+
+### 项目清理
+
+使用清理脚本清理缓存和临时文件：
+```bash
+# 清理Python缓存和测试结果
+./scripts/cleanup.sh
+
+# 清理过期的文档
+./scripts/cleanup_docs.sh
 ```
 
 ## 📝 许可证
