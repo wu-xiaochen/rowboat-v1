@@ -196,7 +196,9 @@ function CopilotStatusBar({
     handleApplyAll,
     context,
     onCloseContext,
-    toolResult
+    toolResult,
+    toolCalling,
+    toolQuery
 }: {
     allCardsLoaded?: boolean;
     allApplied?: boolean;
@@ -209,6 +211,8 @@ function CopilotStatusBar({
     context?: any;
     onCloseContext?: () => void;
     toolResult?: string | null;
+    toolCalling?: boolean;
+    toolQuery?: string | null;
 }) {
     // Context label rendering
     const renderContext = () => {
@@ -232,13 +236,21 @@ function CopilotStatusBar({
     };
     // Status/ticker rendering
     const renderStatus = () => {
-        if (!allCardsLoaded && !streamingLine && !hasPanelWarning && !completedSummary && !toolResult) return null;
+        if (!allCardsLoaded && !streamingLine && !hasPanelWarning && !completedSummary && !toolResult && !toolCalling) return null;
         return (
             <div className="flex flex-col min-w-0">
                 {hasPanelWarning && (
                     <span className="text-xs text-yellow-600 dark:text-yellow-400 font-semibold flex items-center">
                         <span className="mr-1">⚠️</span> Some changes could not be applied
                     </span>
+                )}
+                {toolCalling && (
+                    <div className="flex items-center gap-2 mb-2 px-2 py-1.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 dark:border-blue-400 border-t-transparent"></div>
+                        <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                            正在搜索工具{toolQuery ? `: ${toolQuery}` : '...'}
+                        </span>
+                    </div>
                 )}
                 {toolResult && (() => {
                     // 解析工具搜索结果，提取工具名称并显示为标签

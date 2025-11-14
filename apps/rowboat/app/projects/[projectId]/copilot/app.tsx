@@ -215,7 +215,7 @@ const App = forwardRef<{ handleCopyChat: () => void; handleUserMessage: (message
     const handleStatusBarChange = useCallback((status: any) => {
         setStatusBar((prev: any) => {
             // Shallow compare previous and next status
-            const next = { ...status, context: lockedContext, toolResult };
+            const next = { ...status, context: lockedContext, toolResult, toolCalling, toolQuery };
             const keys = Object.keys(next);
             if (
                 prev &&
